@@ -39,7 +39,7 @@ class Sample:
     async def main_async() -> None:
         # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
         # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
-        client = Sample.create_client('LTAI5t74a9Xot9saANDiHNNY', 'iA5fEqkzFVPxFIO7TePVaNSjty3OG1')
+        client = Sample.create_client('LTAI5t74a9Xot9saANDiHNNY', 'iA5fEqkzFVPxFIO7TePVaNSjty31GO')
         runtime = util_models.RuntimeOptions()
         describe_instances_request = ecs_20140526_models.DescribeInstancesRequest(region_id='cn-hongkong')
         instance_ids = []
