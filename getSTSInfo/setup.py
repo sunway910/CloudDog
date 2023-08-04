@@ -24,7 +24,7 @@ from setuptools import setup, find_packages
 """
 setup module for alibabacloud_sample.
 
-Created on 02/08/2023
+Created on 04/08/2023
 
 @author: 
 """
@@ -37,7 +37,7 @@ AUTHOR_EMAIL = ""
 URL = "https://github.com/aliyun/alibabacloud-sdk"
 VERSION = __import__(PACKAGE).__version__
 REQUIRES = [
-    "alibabacloud_ecs20140526>=3.0.8, <4.0.0",
+    "alibabacloud_sts20150401>=1.1.3, <2.0.0",
     "alibabacloud_tea_openapi>=0.3.6, <1.0.0",
     "alibabacloud_tea_console>=0.0.1, <1.0.0",
     "alibabacloud_tea_util>=0.3.8, <1.0.0"
@@ -58,7 +58,7 @@ setup(
     author_email=AUTHOR_EMAIL,
     license="Apache License 2.0",
     url=URL,
-    keywords=["alibabacloud","sample"],
+    keywords=["alibabacloud", "sample"],
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     platforms="any",

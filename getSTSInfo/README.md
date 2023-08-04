@@ -1,6 +1,6 @@
-# 查询实例所有属性信息文档示例
+# 获取扮演角色的临时身份凭证文档示例
 
-该项目为实例ID、实例的备注信息。文档示例，该示例**无法在线调试**，如需调试可下载到本地后替换 [AK](https://usercenter.console.aliyun.com/#/manage/ak) 以及参数后进行调试。
+该项目为通过调用AssumeRole接口，获取一个扮演RAM角色的临时身份凭证（STS Token）。文档示例，该示例**无法在线调试**，如需调试可下载到本地后替换 [AK](https://usercenter.console.aliyun.com/#/manage/ak) 以及参数后进行调试。
 
 ## 运行条件
 
@@ -41,7 +41,7 @@ composer install && php src/Sample.php
 - Python
 *Python 版本要求 Python3*
 ```sh
-python3 setup.py install && python ./alibabacloud_sample/sample.py
+python3 setup.py install && python ./alibabacloud_sample/getInstanceInfo.py
 ```
 
 - C#
@@ -52,6 +52,6 @@ cd ./core && dotnet run
 
 ## 使用的 API
 
--  DescribeInstanceAttribute 实例ID、实例的备注信息。文档示例，可以参考：[文档](https://next.api.aliyun.com/document/Ecs/2014-05-26/DescribeInstanceAttribute)
+-  AssumeRole 通过调用AssumeRole接口，获取一个扮演RAM角色的临时身份凭证（STS Token）。文档示例，可以参考：[文档](https://next.api.aliyun.com/document/Sts/2015-04-01/AssumeRole)
 
 
