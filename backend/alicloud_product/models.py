@@ -10,13 +10,23 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class ProductType(models.TextChoices):
+    ECS = ('ecs', '服务器')
+    WAF = ('waf', 'Web应用防火墙')
+
+
 class BaseModel(models.Model):
-    id = models.AutoField(primary_key=True)
+    api_request_id = models.CharField(primary_key=True, default='', max_length=50, db_comment='API Request Id')
     instance_id = models.CharField(default='', max_length=30, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
+    product_type = models.CharField(default=ProductType.ECS, max_length=30, verbose_name='ProductName', db_comment='云产品类型', choices=ProductType.choices)
 
     class Meta:
-        abstract = True
+        app_label = 'RequestBasicInfo'
+
+    @abstractmethod
+    def get_basic_info(self):
+        pass
 
 
 class EcsInstance(BaseModel):
@@ -48,13 +58,15 @@ class EcsInstance(BaseModel):
         ('Not-applicable', '本实例不支持停机不收费功能'),
     )
 
+    product_type = ProductType.ECS
+
     """ ECS Instance Property """
-    # DescribeInstanceAutoRenewAttribute
+    # API: DescribeInstanceAutoRenewAttribute
     auto_renew_enabled = models.BooleanField(default=False, verbose_name='AutoRenewEnabled', db_comment='是否已开启自动续费功能')
     renewal_status = models.CharField(default='', max_length=30, verbose_name='RenewalStatus', db_comment='实例的自动续费状态')
     period_init = models.CharField(default='', max_length=20, verbose_name='PeriodUnit', db_comment='自动续费时长的单位')
     duration = models.IntegerField(default=None, verbose_name='Duration', db_comment='自动续费时长')
-    # DescribeInstances
+    # API: DescribeInstances
     region_id = models.CharField(default='', max_length=30, verbose_name='RegionId', db_comment='实例地域')
     ecs_status = models.CharField(default='', max_length=20, verbose_name='EcsStatus', db_comment='实例状态', choices=Status)
     instance_charge_type = models.CharField(default='', max_length=30, verbose_name='InstanceChargeType', db_comment='实例付费类型', choices=InstanceChargeType)
@@ -65,13 +77,12 @@ class EcsInstance(BaseModel):
     auto_release_time = models.CharField(default='', max_length=50, verbose_name='AutoReleaseTime', db_comment='按量付费实例的自动释放时间')
     lock_reason = models.CharField(default='', max_length=30, verbose_name='LockReason', db_comment='实例的锁定原因', choices=LockReason)
 
-    def __str__(self):
-        to_string = 'ECS-Region: {}, instance {} status is {}'.format(self.region_id, self.instance_id, self.ecs_status)
+    def get_basic_info(self):
+        to_string = 'ECS: Region {}, instance {} status is {}'.format(self.region_id, self.instance_id, self.ecs_status)
         return to_string
 
     class Meta:
-        db_table = 'ecs_instance'
-        ordering = ['-created']
+        db_table = 'ecs_api_response'
 
 
 class WafInstance(BaseModel):
@@ -115,21 +126,22 @@ class WafInstance(BaseModel):
         (1, '表示是'),
     )
 
-    """ WAF Instance Property """
-    waf_status = models.IntegerField(default=None, max_length=30, verbose_name='WafStatus', db_comment='WAF实例是否过期', choices=Status)
-    end_date = models.IntegerField(default=None, max_length=30, verbose_name='EndDate', db_comment='WAF实例的到期时间')
-    version = models.CharField(default='', max_length=30, verbose_name='Version', db_comment='WAF实例的版本', choices=Version)
-    remain_day = models.IntegerField(default=None, max_length=30, verbose_name='RemainDay', db_comment='试用版WAF实例的剩余可用天数')
-    region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
-    pay_type = models.IntegerField(default=None, max_length=30, verbose_name='PayType', db_comment='WAF实例的开通状态', choices=PayType)
-    in_debt = models.IntegerField(default=None, max_length=30, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
-    subscription_type = models.CharField(default='', max_length=30, verbose_name='SubscriptionType', db_comment='WAF实例的计费方式', choices=SubscriptionType)
-    trial = models.IntegerField(default=None, max_length=30, verbose_name='Trial', db_comment='当前阿里云账号是否开通了试用版WAF实例', choices=Trial)
+    product_type = ProductType.WAF
 
-    def __str__(self):
-        to_string = 'WAF-Region: {}, instance {} status is {}'.format(self.region, self.instance_id, self.waf_status)
+    """ WAF Instance Property """
+    waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例是否过期', choices=Status)
+    end_date = models.IntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
+    version = models.CharField(default='', max_length=40, verbose_name='Version', db_comment='WAF实例的版本', choices=Version)
+    remain_day = models.IntegerField(default=None, verbose_name='RemainDay', db_comment='试用版WAF实例的剩余可用天数')
+    region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
+    pay_type = models.IntegerField(default=None, verbose_name='PayType', db_comment='WAF实例的开通状态', choices=PayType)
+    in_debt = models.IntegerField(default=None, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
+    subscription_type = models.CharField(default='', max_length=30, verbose_name='SubscriptionType', db_comment='WAF实例的计费方式', choices=SubscriptionType)
+    trial = models.IntegerField(default=None, verbose_name='Trial', db_comment='当前阿里云账号是否开通了试用版WAF实例', choices=Trial)
+
+    def get_basic_info(self):
+        to_string = 'WAF: Region {}, instance {} status is {}'.format(self.region, self.instance_id, self.waf_status)
         return to_string
 
     class Meta:
-        db_table = 'waf_instance'
-        ordering = ['-created']
+        db_table = 'waf_api_response'

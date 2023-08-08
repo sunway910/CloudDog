@@ -21,7 +21,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return super().get_permissions()
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['GET'])
     def info(self, request, username=None):
         queryset = User.objects.get(username=username)
         serializer = UserDetailSerializer(queryset, many=False)
