@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from article.models import Article
 
-
 class Comment(models.Model):
     author = models.ForeignKey(
         User,

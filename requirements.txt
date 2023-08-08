@@ -1,11 +1,12 @@
-alibabacloud_ecs20140526
-alibabacloud_tea_openapi
-alibabacloud_tea_console
-alibabacloud_tea_util
-Django==4.1.5
+# python 3.11
+alibabacloud_ecs20140526==3.0.8
+alibabacloud_tea_openapi==0.3.7
+alibabacloud_tea_console==0.0.1
+alibabacloud_tea_util==0.3.11
+Django==4.2.4
 djangorestframework==3.14.0
-django-cors-headers==3.13.0
-markdown==3.4.1
-django-filter==22.1
+django-cors-headers==4.2.0
+markdown==3.4.4
+django-filter==23.2
 djangorestframework-simplejwt==5.2.2
-Pillow
+Pillow==10.0.0
