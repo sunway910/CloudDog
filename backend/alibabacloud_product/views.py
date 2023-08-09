@@ -56,7 +56,7 @@ class EcsViewList(InstanceBasicViewList):
     product_type = ProductType.ECS
 
     def get_queryset_cache_key(self):
-        cache_key = 'ecs_{page_number}'.format(page_number=self.get_page_number)
+        cache_key = 'ecs_info_{page_number}'.format(page_number=self.get_page_number)
         return cache_key
 
     def get_queryset_data(self):
@@ -68,7 +68,7 @@ class WafViewList(InstanceBasicViewList):
     product_type = ProductType.WAF
 
     def get_queryset_cache_key(self):
-        cache_key = 'waf_{page_number}'.format(page_number=self.get_page_number)
+        cache_key = 'waf_info_{page_number}'.format(page_number=self.get_page_number)
         return cache_key
 
     def get_queryset_data(self):

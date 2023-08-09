@@ -1,9 +1,9 @@
 # ECS 实例
 
 from django.utils import timezone
-
+from uuslug import slugify
 from django.db import models
-
+from project.models import Project
 from abc import abstractmethod
 import logging
 
@@ -14,12 +14,24 @@ class ProductType(models.TextChoices):
     ECS = ('ecs', '服务器')
     WAF = ('waf', 'Web应用防火墙')
 
+    class Meta:
+        app_label = 'ProductType'
 
-class BaseModel(models.Model):
+
+class InstanceBaseModel(models.Model):
     api_request_id = models.CharField(primary_key=True, default='', max_length=50, db_comment='API Request Id')
     instance_id = models.CharField(default='', max_length=30, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
     product_type = models.CharField(default=ProductType.ECS, max_length=30, verbose_name='ProductName', db_comment='云产品类型', choices=ProductType.choices)
+    project = models.ForeignKey(
+        Project,
+        # https://foofish.net/django-foreignkey-on-delete.html
+        on_delete=models.DO_NOTHING,
+        related_name='project'
+    )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     class Meta:
         app_label = 'RequestBasicInfo'
@@ -29,7 +41,7 @@ class BaseModel(models.Model):
         pass
 
 
-class EcsInstance(BaseModel):
+class EcsInstance(InstanceBaseModel):
     Status = (
         ('Pending', '创建中'),
         ('Running', '运行中'),
@@ -81,11 +93,14 @@ class EcsInstance(BaseModel):
         to_string = 'ECS: Region {}, instance {} status is {}'.format(self.region_id, self.instance_id, self.ecs_status)
         return to_string
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
     class Meta:
         db_table = 'ecs_api_response'
 
 
-class WafInstance(BaseModel):
+class WafInstance(InstanceBaseModel):
     Status = (
         (0, '表示已过期'),
         (1, '表示未过期'),
@@ -142,6 +157,9 @@ class WafInstance(BaseModel):
     def get_basic_info(self):
         to_string = 'WAF: Region {}, instance {} status is {}'.format(self.region, self.instance_id, self.waf_status)
         return to_string
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'waf_api_response'

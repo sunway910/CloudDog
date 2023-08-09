@@ -1,6 +1,6 @@
 from comment.serializers import CommentSeriallizer
 from rest_framework import serializers
-from user_info.serializers import UserDescSerializer
+from user.serializers import UserDescSerializer
 
 from .models import Article, Avatar, Category, Tag
 

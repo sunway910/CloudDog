@@ -43,10 +43,21 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'article',
-    'user_info',
+    'user',
     'comment',
-    'alicloud_product',
+    'alibabacloud_product',
     'project',
+    'django_apscheduler'
+]
+
+# python manage.py migrate
+# django_apscheduler_djangojob——用于存储任务的表格
+# django_apscheduler_djangojobexecution——用于存储任务执行状态的表格
+# django_apscheduler_djangojobexecution——用于存储任务执行状态的表格
+
+# 分钟(0-59) 小时(0-23) 每个月的哪一天(1-31) 月份(1-12) 周几(0-6)
+CRONJOBS = [
+    ('* * * * 6', 'cron.ecs_cron.ecs_scheduled_job', ['arg1', 'arg2'], {'verbose': 0})
 ]
 
 MIDDLEWARE = [
