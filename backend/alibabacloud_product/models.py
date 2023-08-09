@@ -1,7 +1,6 @@
 # ECS 实例
 
 from django.utils import timezone
-from uuslug import slugify
 from django.db import models
 from project.models import Project
 from abc import abstractmethod
@@ -27,13 +26,16 @@ class InstanceBaseModel(models.Model):
         Project,
         # https://foofish.net/django-foreignkey-on-delete.html
         on_delete=models.DO_NOTHING,
-        related_name='project'
+        related_name='instance_object'
     )
+    # 先拿一个project对象
+    # project.instance_object.all()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
     class Meta:
+        abstract = True
         app_label = 'RequestBasicInfo'
 
     @abstractmethod
@@ -69,7 +71,11 @@ class EcsInstance(InstanceBaseModel):
         ('StopCharging', '停机后不收费。停机后，我们释放实例对应的资源，例如vCPU、内存和公网IP等资源。重启是否成功依赖于当前地域中是否仍有资源库存'),
         ('Not-applicable', '本实例不支持停机不收费功能'),
     )
-
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.DO_NOTHING,
+        related_name='ecs_object'
+    )
     product_type = ProductType.ECS
 
     """ ECS Instance Property """
@@ -140,7 +146,11 @@ class WafInstance(InstanceBaseModel):
         (0, '表示否'),
         (1, '表示是'),
     )
-
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.DO_NOTHING,
+        related_name='waf_object'
+    )
     product_type = ProductType.WAF
 
     """ WAF Instance Property """

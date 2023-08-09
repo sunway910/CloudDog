@@ -26,7 +26,19 @@ class InstanceBasicViewList(ListView):
     def get_queryset_cache_key(self):
         raise NotImplementedError()
 
-    def get_queryset_data(self):
+    def get_queryset_all_data(self):
+        raise NotImplementedError()
+
+    def get_queryset_is_bad(self):
+        """
+        is bad means that instance is stopped, expired or something bad
+        """
+        raise NotImplementedError()
+
+    def get_queryset_is_good(self):
+        """
+        is good means that instance is running, keep working or something like that
+        """
         raise NotImplementedError()
 
     def get_data_from_cache(self, cache_key):
@@ -37,7 +49,7 @@ class InstanceBasicViewList(ListView):
             return value
         # get data from db and data to cache
         else:
-            instance_list = self.get_queryset_data()
+            instance_list = self.get_queryset_all_data()
             cache.set(cache_key, instance_list)
             logger.info('set view cache.key:{key}'.format(key=cache_key))
             return instance_list
@@ -56,21 +68,61 @@ class EcsViewList(InstanceBasicViewList):
     product_type = ProductType.ECS
 
     def get_queryset_cache_key(self):
+        """
+        Front-end get data from cache via cache-key
+        """
         cache_key = 'ecs_info_{page_number}'.format(page_number=self.get_page_number)
         return cache_key
 
-    def get_queryset_data(self):
-        instance_list = EcsInstance.objects.all()
-        return instance_list
+    def get_queryset_all_data(self):
+        """
+        get all ecs instances
+        """
+        ecs_list = EcsInstance.objects.all()
+        return ecs_list
+
+    def get_queryset_is_bad(self):
+        """
+        get all ecs instances which status is stopped
+        """
+        ecs_list = EcsInstance.objects.filter(ecs_status='Stopped')
+        return ecs_list
+
+    def get_queryset_is_good(self):
+        """
+        get all ecs instances which status is running
+        """
+        ecs_list = EcsInstance.objects.filter(ecs_status='Running')
+        return ecs_list
 
 
 class WafViewList(InstanceBasicViewList):
     product_type = ProductType.WAF
 
     def get_queryset_cache_key(self):
+        """
+        Front-end get data from cache via cache-key
+        """
         cache_key = 'waf_info_{page_number}'.format(page_number=self.get_page_number)
         return cache_key
 
-    def get_queryset_data(self):
-        instance_list = WafInstance.objects.all()
-        return instance_list
+    def get_queryset_all_data(self):
+        """
+        get all waf instances
+        """
+        waf_list = WafInstance.objects.all()
+        return waf_list
+
+    def get_queryset_is_bad(self):
+        """
+        get all waf instances which status is expired
+        """
+        waf_list = WafInstance.objects.filter(waf_status=0)
+        return waf_list
+
+    def get_queryset_is_good(self):
+        """
+        get all waf instances which status is keep working
+        """
+        waf_list = WafInstance.objects.filter(waf_status=1)
+        return waf_list
