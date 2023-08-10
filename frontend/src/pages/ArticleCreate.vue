@@ -18,7 +18,7 @@
       <div class="form-elem">
         <span>分类：</span>
         <span v-for="category in article.categories" :key="category.id">
-          <!--样式也可以通过 :style 绑定-->
+          <!--样式也可以通过 :styles 绑定-->
           <button
             type="button"
             class="category-btn"
