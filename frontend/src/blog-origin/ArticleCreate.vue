@@ -49,13 +49,13 @@
 </template>
 
 <script setup>
-import BlogHeader from "@/components/BlogHeader.vue"
-import BlogFooter from "@/components/BlogFooter.vue"
+import BlogHeader from "~/blog-origin/BlogHeader.vue"
+import BlogFooter from "~/blog-origin/BlogFooter.vue"
 
 import { reactive, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import { sendGetReq, sendPostReq } from "@/http"
-import authorization from "@/utils/authorization"
+import { sendGetReq, sendPostReq } from "~/blog-origin/http/index.js"
+import authorization from "~/blog-origin/utils/authorization.js"
 
 const router = useRouter()
 let article = reactive({

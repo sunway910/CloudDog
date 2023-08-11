@@ -51,8 +51,8 @@
 <script setup>
 import { ref, watch } from "vue"
 import { useRouter } from "vue-router"
-import authorization from "@/utils/authorization"
-import { sendPostReq } from "@/http"
+import authorization from "~/blog-origin/utils/authorization.js"
+import { sendPostReq } from "~/blog-origin/http/index.js"
 
 const props = defineProps({
   article: Object,

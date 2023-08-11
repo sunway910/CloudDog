@@ -33,7 +33,7 @@
 import SearchBox from "./SearchBox.vue"
 // import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from "vue"
-import authorization from "@/utils/authorization"
+import authorization from "~/blog-origin/utils/authorization.js"
 
 // import {getRoutes} from '@/router/index'
 import {SwitchIcon} from 'vue-dark-switch'

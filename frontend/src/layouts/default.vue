@@ -7,6 +7,7 @@
 			</transition>
 		</router-view>
 	</div>
+	<Footer />
 </template>
 
 <style>
@@ -20,3 +21,5 @@
 	opacity: 0;
 }
 </style>
+<script setup>
+</script>

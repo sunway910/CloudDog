@@ -1,24 +1,23 @@
 <template>
-	<div :style="{backgroundImage:'url('+bgImg+')'}"></div>
 	<div>
 		<div class="grid grid-cols-3">
-			<a href="https://www.sunthycloud.com" target="_blank">
-				<img src="/logo.svg" class="logo" alt="logo"/>
+			<a href="https://github.com/dishait/tov-template" target="_blank" style="align-content: center">
+				<img src="/11zon_resized.svg" class="logo" alt="Vite logo"/>
+			</a>
+			<a href="https://vitejs.dev" target="_blank">
+				<img src="/vite.svg" class="logo" alt="Vite logo"/>
+			</a>
+			<a href="https://vuejs.org/" target="_blank">
+				<img src="/vue.svg" class="logo vue" alt="Vue logo"/>
 			</a>
 		</div>
-		<HelloWorld msg="Sunthy Cloud Monitor"/>
+		<HelloWorld msg="Tov + Vite + Vue"/>
 	</div>
 </template>
-<script>
-import bgImg from "../../public/logo.svg"
-export default {
-    name: 'App',
-    data () {
-        return {
-            bgImg: bgImg,
-        }
-    }
-}
+<script lang="ts" setup>
+import {ref} from 'vue'
+
+const input = ref('')
 </script>
 <style>
 a {
@@ -30,10 +29,8 @@ p {
 }
 
 .logo {
-	position: absolute;
-	left: 39%;
-	width: 30em;
-	height: 30em;
+	width: 10em;
+	height: 10em;
 	padding: 1.5rem;
 	will-change: filter;
 	transition: filter 300ms;
@@ -43,4 +40,7 @@ p {
 	filter: drop-shadow(0 0 2em #646cffaa);
 }
 
+.logo.vue:hover {
+	filter: drop-shadow(0 0 2em #42b883aa);
+}
 </style>

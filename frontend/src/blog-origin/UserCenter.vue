@@ -30,11 +30,11 @@
 </template>
 
 <script setup>
-import BlogHeader from "@/components/BlogHeader.vue"
-import BlogFooter from "@/components/BlogFooter.vue"
+import BlogHeader from "~/blog-origin/BlogHeader.vue"
+import BlogFooter from "~/blog-origin/BlogFooter.vue"
 
-import authorization from "@/utils/authorization"
-import { sendPatchReq, sendDeleteReq } from "@/http"
+import authorization from "~/blog-origin/utils/authorization.js"
+import { sendPatchReq, sendDeleteReq } from "~/blog-origin/http/index.js"
 import { ref, reactive, onMounted } from "vue"
 import { useRouter } from "vue-router"
 

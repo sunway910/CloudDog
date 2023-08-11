@@ -1,33 +1,29 @@
 <script setup lang="ts">
-import { getRoutes } from '@/plugins/router'
-import { SwitchIcon } from 'vue-dark-switch'
+import {getRoutes} from '@/plugins/router'
+import {SwitchIcon} from 'vue-dark-switch'
 
-const { t } = useI18n()
+const {t} = useI18n()
 
 const routes = getRoutes()
 	.filter((r) => !r.path.includes('notFound'))
 	.map((r) => {
-		let { path, name } = r
+		let {path, name} = r
 		if (path === '/') {
-			return { path, name: 'home' }
+			return {path, name: 'home'}
 		}
 
 		if (!name) {
 			name = path
 		}
 
-		return { path, name: name.toString().slice(1).replaceAll('/', ' · ') }
+		return {path, name: name.toString().slice(1).replaceAll('/', ' · ')}
 	})
 </script>
 
 <template>
-	<nav
-		aria-label="Site Nav"
-		class="mx-auto h-80px max-w-3xl flex items-center justify-between p-4"
-	>
-		<span class="h-10 w-10 flex items-center justify-center">
-			<SwitchIcon unmount-persets />
-		</span>
+	<nav aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
+		<img src="public/sunthylogo.png" alt=" logo" height="150" width="150" style="text-align: left">
+
 
 		<ul class="flex items-center gap-2 text-sm font-medium">
 			<li v-for="r of routes" :key="r.path" class="hidden !block">
@@ -39,7 +35,7 @@ const routes = getRoutes()
 			<li>
 				<a
 					class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
-					href="https://github.com/dishait/tov-template"
+					href="https://github.com/0utsiderZhong/AlicloudMonitor"
 					target="_blank"
 				>
 					<svg
@@ -50,8 +46,8 @@ const routes = getRoutes()
 					>
 						<mask id="lineMdGithubLoop0" width="24" height="24" x="0" y="0">
 							<g fill="#fff">
-								<ellipse cx="9.5" cy="9" rx="1.5" ry="1" />
-								<ellipse cx="14.5" cy="9" rx="1.5" ry="1" />
+								<ellipse cx="9.5" cy="9" rx="1.5" ry="1"/>
+								<ellipse cx="14.5" cy="9" rx="1.5" ry="1"/>
 							</g>
 						</mask>
 						<g
@@ -109,9 +105,16 @@ const routes = getRoutes()
 				</a>
 			</li>
 
+			<!--i18n-->
 			<li class="hidden !block">
-				<Dropdown />
+				<Dropdown/>
 			</li>
+
+			<!--dark or light-->
+			<span class="h-10 w-10 flex items-center justify-center">
+			<SwitchIcon unmount-persets/>
+			</span>
+
 		</ul>
 	</nav>
 </template>

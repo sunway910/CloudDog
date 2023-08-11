@@ -39,7 +39,7 @@
 <script setup>
 import { onMounted, reactive, watch } from "vue"
 import { useRoute } from "vue-router"
-import { sendGetReq } from "@/http"
+import { sendGetReq } from "~/blog-origin/http/index.js"
 
 const route = useRoute()
 let articleInfo = reactive({

@@ -1,4 +1,4 @@
-import { sendPostReq, sendGetReq } from "@/http"
+import { sendPostReq, sendGetReq } from "~/blog-origin/http/index.js"
 
 async function authorization() {
   const storage = localStorage

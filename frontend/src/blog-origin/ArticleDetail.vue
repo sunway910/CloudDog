@@ -26,11 +26,11 @@
 </template>
 
 <script setup>
-import BlogHeader from "@/components/BlogHeader.vue"
-import Comments from "@/components/Comments.vue"
-import BlogFooter from "@/components/BlogFooter.vue"
+import BlogHeader from "~/blog-origin/BlogHeader.vue"
+import Comments from "~/blog-origin/Comments.vue"
+import BlogFooter from "~/blog-origin/BlogFooter.vue"
 
-import { sendGetReq } from "@/http"
+import { sendGetReq } from "~/blog-origin/http/index.js"
 import axios from "axios"
 import { onMounted, computed, reactive, onBeforeMount } from "vue"
 import { useRoute } from "vue-router"
