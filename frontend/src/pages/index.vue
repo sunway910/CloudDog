@@ -1,24 +1,28 @@
 <template>
 	<div>
 		<div class="grid grid-cols-3">
-			<a href="https://github.com/dishait/tov-template" target="_blank" style="align-content: center">
-				<img src="/11zon_resized.svg" class="logo" alt="Vite logo"/>
+			<a
+				href="https://github.com/dishait/tov-template"
+				target="_blank"
+				style="align-content: center"
+			>
+				<img src="/11zon_resized.svg" class="logo" alt="Vite logo" />
 			</a>
 			<a href="https://vitejs.dev" target="_blank">
-				<img src="/vite.svg" class="logo" alt="Vite logo"/>
+				<img src="/vite.svg" class="logo" alt="Vite logo" />
 			</a>
 			<a href="https://vuejs.org/" target="_blank">
-				<img src="/vue.svg" class="logo vue" alt="Vue logo"/>
+				<img src="/vue.svg" class="logo vue" alt="Vue logo" />
 			</a>
 		</div>
-		<HelloWorld msg="Tov + Vite + Vue"/>
+<!--		<HelloWorld msg="Tov + Vite + Vue" />-->
+    <Login />
 	</div>
 </template>
 <script lang="ts" setup>
-import {ref} from 'vue'
-
-const input = ref('')
 </script>
+
+
 <style>
 a {
 	color: rgba(37, 99, 235);

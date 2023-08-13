@@ -302,6 +302,12 @@
     "watchThrottled": true,
     "watchTriggerable": true,
     "watchWithFilter": true,
-    "whenever": true
+    "whenever": true,
+    "sendDeleteReq": true,
+    "sendGetReq": true,
+    "sendPatchReq": true,
+    "sendPostReq": true,
+    "sendPutReq": true,
+    "member": true
   }
 }

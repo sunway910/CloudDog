@@ -40,57 +40,57 @@
 		</div>
 	</div>
 
-	<div id="grid">
-		<div id="signup">
-			<h3>注册账号</h3>
-			<form>
-				<div class="form-elem">
-					<span>账号：</span>
-					<input v-model="signupName" type="text" placeholder="输入用户名"/>
-				</div>
-				<div class="form-elem">
-					<span>密码：</span>
-					<input v-model="signupPwd" type="password" placeholder="输入密码"/>
-				</div>
-				<div class="form-elem">
-					<span>密码：</span>
-					<input v-model="againPwd" type="password" placeholder="再次输入密码"/>
-				</div>
-				<div class="form-elem">
-					<button type="button" @click.prevent="signup">提交</button>
-				</div>
-			</form>
-			<div class="err-msg" v-show="errorMsg.length > 0">{{ errorMsg }}</div>
-		</div>
+<!--	<div id="grid">-->
+<!--		<div id="signup">-->
+<!--			<h3>注册账号</h3>-->
+<!--			<form>-->
+<!--				<div class="form-elem">-->
+<!--					<span>账号：</span>-->
+<!--					<input v-model="signupName" type="text" placeholder="输入用户名"/>-->
+<!--				</div>-->
+<!--				<div class="form-elem">-->
+<!--					<span>密码：</span>-->
+<!--					<input v-model="signupPwd" type="password" placeholder="输入密码"/>-->
+<!--				</div>-->
+<!--				<div class="form-elem">-->
+<!--					<span>密码：</span>-->
+<!--					<input v-model="againPwd" type="password" placeholder="再次输入密码"/>-->
+<!--				</div>-->
+<!--				<div class="form-elem">-->
+<!--					<button type="button" @click.prevent="signup">提交</button>-->
+<!--				</div>-->
+<!--			</form>-->
+<!--			<div class="err-msg" v-show="errorMsg.length > 0">{{ errorMsg }}</div>-->
+<!--		</div>-->
 
-		<div>
-			<div id="signin">
-				<h3>登录账号</h3>
-				<form>
-					<div class="form-elem">
-						<span>账号：</span>
-						<input v-model="signinName" type="text" placeholder="输入用户名"/>
-					</div>
+<!--		<div>-->
+<!--			<div id="signin">-->
+<!--				<h3>登录账号</h3>-->
+<!--				<form>-->
+<!--					<div class="form-elem">-->
+<!--						<span>账号：</span>-->
+<!--						<input v-model="signinName" type="text" placeholder="输入用户名"/>-->
+<!--					</div>-->
 
-					<div class="form-elem">
-						<span>密码：</span>
-						<input v-model="signinPwd" type="password" placeholder="输入密码"/>
-					</div>
+<!--					<div class="form-elem">-->
+<!--						<span>密码：</span>-->
+<!--						<input v-model="signinPwd" type="password" placeholder="输入密码"/>-->
+<!--					</div>-->
 
-					<div class="err-msg">{{ loginErr }}</div>
+<!--					<div class="err-msg">{{ loginErr }}</div>-->
 
-					<div class="form-elem">
-						<button v-on:click.prevent="signin">登录</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+<!--					<div class="form-elem">-->
+<!--						<button v-on:click.prevent="signin">登录</button>-->
+<!--					</div>-->
+<!--				</form>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
 
 	<BlogFooter></BlogFooter>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BlogHeader from "~/blog-origin/BlogHeader.vue"
 import BlogFooter from "~/blog-origin/BlogFooter.vue"
 import {ref} from "vue"
@@ -148,7 +148,7 @@ function signin() {
 			sendGetReq("/user/" + signinName.value + "/").then((resp) => {
 				storage.setItem("isSuperuser.myblog", resp.is_superuser)
 				// 路由跳转，登录成功后跳转到首页
-				router.push({name: "Home"})
+				router.push({name: "/index"})
 			})
 		})
 		.catch((err) => {
