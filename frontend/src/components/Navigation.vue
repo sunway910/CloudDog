@@ -1,15 +1,15 @@
 <script setup lang="ts">
 
 import {SwitchIcon} from 'vue-dark-switch'
-
+import { useAuthStore } from '~/stores';
 const {t} = useI18n()
-
+const authStore = useAuthStore();
 </script>
 
 <template>
-	<nav aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
+	<nav v-show="authStore.user" aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
 		<a href="https://www.sunthycloud.com/" target="_blank" class="logo">
-			<img src="public/logo-.svg" alt=" logo" height="150" width="150" style="text-align: left">
+			<img src="/logo-.svg" alt=" logo" height="150" width="150" style="text-align: left">
 		</a>
 		<ul class="flex items-center gap-2 text-sm font-medium">
 			<RouterLink class="rounded-lg px-3" to="/about">
@@ -87,7 +87,7 @@ const {t} = useI18n()
 					</svg>
 				</a>
 			</li>
-			
+
 			<!--i18n-->
 			<li class="hidden !block">
 				<Dropdown/>
@@ -97,7 +97,11 @@ const {t} = useI18n()
 			<span class="h-10 w-10 flex items-center justify-center">
 			<SwitchIcon unmount-persets/>
 			</span>
-
+      <div class="navbar-nav">
+            <router-link to="/" class="nav-item nav-link">Home</router-link>
+            <router-link to="/users" class="nav-item nav-link">Users</router-link>
+            <button @click="authStore.logout()" class="btn btn-link nav-item nav-link">Logout</button>
+        </div>
 		</ul>
 	</nav>
 </template>

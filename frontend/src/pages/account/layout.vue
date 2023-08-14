@@ -1,5 +1,5 @@
 <script setup>
-import { useAuthStore } from '@/stores';
+import { useAuthStore } from '~/stores/index';
 import { useRouter } from "vue-router";
 const router = useRouter();
 

@@ -1,11 +1,13 @@
 <script setup>
-import { Form, Field } from 'vee-validate';
-import * as Yup from 'yup';
+// import { Form, Field } from 'vee-validate';
+// import * as Yup from 'yup';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
-import { useUsersStore, useAlertStore } from '@/stores';
-import { router } from '@/router';
+import { useUsersStore, useAlertStore } from '~/stores/index';
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const usersStore = useUsersStore();
 const alertStore = useAlertStore();

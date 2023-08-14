@@ -281,7 +281,7 @@ declare global {
   const useTyped: typeof import('../../src/composables/useTyped')['default']
   const useUrlSearchParams: typeof import('@vueuse/core')['useUrlSearchParams']
   const useUserMedia: typeof import('@vueuse/core')['useUserMedia']
-  const useUsersStore: typeof import('../../src/stores/users.store.js')['useUsersStore']
+  const useUsersStore: typeof import('~/stores/users.store')['useUsersStore']
   const useVModel: typeof import('@vueuse/core')['useVModel']
   const useVModels: typeof import('@vueuse/core')['useVModels']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']

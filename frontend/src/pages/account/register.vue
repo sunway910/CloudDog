@@ -1,9 +1,11 @@
 <script setup>
-import { Form, Field } from 'vee-validate';
-import * as Yup from 'yup';
+// import { Form, Field } from 'vee-validate';
+// import * as Yup from 'yup';
 
-import { useUsersStore, useAlertStore } from '@/stores';
-import { router } from '@/router';
+import { useUsersStore, useAlertStore } from '~/stores/index';
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const schema = Yup.object().shape({
     firstName: Yup.string()
@@ -24,7 +26,7 @@ async function onSubmit(values) {
         await usersStore.register(values);
         await router.push('/account/login');
         alertStore.success('Registration successful');
-    } catch (error) { 
+    } catch (error) {
         alertStore.error(error);
     }
 }

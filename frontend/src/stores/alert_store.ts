@@ -1,19 +1,37 @@
 import { defineStore } from 'pinia';
 
-export const useAlertStore = defineStore({
-    id: 'alert',
-    state: () => ({
-        alert: null
-    }),
+export const useAlertStore = defineStore('alert',{
+    state() {
+		return {
+            message: '',
+			alert: '',
+		}
+	},
     actions: {
-        success(message) {
-            this.alert = { message, type: 'alert-success' };
+        success() {
+            this.alert = 'alert-success' ;
         },
-        error(message) {
-            this.alert = { message, type: 'alert-danger' };
+        error() {
+            this.alert = 'alert-danger' ;
         },
         clear() {
-            this.alert = null;
+            this.alert = 'null';
         }
     }
 });
+
+
+
+export default defineStore('description', {
+	state() {
+		return {
+			description: 'Sunthy Cloud Technical Limited',
+		}
+	},
+	actions: {
+		redirect() {
+			window.location.href="https://www.sunthycloud.com"
+		},
+	},
+	persist: true,
+})

@@ -21,7 +21,7 @@
 <script setup>
 
 
-import { useAuthStore } from '@/stores';
+
 
 async function onSubmit(values) {
   const authStore = useAuthStore();
@@ -29,11 +29,11 @@ async function onSubmit(values) {
   await authStore.login(username, password);
 }
 
-
+import { useAuthStore } from '~/stores/index';
 import { sendGetReq, sendPostReq } from "@/api/mock";
 import { ref } from "vue";
+import createUserStatus from "~/stores/createUserStatus";
 import { useRouter } from "vue-router";
-import createUserStatus from "~/stores/createUserStatus.ts";
 
 const router = useRouter();
 let loginErr = ref("");

@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 
-import { useUsersStore } from '@/stores';
+import { useUsersStore } from '~/stores/index';
 
 const usersStore = useUsersStore();
 const { users } = storeToRefs(usersStore);
@@ -45,7 +45,7 @@ usersStore.getAll();
                 <td colspan="4">
                     <div class="text-danger">Error loading users: {{users.error}}</div>
                 </td>
-            </tr>            
+            </tr>
         </tbody>
     </table>
 </template>

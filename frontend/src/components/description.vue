@@ -12,8 +12,10 @@
 
 <script lang="ts" setup>
 
+import createDescription from "~/stores/createDescription";
+
 defineOptions({
 	name: 'Description',
 })
-const description = createDescription()
+const description = createDescription();
 </script>

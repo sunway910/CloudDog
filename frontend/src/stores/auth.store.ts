@@ -4,8 +4,7 @@ import { sendGetReq, sendPostReq } from "~/api/mock";
 import useAlertStore from "~/stores/alert_store";
 
 
-export const useAuthStore = defineStore({
-  id: "auth",
+export const useAuthStore = defineStore('auth',{
   state: () => ({
     // initialize state from local storage to enable user to stay logged in
     user: JSON.parse(localStorage.getItem("user")),
