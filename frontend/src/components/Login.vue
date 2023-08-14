@@ -4,7 +4,7 @@
 			Sign in
 		</h3>
 		<el-form-item prop="username">
-			<el-input type="text" v-model="loginForm.username" placeholder="Please input your account">
+			<el-input type="text" v-model="loginForm.account" placeholder="Please input your account">
 			</el-input>
 		</el-form-item>
 		<el-form-item prop="password">
@@ -20,7 +20,7 @@
 import {sendGetReq, sendPostReq} from "@/api/mock";
 import {ref} from "vue";
 import {useRouter} from "vue-router"
-import createUserStatus from "~/stores/createUserStatus.js";
+import createUserStatus from "~/stores/createUserStatus.ts";
 
 const router = useRouter()
 let loginErr = ref("")

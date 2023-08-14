@@ -308,6 +308,11 @@
     "sendPatchReq": true,
     "sendPostReq": true,
     "sendPutReq": true,
-    "member": true
+    "member": true,
+    "createUserStatus": true,
+    "createDescription": true,
+    "useAlertStore": true,
+    "useAuthStore": true,
+    "useUsersStore": true
   }
 }

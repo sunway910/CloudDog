@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="2000px" height="2000px" viewBox="0 0 1200 1200"
-		 enable-background="new 0 0 1200 1200" xml:space="preserve">  <image id="image0" width="1200" height="1200" x="0" y="0"
-																																				 xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAASwBAMAAAAZD678AAAAIGNIUk0AAHomAACAhAAA+gAAAIDo
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="2000px" height="2000px" viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
+	<rect x="50" y="20" width="150" height="150"
+  style="fill:blue;stroke:pink;stroke-width:5;opacity:0.5" />
+	<image id="image0" width="1200" height="1200" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAASwBAMAAAAZD678AAAAIGNIUk0AAHomAACAhAAA+gAAAIDo
 AAB1MAAA6mAAADqYAAAXcJy6UTwAAAAkUExURf///+Xk8LKuxI6Jo4N/13ZtpaKf4cnH40A1bmRf
 zmZdigEBAT9WkucAAAABYktHRACIBR1IAAAAB3RJTUUH5wgLCAMwIwN/jQAAI3hJREFUeNrt3U1v
 I8eBxnGRE1jGzKUTQ44RXegsggTRhc5YSDA6xjrsbXcl7oEnHWa9yI1JvJMgusgxAgvWJ8hN8YCw

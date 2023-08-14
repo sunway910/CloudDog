@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import router from "~/plugins/router";
 import {sendGetReq, sendPostReq} from "~/api/mock";
-import {ref} from "vue/dist/vue";
+import {ref} from "vue";
 let loginErr = ref("")
 export default defineStore('loginStatus', {
 	state() {

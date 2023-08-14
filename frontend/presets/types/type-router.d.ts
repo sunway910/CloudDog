@@ -42,8 +42,18 @@ declare module 'vue-router/auto/routes' {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/[...notFound]': RouteRecordInfo<'/[...notFound]', '/:notFound(.*)', { notFound: ParamValue<true> }, { notFound: ParamValue<false> }>,
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
-    '/echarts': RouteRecordInfo<'/echarts', '/echarts', Record<never, never>, Record<never, never>>,
-    '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
+    '/account/': RouteRecordInfo<'/account/', '/account', Record<never, never>, Record<never, never>>,
+    '/account/layout': RouteRecordInfo<'/account/layout', '/account/layout', Record<never, never>, Record<never, never>>,
+    '/account/login': RouteRecordInfo<'/account/login', '/account/login', Record<never, never>, Record<never, never>>,
+    '/account/README': RouteRecordInfo<'/account/README', '/account/README', Record<never, never>, Record<never, never>>,
+    '/account/register': RouteRecordInfo<'/account/register', '/account/register', Record<never, never>, Record<never, never>>,
+    '/admin/cron': RouteRecordInfo<'/admin/cron', '/admin/cron', Record<never, never>, Record<never, never>>,
+    '/admin/ecs': RouteRecordInfo<'/admin/ecs', '/admin/ecs', Record<never, never>, Record<never, never>>,
+    '/admin/overview': RouteRecordInfo<'/admin/overview', '/admin/overview', Record<never, never>, Record<never, never>>,
+    '/admin/waf': RouteRecordInfo<'/admin/waf', '/admin/waf', Record<never, never>, Record<never, never>>,
+    '/users/AddEdit': RouteRecordInfo<'/users/AddEdit', '/users/AddEdit', Record<never, never>, Record<never, never>>,
+    '/users/Layout': RouteRecordInfo<'/users/Layout', '/users/Layout', Record<never, never>, Record<never, never>>,
+    '/users/List': RouteRecordInfo<'/users/List', '/users/List', Record<never, never>, Record<never, never>>,
   }
 }
 
