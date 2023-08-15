@@ -1,13 +1,13 @@
 <script setup lang="ts">
 
 import {SwitchIcon} from 'vue-dark-switch'
-import { useAuthStore } from '~/stores';
+import { useAuthStore } from '~/stores/auth.store';
 const {t} = useI18n()
 const authStore = useAuthStore();
 </script>
 
 <template>
-	<nav v-show="authStore.user" aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
+	<nav v-show="true" aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
 		<a href="https://www.sunthycloud.com/" target="_blank" class="logo">
 			<img src="/logo-.svg" alt=" logo" height="150" width="150" style="text-align: left">
 		</a>

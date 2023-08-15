@@ -313,6 +313,7 @@
     "createDescription": true,
     "useAlertStore": true,
     "useAuthStore": true,
-    "useUsersStore": true
+    "useUsersStore": true,
+    "alertStore": true
   }
 }

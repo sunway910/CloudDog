@@ -12,7 +12,7 @@ export default defineStore('loginStatus', {
 	},
 	actions: {
 		async login(data: { account: string; password: string }) {
-			const res = sendPostReq({surl: "/token/", payload: data, config_obj: null}).then(
+			const res = sendPostReq({uri: "/token/", payload: data, config_obj: null}).then(
 				(res) => {
 					router.push({name: "/index"})
 					// 使用localStorage存储token
@@ -24,8 +24,8 @@ export default defineStore('loginStatus', {
 					storage.setItem("refresh.monitor", res.data.refresh)
 					storage.setItem("expiredTime.monitor", expiredTime.toString())
 					storage.setItem("username.monitor", data.account)
-					const resp =  sendGetReq({resUrl: "/user/${data.account}/"}).then((resp) => {
-						storage.setItem("isSuperuser.monitor", resp.is_superuser)
+					const resp =  sendGetReq({uri: "/user/${data.account}/"}).then((resp) => {
+						// storage.setItem("isSuperuser.monitor", resp.is_superuser)
 						// 路由跳转，登录成功后跳转到
 						const {target} = router.currentRoute.value.query
 						if (target) {
