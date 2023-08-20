@@ -1,16 +1,8 @@
 <template>
-	<el-footer class="app-foot">{{ footerMsgCopyright }}</el-footer>
+	<el-footer class="app-foot">Copyright © 2022-2023 Sunway</el-footer>
 </template>
 
 <script lang="ts">
-export default {
-	name: 'AppFoot',
-	data() {
-		return {
-			footerMsgCopyright: 'Copyright © 2022-2023 SunthyCloud',
-		}
-	}
-}
 </script>
 
 <style>

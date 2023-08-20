@@ -1,16 +1,9 @@
-<script setup>
-// import { storeToRefs } from 'pinia';
-//
-// import { useAuthStore } from '@/stores';
-//
-// const authStore = useAuthStore();
-// const { user } = storeToRefs(authStore);
+<script>
 </script>
 
+<style>
+</style>
+
 <template>
-<!--  <div v-if="user">-->
-<!--    <h1>Hi {{user.firstName}}!</h1>-->
-<!--    <p>You're logged in with Vue 3 + Pinia & JWT!!</p>-->
-<!--    <p><router-link to="/users">Manage Users</router-link></p>-->
-<!--  </div>-->
+	<img src="svg_wave.svg">
 </template>

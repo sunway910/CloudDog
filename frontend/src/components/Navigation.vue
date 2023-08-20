@@ -1,24 +1,30 @@
 <script setup lang="ts">
 
-import {SwitchIcon} from 'vue-dark-switch'
-import { useAuthStore } from '~/stores/auth.store';
-const {t} = useI18n()
-const authStore = useAuthStore();
+import { SwitchIcon } from 'vue-dark-switch'
+
+const { t } = useI18n();
+
 </script>
 
 <template>
 	<nav v-show="true" aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
-		<a href="https://www.sunthycloud.com/" target="_blank" class="logo">
-			<img src="/logo-.svg" alt=" logo" height="150" width="150" style="text-align: left">
+		<a href="/" target="_blank" class="logo">
+			<img src="/favicon.ico" alt=" logo" height="512" width="512" style="text-align: left">
 		</a>
 		<ul class="flex items-center gap-2 text-sm font-medium">
-			<RouterLink class="rounded-lg px-3" to="/about">
-				about
-			</RouterLink>
+
 			<li>
+				<a class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
+					 href="https://blog.sunway.run"
+					 target="_blank">
+					About
+				</a>
+				<RouterLink class="rounded-lg px-3" to="/login">
+					Login
+				</RouterLink>
 				<a
 					class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
-					href="https://github.com/0utsiderZhong/AlicloudMonitor"
+					href="https://github.com/0utsiderZhong/CloudPlatformMonitor"
 					target="_blank"
 				>
 					<svg
@@ -94,14 +100,9 @@ const authStore = useAuthStore();
 			</li>
 
 			<!--dark or light-->
-			<span class="h-10 w-10 flex items-center justify-center">
+			<li class="h-10 w-10 flex items-center justify-center">
 			<SwitchIcon unmount-persets/>
-			</span>
-      <div class="navbar-nav">
-            <router-link to="/" class="nav-item nav-link">Home</router-link>
-            <router-link to="/users" class="nav-item nav-link">Users</router-link>
-            <button @click="authStore.logout()" class="btn btn-link nav-item nav-link">Logout</button>
-        </div>
+			</li>
 		</ul>
 	</nav>
 </template>

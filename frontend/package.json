@@ -1,5 +1,5 @@
 {
-  "name": "tov-template",
+  "name": "Cloud Platform Monitor",
   "version": "1.17.2",
   "description": "vite + vue3 + ts 开箱即用现代开发模板",
 	"private": true,
@@ -32,6 +32,7 @@
     "@intlify/unplugin-vue-i18n": "^0.12.2",
     "@types/ityped": "^1.0.1",
     "@types/node": "^18.17.4",
+		"ts-loader": "^9.4.4",
     "@typescript-eslint/parser": "^6.3.0",
     "@unocss/eslint-config": "^0.54.2",
     "@unocss/reset": "^0.54.2",
@@ -92,8 +93,9 @@
     "vue-request": "2.0.3",
     "vue-router": "^4.2.4",
     "vue-toastification": "2.0.0-rc.5",
-    "element-plus": "2.3.9"
-  },
+    "element-plus": "2.3.9",
+		"@element-plus/icons-vue": "^2.0.9"
+	},
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue}": "eslint --cache --fix"
   },

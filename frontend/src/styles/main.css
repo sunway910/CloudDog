@@ -1,5 +1,10 @@
 @import './md.css';
 
+#app {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
 
 html.dark {
 	background: #100c2a !important;

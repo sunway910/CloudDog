@@ -2,7 +2,6 @@
  * 该模块主要给生产时的 mock 用，一般情况下你并不需要关注
  */
 import { createProdMockServer } from 'vite-plugin-mock/es/createProdMockServer'
-// import { createFetchSever } from '../../presets/shared/mock'
 import { createFetchSever } from '../../presets/shared/mock'
 
 const shouldCreateServer =

@@ -314,6 +314,9 @@
     "useAlertStore": true,
     "useAuthStore": true,
     "useUsersStore": true,
-    "alertStore": true
+    "alertStore": true,
+    "stores": true,
+    "useSidebarStore": true,
+    "useTagsStore": true
   }
 }
