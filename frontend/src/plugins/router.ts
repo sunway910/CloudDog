@@ -29,16 +29,14 @@ const custom_layout_route_list = fileRoutes.map((route) => {
 		route = {
 			...route,
 			meta: {
-				layout: 'admin_layout',
-				...route.meta,
+				layout: 'admin_layout', ...route.meta,
 			},
 		}
 	} else {
 		route = {
 			...route,
 			meta: {
-				layout: 'index_default',
-				...route.meta,
+				layout: 'index_default', ...route.meta,
 			},
 		}
 	}
@@ -47,7 +45,7 @@ const custom_layout_route_list = fileRoutes.map((route) => {
 	// return recursiveLayouts(route)
 	return route
 })
-// console.log('list=', custom_layout_route_list)
+// console.log('custom_layout_route_list=', custom_layout_route_list)
 export const router = createRouter({
 	history: createWebHistory(),
 	routes: setupLayouts(custom_layout_route_list),

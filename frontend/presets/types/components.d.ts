@@ -10,8 +10,6 @@ declare module 'vue' {
     Admin_header: typeof import('./../../src/components/admin_header.vue')['default']
     Admin_sidebar: typeof import('./../../src/components/admin_sidebar.vue')['default']
     Admin_tags: typeof import('./../../src/components/admin_tags.vue')['default']
-    Alert: typeof import('./../../src/components/Alert.vue')['default']
-    Description: typeof import('./../../src/components/description.vue')['default']
     Dropdown: typeof import('./../../src/components/Dropdown.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -33,13 +31,8 @@ declare module 'vue' {
     ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Footer: typeof import('./../../src/components/Footer.vue')['default']
-    HelloWorld: typeof import('./../../src/components/HelloWorld.vue')['default']
-    Login: typeof import('./../../src/components/Login.vue')['default']
-    Nav: typeof import('./../../src/components/Nav.vue')['default']
     Navigation: typeof import('./../../src/components/Navigation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Sidebar: typeof import('./../../src/components/Sidebar.vue')['default']
-    Test: typeof import('./../../src/components/test.vue')['default']
   }
 }

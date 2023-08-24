@@ -4,17 +4,27 @@ import 'virtual:uno.css'
 import 'virtual:unocss-devtools'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import  "@element-plus/icons-vue";
-
+import { useAuthStore } from '@/stores/auth';
 // 你自定义的 css
 import '@/styles/main.css'
+import 'element-plus/dist/index.css';
+import './assets/css/icon.css';
 
 import App from './App.vue'
 
 const app = createApp(App)
-
-// 注册element plus图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-	app.component(key, component);
+  app.component(key, component)
 }
+
+// 自定义权限指令
+const auth = useAuthStore();
+app.directive('permiss', {
+    mounted(el, binding) {
+        if (!auth.key.includes(String(binding.value))) {
+            el['hidden'] = true;
+        }
+    },
+});
 
 app.mount('#app')

@@ -6,7 +6,7 @@ settings:
 
 devDependencies:
   '@element-plus/icons-vue':
-    specifier: ^2.0.9
+    specifier: ^2.1.0
     version: 2.1.0(vue@3.3.4)
   '@intlify/unplugin-vue-i18n':
     specifier: ^0.12.2
@@ -140,6 +140,9 @@ devDependencies:
   unplugin-auto-import:
     specifier: ^0.16.6
     version: 0.16.6(@vueuse/core@10.3.0)
+  unplugin-icons:
+    specifier: 0.16.5
+    version: 0.16.5
   unplugin-vue-components:
     specifier: ^0.25.1
     version: 0.25.1(vue@3.3.4)
@@ -8464,6 +8467,37 @@ packages:
       unplugin: 1.4.0
     transitivePeerDependencies:
       - rollup
+    dev: true
+
+  /unplugin-icons@0.16.5:
+    resolution: {integrity: sha512-laCCqMWfng1XZgB9yowGfjBdDhtmz8t8zVnhzRNEMhBNdy26QrVewVmdXk/zsiAQYnEWvIxTjvW1nQXrxdd2+w==}
+    peerDependencies:
+      '@svgr/core': '>=7.0.0'
+      '@svgx/core': ^1.0.1
+      '@vue/compiler-sfc': ^3.0.2 || ^2.7.0
+      vue-template-compiler: ^2.6.12
+      vue-template-es2015-compiler: ^1.9.0
+    peerDependenciesMeta:
+      '@svgr/core':
+        optional: true
+      '@svgx/core':
+        optional: true
+      '@vue/compiler-sfc':
+        optional: true
+      vue-template-compiler:
+        optional: true
+      vue-template-es2015-compiler:
+        optional: true
+    dependencies:
+      '@antfu/install-pkg': 0.1.1
+      '@antfu/utils': 0.7.5
+      '@iconify/utils': 2.1.7
+      debug: 4.3.4
+      kolorist: 1.8.0
+      local-pkg: 0.4.3
+      unplugin: 1.4.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /unplugin-vue-components@0.25.1(vue@3.3.4):

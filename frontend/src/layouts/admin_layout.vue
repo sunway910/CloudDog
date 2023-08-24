@@ -1,8 +1,8 @@
 <template>
 	<admin_header />
-	
-	<admin_sidebar/>
-	<admin_tags />
+
+<!--	<admin_sidebar/>-->
+<!--	<admin_tags />-->
 <!--	<div class="content-box" :class="{ 'content-collapse': admin_sidebar.collapse }">-->
 <!--		<v-tags></v-tags>-->
 <!--		<div class="content">-->

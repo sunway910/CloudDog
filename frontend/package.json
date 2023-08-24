@@ -74,6 +74,7 @@
     "unplugin-auto-import": "^0.16.6",
     "unplugin-vue-components": "^0.25.1",
     "unplugin-vue-router": "^0.6.4",
+    "unplugin-icons": "0.16.5",
     "vite": "^4.4.9",
     "vite-auto-import-resolvers": "^3.1.0",
     "vite-plugin-compression": "^0.5.1",
@@ -94,7 +95,7 @@
     "vue-router": "^4.2.4",
     "vue-toastification": "2.0.0-rc.5",
     "element-plus": "2.3.9",
-		"@element-plus/icons-vue": "^2.0.9"
+		"@element-plus/icons-vue": "^2.1.0"
 	},
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue}": "eslint --cache --fix"

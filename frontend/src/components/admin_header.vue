@@ -1,36 +1,40 @@
 <template>
 	<div class="header">
-
-		<!-- 折叠按钮 -->
+<Expand/><Fold/>
 		<div class="collapse-btn" @click="collapseChange">
-			<el-icon v-if="sidebar.collapse"><Expand /></el-icon>
-			<el-icon v-else><Fold /></el-icon>
+			<el-icon v-if="sidebar.collapse">
+				<Expand/>
+			</el-icon>
+			<el-icon v-else>
+				<Fold/>
+			</el-icon>
 		</div>
 
-		<div class="admin_header">后台管理系统</div>
+		<div class="logo">后台管理系统</div>
 		<div class="header-right">
 			<div class="header-user-con">
 				<!-- 消息中心 -->
 				<div class="btn-bell" @click="router.push('/admin/tabs')">
 					<el-tooltip
 						effect="dark"
-						:content="message ? `有${message}条未读消息` : `消息中心`"
+						:content="message_num ? `have ${message_num} messages unread` : `message center`"
 						placement="bottom"
 					>
-						<i class="el-icon-lx-notice"></i>
+						<!--						<i class="el-icon-lx-notice"></i>-->
+						<el-icon>
+							<Message/>
+						</el-icon>
 					</el-tooltip>
-					<span class="btn-bell-badge" v-if="message"></span>
+					<span class="btn-bell-badge" v-if="message_num"></span>
 				</div>
-
 				<!-- 用户头像 -->
-				<el-avatar class="user-avator" :size="30" :src="imgurl" />
-
+				<el-avatar class="user-avator" :size="30" :src="imgurl"/>
 				<!-- 用户名下拉菜单 -->
 				<el-dropdown class="user-name" trigger="click" @command="handleCommand">
 					<span class="el-dropdown-link">
 						{{ username }}
 						<el-icon class="el-icon--right">
-							<arrow-down />
+							<arrow-down/>
 						</el-icon>
 					</span>
 					<template #dropdown>
@@ -50,12 +54,14 @@
 
 <script setup lang="ts">
 import {onMounted} from 'vue';
-import {useSidebarStore} from '../stores/sidebar';
+import {useSidebarStore} from '@/stores/sidebar';
 import {useRouter} from 'vue-router';
 import imgurl from '/public/favicon.ico';
 
+import {Expand, Fold, Message} from "@element-plus/icons-vue";
+
 const username: string | null = localStorage.getItem('ms_username');
-const message: number = 99;
+const message_num: number = 99;
 
 const sidebar = useSidebarStore();
 // 侧边栏折叠
@@ -79,7 +85,10 @@ const handleCommand = (command: string) => {
 		router.push('/user');
 	}
 };
+
 </script>
+
+
 <style scoped>
 .header {
 	position: relative;
@@ -100,11 +109,11 @@ const handleCommand = (command: string) => {
 	cursor: pointer;
 }
 
-.header .admin_header {
-	color: #9a050f;
+.header .logo {
 	float: left;
-	width: 3000px;
+	width: 250px;
 	line-height: 70px;
+	color: #000000;
 }
 
 .header-right {
@@ -118,14 +127,8 @@ const handleCommand = (command: string) => {
 	align-items: center;
 }
 
-.btn-fullscreen {
-	transform: rotate(45deg);
-	margin-right: 5px;
-	font-size: 24px;
-}
 
-.btn-bell,
-.btn-fullscreen {
+.btn-bell{
 	position: relative;
 	width: 30px;
 	height: 30px;
@@ -139,7 +142,7 @@ const handleCommand = (command: string) => {
 .btn-bell-badge {
 	position: absolute;
 	right: 4px;
-	top: 0px;
+	top: 0;
 	width: 8px;
 	height: 8px;
 	border-radius: 4px;
@@ -147,7 +150,7 @@ const handleCommand = (command: string) => {
 	color: #fff;
 }
 
-.btn-bell .el-icon-lx-notice {
+.btn-bell {
 	color: #fff;
 }
 
@@ -166,7 +169,4 @@ const handleCommand = (command: string) => {
 	align-items: center;
 }
 
-.el-dropdown-menu__item {
-	text-align: center;
-}
 </style>
