@@ -20,7 +20,7 @@ function setLayoutsByCondition(route: RouteRecordRaw): RouteRecordRaw {
 			...route,
 			meta: {
 				layout: 'admin_layout', ...route.meta,
-				title: route.name.toString().split('/').pop()?.toUpperCase()
+				title: route.name ? route.name.toString().split('/').pop()?.toUpperCase() : "No Title"
 			},
 		}
 	} else {
@@ -28,7 +28,7 @@ function setLayoutsByCondition(route: RouteRecordRaw): RouteRecordRaw {
 			...route,
 			meta: {
 				layout: 'index_default', ...route.meta,
-				title: route.name.toString().split('/').pop()?.toUpperCase()
+				title: route.name ? route.name.toString().split('/').pop()?.toUpperCase() : "No Title"
 			},
 		}
 	}
