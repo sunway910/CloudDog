@@ -1,12 +1,9 @@
 <template>
 	<div class="tags" v-if="tags.show">
+<!--		{{tags.list}}-->
 		<ul>
-			<li
-				class="tags-li"
-				v-for="(item, index) in tags.list"
-				:class="{ active: isActive(item.path) }"
-				:key="index"
-			>
+
+			<li class="tags-li" v-for="(item, index) in tags.list" :class="{ active: isActive(item.path) }" :key="index">
 				<router-link :to="item.path" class="tags-li-title">{{ item.title }}</router-link>
 				<el-icon @click="closeTags(index)"><Close /></el-icon>
 			</li>
@@ -14,15 +11,15 @@
 		<div class="tags-close-box">
 			<el-dropdown @command="handleTags">
 				<el-button size="small" type="primary">
-					标签选项
+					Tags options
 					<el-icon class="el-icon--right">
 						<arrow-down />
 					</el-icon>
 				</el-button>
 				<template #dropdown>
 					<el-dropdown-menu size="small">
-						<el-dropdown-item command="other">关闭其他</el-dropdown-item>
-						<el-dropdown-item command="all">关闭所有</el-dropdown-item>
+						<el-dropdown-item command="other">close others</el-dropdown-item>
+						<el-dropdown-item command="all">close all</el-dropdown-item>
 					</el-dropdown-menu>
 				</template>
 			</el-dropdown>
@@ -31,9 +28,9 @@
 </template>
 
 <script setup lang="ts">
-import { useTagsStore } from '../stores/tags';
+import { useTagsStore } from '@/stores/tags';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
-
+import {Close, Fold, Message} from "@element-plus/icons-vue";
 const route = useRoute();
 const router = useRouter();
 const isActive = (path: string) => {
@@ -49,12 +46,13 @@ const closeTags = (index: number) => {
 	if (item) {
 		delItem.path === route.fullPath && router.push(item.path);
 	} else {
-		router.push('/');
+		router.push('/admin');
 	}
 };
 
 // 设置标签
 const setTags = (route: any) => {
+	// console.log("route=",route)
 	const isExist = tags.list.some(item => {
 		return item.path === route.fullPath;
 	});
@@ -75,7 +73,7 @@ onBeforeRouteUpdate(to => {
 // 关闭全部标签
 const closeAll = () => {
 	tags.clearTags();
-	router.push('/');
+	router.push('/admin');
 };
 // 关闭其他标签
 const closeOther = () => {

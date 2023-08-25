@@ -95,7 +95,8 @@
     "vue-router": "^4.2.4",
     "vue-toastification": "2.0.0-rc.5",
     "element-plus": "2.3.9",
-		"@element-plus/icons-vue": "^2.1.0"
+		"@element-plus/icons-vue": "^2.1.0",
+		"vue-cropperjs": "^5.0.0"
 	},
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue}": "eslint --cache --fix"

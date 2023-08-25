@@ -1,7 +1,7 @@
 import {createGetRoutes, setupLayouts} from 'virtual:meta-layouts'
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import {routes as fileRoutes} from 'vue-router/auto/routes'
-
+import {useAuthStore} from '@/stores/auth';
 
 declare module 'vue-router' {
 	// 在这里定义你的 meta 类型
@@ -12,24 +12,15 @@ declare module 'vue-router' {
 }
 
 
-function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
-	if (route.children) {
-		for (let i = 0; i < route.children.length; i++) {
-			route.children[i] = recursiveLayouts(route.children[i])
-		}
-		return route
-	}
-	return setupLayouts([route])[0]
-}
+function setLayoutsByCondition(route: RouteRecordRaw): RouteRecordRaw {
 
-const custom_layout_route_list = fileRoutes.map((route) => {
-	// My custom extendRoutes logic, that adds a meta field to force specific pages under
-	// a given path to require auth.
-	if (route.path.includes('admin')) {
+	// @ts-ignore
+	if (route.name.includes('admin')) {
 		route = {
 			...route,
 			meta: {
 				layout: 'admin_layout', ...route.meta,
+				title: route.name.toString().split('/').pop()?.toUpperCase()
 			},
 		}
 	} else {
@@ -37,20 +28,56 @@ const custom_layout_route_list = fileRoutes.map((route) => {
 			...route,
 			meta: {
 				layout: 'index_default', ...route.meta,
+				title: route.name.toString().split('/').pop()?.toUpperCase()
 			},
 		}
 	}
-	// For each route, pass it to recursiveLayouts, which will apply layouts properly
-	// (without duplicating or accidentally double-wrapping components).
-	// return recursiveLayouts(route)
+	console.log("route.name====",route.name)
+	console.log("route=========",route)
 	return route
+}
+
+function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
+	if (route.children) {
+		for (let i = 0; i < route.children.length; i++) {
+			// console.log("route.children[i]",route.children[i])
+			route.children[i] = recursiveLayouts(route.children[i])
+		}
+	}else {
+		route = setLayoutsByCondition(route)
+	}
+	return route
+}
+
+const custom_layout_route_list = fileRoutes.map((route) => {
+	// use recursive algorithm to set layout and title
+	return recursiveLayouts(route)
 })
-// console.log('custom_layout_route_list=', custom_layout_route_list)
+
+console.log('custom_layout_route_list=', custom_layout_route_list)
+
 export const router = createRouter({
 	history: createWebHistory(),
 	routes: setupLayouts(custom_layout_route_list),
 })
 
 export const getRoutes = createGetRoutes(router)
+
+router.beforeEach((to, from, next) => {
+	document.title = `${to.meta.title} | vue-manage-system`;
+	const role = localStorage.getItem('username');
+	const auth = useAuthStore();
+	// console.log("to.path = ", to.path)
+	// console.log("to.meta = ", to.meta.permiss)
+	// console.log("auth.key.includes(to.meta.permiss) = ", auth.key.includes(to.meta.permiss))
+	if (!role && to.path !== '/login') {
+		next('/login');
+	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
+		// 如果没有权限，则进入403
+		next('/403');
+	} else {
+		next();
+	}
+});
 
 export default router

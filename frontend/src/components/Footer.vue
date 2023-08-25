@@ -1,5 +1,5 @@
 <template>
-	<el-footer class="app-foot">Copyright © 2022-2023 Sunway</el-footer>
+	<el-footer class="app-foot">Copyright © Sunway</el-footer>
 </template>
 
 <script lang="ts">

@@ -13,6 +13,7 @@
 		</el-form-item>
 
 		<el-checkbox v-model="checked" class="loginRemember">remember me</el-checkbox>
+
 		<el-button type="primary" style="width:100%" @click="SignIn">Sign in</el-button>
 
 	</el-form>
@@ -23,7 +24,7 @@
 
 // ref() 和 reactive() 用于跟踪其参数的更改。当使用它们初始化变量时，是向 Vue 提供信息：“嘿，每次这些变量发生更改时，请重新构建或重新运行依赖于它们的所有内容”
 // ref() 函数可以接受原始类型（最常见的是布尔值、字符串和数字）以及对象作为参数，而 reactive() 函数只能接受对象作为参数。
-import {reactive, ref} from 'vue'
+import {reactive} from 'vue'
 import {useAuthStore} from "@/stores/auth"
 import {useRouter} from "vue-router";
 
@@ -35,22 +36,6 @@ let loginForm = reactive({
 	account: "sunway",
 	password: "123456"
 });
-
-
-// 实例化 store
-const userStore = useAuthStore()
-
-const SignIn = async () => {
-	// 使用 actions，当作函数一样直接调用
-	// login action 定义为了 async 函数，所以它返回一个 Promise
-	await userStore.login(loginForm)
-	loginForm.username = ''
-	loginForm.password = ''
-}
-
-const Logout = () => {
-	userStore.logout()
-}
 
 const rules = {
 	account: [{required: true, message: "please enter account", trigger: "blur"}, {
@@ -65,6 +50,17 @@ const rules = {
 		trigger: "blur"
 	}]
 };
+
+// 实例化 store
+const userStore = useAuthStore()
+
+const SignIn = async () => {
+	// 使用 actions，当作函数一样直接调用
+	// login action 定义为了 async 函数，所以它返回一个 Promise
+	await userStore.login(loginForm)
+	loginForm.username = ''
+	loginForm.password = ''
+}
 
 </script>
 

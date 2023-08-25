@@ -188,6 +188,9 @@ devDependencies:
   vue:
     specifier: ^3.3.4
     version: 3.3.4
+  vue-cropperjs:
+    specifier: ^5.0.0
+    version: 5.0.0(vue@3.3.4)
   vue-dark-switch:
     specifier: ^1.0.5
     version: 1.0.5(vite@4.4.9)(vue@3.3.4)
@@ -4176,6 +4179,10 @@ packages:
   /core-js@3.32.0:
     resolution: {integrity: sha512-rd4rYZNlF3WuoYuRIDEmbR/ga9CeuWX9U05umAvgrrZoHY4Z++cp/xwPQMvUpBB4Ag6J8KfD80G0zwCyaSxDww==}
     requiresBuild: true
+    dev: true
+
+  /cropperjs@1.5.13:
+    resolution: {integrity: sha512-by7jKAo73y5/Do0K6sxdTKHgndY0NMjG2bEdgeJxycbcmHuCiMXqw8sxy5C5Y5WTOTcDGmbT7Sr5CgKOXR06OA==}
     dev: true
 
   /cross-env@7.0.3:
@@ -8989,6 +8996,15 @@ packages:
   /void-elements@3.1.0:
     resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
     engines: {node: '>=0.10.0'}
+    dev: true
+
+  /vue-cropperjs@5.0.0(vue@3.3.4):
+    resolution: {integrity: sha512-RhnC8O33uRZNkn74aiHZwNHnBJOXWlS4P6gsRI0lw4cZlWjKSCywZI9oSI9POlIPI6OYv30jvnHMXGch85tw7w==}
+    peerDependencies:
+      vue: '>=3.0.0'
+    dependencies:
+      cropperjs: 1.5.13
+      vue: 3.3.4
     dev: true
 
   /vue-dark-switch@1.0.5(vite@4.4.9)(vue@3.3.4):

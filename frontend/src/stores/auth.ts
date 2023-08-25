@@ -7,7 +7,7 @@ interface ObjectList {
 	[key: string]: string[];
 }
 
-const keys = localStorage.getItem('ms_keys')
+const keys = localStorage.getItem('permission')
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
@@ -17,6 +17,10 @@ export const useAuthStore = defineStore('auth', {
 		result: "",
 		data: {account: "sunway", password: "123456"},
 		key: keys ? JSON.parse(keys) : <string[]>[],
+		defaultList: <ObjectList>{
+			admin: ['admin', 'user'],
+			user: ['user']
+		}
 	}),
 	// 定义 getters，等同于组件的计算属性
 	getters: {
@@ -26,38 +30,47 @@ export const useAuthStore = defineStore('auth', {
 	actions: {
 		persist: true,
 		async login(data: { account: string; password: string }) {
-			router.push("/admin/overview");
-			// try {
-			// 	const res = sendPostReq({uri: "/token/", payload: data, config_obj: null}).then(
-			// 		(res) => {
-			// 			// Date.parse(...) 返回1970年1月1日UTC以来的毫秒数
-			// 			// Token 被设置为1h，因此这里加上60000 * 60毫秒
-			// 			const expiredTime = Date.now() + 60000 * 60;
-			// 			localStorage.setItem("access", res.data.access);
-			// 			localStorage.setItem("refresh", res.data.refresh);
-			// 			localStorage.setItem("expiredTime", expiredTime.toString());
-			// 			localStorage.setItem("username", data.account);
-			// 			const resp = sendGetReq({uri: "/user/${data.account}/"}).then((resp) => {
-			// 				localStorage.setItem("isSuperuser", resp.data.is_superuser);
-			// 				// 路由跳转，登录成功后跳转到
-			// 				const {target} = router.currentRoute.value.query;
-			// 				if (target) {
-			// 					//  在vue3项目直接获取router实例即可,vue2当中是this.$router
-			// 					//  可以通过currentRoute获取路由信息
-			// 					// 使用 encodeURIComponent() 方法可以对 URI 进行编码
-			// 					// target有可能是string或LocationQueryValue ,target as string是指定类型
-			// 					router.push(decodeURIComponent(target as string));
-			// 					ElMessage.success('登录成功');
-			// 				} else {
-			// 					router.push("/admin/overview");
-			// 					ElMessage.success('登录成功');
-			// 				}
-			// 			});
-			// 		}
-			// 	);
-			// } catch (error) {
-			// 	ElMessage.error('登陆失败，请检查用户名/密码是否正确');
-			// }
+			try {
+				// const res = sendPostReq({uri: "/token/", payload: data, config_obj: null}).then(
+				// 	(res) => {
+				let res = {data: {"access": "test", refresh: "test"}};
+				// Date.parse(...) 返回1970年1月1日UTC以来的毫秒数
+				// Token 被设置为1h，因此这里加上60000 * 60毫秒
+				const expiredTime = Date.now() + 60000 * 60;
+				console.log(res.data.access)
+				console.log(res.data.refresh)
+				console.log(expiredTime.toString())
+				localStorage.setItem("access", res.data.access);
+				localStorage.setItem("refresh", res.data.refresh);
+				localStorage.setItem("expiredTime", expiredTime.toString());
+				localStorage.setItem("username", data.account);
+				let resp = {data: {"is_superuser": "true"}};
+				console.log(resp.data.is_superuser)
+				// const resp = sendGetReq({uri: "/user/${data.account}/"}).then((resp) => {
+				localStorage.setItem("isSuperuser", resp.data.is_superuser);
+				// 路由跳转，登录成功后跳转到
+				const {target} = router.currentRoute.value.query;
+				if (target) {
+					//  在vue3项目直接获取router实例即可,vue2当中是this.$router
+					//  可以通过currentRoute获取路由信息
+					// 使用 encodeURIComponent() 方法可以对 URI 进行编码
+					// target有可能是string或LocationQueryValue ,target as string是指定类型
+					await router.push(decodeURIComponent(target as string));
+					ElMessage.success('Sign in successfully');
+				} else {
+					await router.push("/admin/overview");
+					ElMessage.success('Sign in successfully');
+				}
+				const keys = this.defaultList[(data.account == 'admin' || data.account == 'sunway') ? 'admin' : 'user'];
+				this.handleSet(keys);
+				localStorage.setItem('permission', JSON.stringify(keys));
+				// });
+				// 	}
+				// );
+			} catch (error) {
+				// 请检查用户名/密码是否正确
+				ElMessage.error('Please check that the username/password is correct');
+			}
 		},
 		logout() {
 			this.data = {account: "", password: ""};

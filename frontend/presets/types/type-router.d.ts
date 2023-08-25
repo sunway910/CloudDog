@@ -41,11 +41,14 @@ declare module 'vue-router/auto/routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/[...notFound]': RouteRecordInfo<'/[...notFound]', '/:notFound(.*)', { notFound: ParamValue<true> }, { notFound: ParamValue<false> }>,
-    '/admin/cron': RouteRecordInfo<'/admin/cron', '/admin/cron', Record<never, never>, Record<never, never>>,
-    '/admin/ecs': RouteRecordInfo<'/admin/ecs', '/admin/ecs', Record<never, never>, Record<never, never>>,
+    '/admin/auth/auth': RouteRecordInfo<'/admin/auth/auth', '/admin/auth/auth', Record<never, never>, Record<never, never>>,
+    '/admin/auth/user': RouteRecordInfo<'/admin/auth/user', '/admin/auth/user', Record<never, never>, Record<never, never>>,
     '/admin/overview': RouteRecordInfo<'/admin/overview', '/admin/overview', Record<never, never>, Record<never, never>>,
-    '/admin/tabs': RouteRecordInfo<'/admin/tabs', '/admin/tabs', Record<never, never>, Record<never, never>>,
-    '/admin/waf': RouteRecordInfo<'/admin/waf', '/admin/waf', Record<never, never>, Record<never, never>>,
+    '/admin/product/ecs': RouteRecordInfo<'/admin/product/ecs', '/admin/product/ecs', Record<never, never>, Record<never, never>>,
+    '/admin/product/waf': RouteRecordInfo<'/admin/product/waf', '/admin/product/waf', Record<never, never>, Record<never, never>>,
+    '/admin/system/cron': RouteRecordInfo<'/admin/system/cron', '/admin/system/cron', Record<never, never>, Record<never, never>>,
+    '/admin/system/messages': RouteRecordInfo<'/admin/system/messages', '/admin/system/messages', Record<never, never>, Record<never, never>>,
+    '/admin/system/tabs': RouteRecordInfo<'/admin/system/tabs', '/admin/system/tabs', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
   }
 }

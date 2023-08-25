@@ -23,7 +23,7 @@ const {availableLocales, locale} = useI18n()
 		<Transition name="fade" mode="out-in">
 			<div
 				v-if="visiable"
-				v-on-click-outside.bubble="dropdownHandler"
+				@click="dropdownHandler"
 				class="absolute end-0 z-10 mt-2 w-56 rounded-md bg-white shadow-lg divide-y divide-gray-100"
 			>
 				<div class="p-2">

@@ -1,7 +1,6 @@
 <template>
-	<div class="header">
-<Expand/><Fold/>
-		<div class="collapse-btn" @click="collapseChange">
+	<div class="admin_header">
+		<div class="admin_collapse-btn" @click="collapseChange">
 			<el-icon v-if="sidebar.collapse">
 				<Expand/>
 			</el-icon>
@@ -10,17 +9,15 @@
 			</el-icon>
 		</div>
 
-		<div class="logo">后台管理系统</div>
+		<div class="admin_logo">Cloud Platform Monitor</div>
 		<div class="header-right">
 			<div class="header-user-con">
 				<!-- 消息中心 -->
-				<div class="btn-bell" @click="router.push('/admin/tabs')">
+				<div class="btn-bell" @click="router.push('/admin/system/messages')">
 					<el-tooltip
 						effect="dark"
 						:content="message_num ? `have ${message_num} messages unread` : `message center`"
-						placement="bottom"
-					>
-						<!--						<i class="el-icon-lx-notice"></i>-->
+						placement="bottom">
 						<el-icon>
 							<Message/>
 						</el-icon>
@@ -39,11 +36,11 @@
 					</span>
 					<template #dropdown>
 						<el-dropdown-menu>
-							<a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
-								<el-dropdown-item>项目仓库</el-dropdown-item>
+							<a href="https://github.com/0utsiderZhong/CloudPlatformMonitor" target="_blank">
+								<el-dropdown-item>Git Repo</el-dropdown-item>
 							</a>
-							<el-dropdown-item command="user">个人中心</el-dropdown-item>
-							<el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
+							<el-dropdown-item command="user">User Center</el-dropdown-item>
+							<el-dropdown-item divided command="logout">Logout</el-dropdown-item>
 						</el-dropdown-menu>
 					</template>
 				</el-dropdown>
@@ -60,7 +57,7 @@ import imgurl from '/public/favicon.ico';
 
 import {Expand, Fold, Message} from "@element-plus/icons-vue";
 
-const username: string | null = localStorage.getItem('ms_username');
+const username: string | null = localStorage.getItem('username');
 const message_num: number = 99;
 
 const sidebar = useSidebarStore();
@@ -78,11 +75,16 @@ onMounted(() => {
 // 用户名下拉菜单选择事件
 const router = useRouter();
 const handleCommand = (command: string) => {
-	if (command == 'loginout') {
-		localStorage.removeItem('ms_username');
+	if (command == 'logout') {
+		localStorage.removeItem('permission');
+		localStorage.removeItem('access');
+		localStorage.removeItem('refresh');
+		localStorage.removeItem('expiredTime');
+		localStorage.removeItem('username');
+		localStorage.removeItem('isSuperuser');
 		router.push('/login');
 	} else if (command == 'user') {
-		router.push('/user');
+		router.push('/admin/auth/user');
 	}
 };
 
@@ -90,16 +92,17 @@ const handleCommand = (command: string) => {
 
 
 <style scoped>
-.header {
+.admin_header {
 	position: relative;
 	box-sizing: border-box;
 	width: 100%;
 	height: 70px;
 	font-size: 22px;
-	color: #fff;
+	color: #000000;
+	background-color: #34cdfe;
 }
 
-.collapse-btn {
+.admin_collapse-btn {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -109,9 +112,9 @@ const handleCommand = (command: string) => {
 	cursor: pointer;
 }
 
-.header .logo {
+.admin_header .admin_logo {
 	float: left;
-	width: 250px;
+	width: 300px;
 	line-height: 70px;
 	color: #000000;
 }
@@ -128,7 +131,7 @@ const handleCommand = (command: string) => {
 }
 
 
-.btn-bell{
+.btn-bell {
 	position: relative;
 	width: 30px;
 	height: 30px;
@@ -151,7 +154,7 @@ const handleCommand = (command: string) => {
 }
 
 .btn-bell {
-	color: #fff;
+	color: #000000;
 }
 
 .user-name {
