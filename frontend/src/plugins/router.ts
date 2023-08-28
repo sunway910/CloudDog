@@ -6,6 +6,7 @@ import {useAuthStore} from '@/stores/auth';
 declare module 'vue-router' {
 	// 在这里定义你的 meta 类型
 	interface RouteMeta {
+		name? : string
 		title?: string
 		layout?: string
 	}
@@ -19,6 +20,7 @@ function setLayoutsByCondition(route: RouteRecordRaw): RouteRecordRaw {
 		route = {
 			...route,
 			meta: {
+				name : route.name ? route.name.toString() : "undefined",
 				layout: 'admin_layout', ...route.meta,
 				title: route.name ? route.name.toString().split('/').pop()?.toUpperCase() : "No Title"
 			},
@@ -27,20 +29,18 @@ function setLayoutsByCondition(route: RouteRecordRaw): RouteRecordRaw {
 		route = {
 			...route,
 			meta: {
+				name : route.name ? route.name.toString() : "undefined",
 				layout: 'index_default', ...route.meta,
 				title: route.name ? route.name.toString().split('/').pop()?.toUpperCase() : "No Title"
 			},
 		}
 	}
-	console.log("route.name====",route.name)
-	console.log("route=========",route)
 	return route
 }
 
 function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
 	if (route.children) {
 		for (let i = 0; i < route.children.length; i++) {
-			// console.log("route.children[i]",route.children[i])
 			route.children[i] = recursiveLayouts(route.children[i])
 		}
 	}else {
@@ -54,7 +54,7 @@ const custom_layout_route_list = fileRoutes.map((route) => {
 	return recursiveLayouts(route)
 })
 
-console.log('custom_layout_route_list=', custom_layout_route_list)
+// console.log('custom_layout_route_list=', custom_layout_route_list)
 
 export const router = createRouter({
 	history: createWebHistory(),
@@ -67,9 +67,6 @@ router.beforeEach((to, from, next) => {
 	document.title = `${to.meta.title} | vue-manage-system`;
 	const role = localStorage.getItem('username');
 	const auth = useAuthStore();
-	// console.log("to.path = ", to.path)
-	// console.log("to.meta = ", to.meta.permiss)
-	// console.log("auth.key.includes(to.meta.permiss) = ", auth.key.includes(to.meta.permiss))
 	if (!role && to.path !== '/login') {
 		next('/login');
 	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {

@@ -1,7 +1,7 @@
 <template>
 	<admin_header/>
 	<admin_sidebar/>
-	<div class="content-box" :class="{ 'content-collapse': sidebar.collapse }">
+	<div class="tag_content-box" :class="{ 'content-collapse': sidebar.collapse }">
 		<admin_tags/>
 		<div class="content">
 			<router-view v-slot="{ Component }">
@@ -22,10 +22,11 @@ import {useTagsStore} from '@/stores/tags';
 
 const sidebar = useSidebarStore();
 const tags = useTagsStore();
+// console.log("tags=",tags)
 </script>
 
 <style scoped>
-.content-box {
+.tag_content-box {
 	position: absolute;
 	left: 250px;
 	right: 0;

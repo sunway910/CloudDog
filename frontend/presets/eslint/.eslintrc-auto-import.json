@@ -317,6 +317,9 @@
     "alertStore": true,
     "stores": true,
     "useSidebarStore": true,
-    "useTagsStore": true
+    "useTagsStore": true,
+    "fetchData": true,
+    "request": true,
+    "usePermissStore": true
   }
 }

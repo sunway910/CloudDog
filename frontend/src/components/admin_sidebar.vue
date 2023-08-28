@@ -1,5 +1,5 @@
 <template>
-	<div class="sidebar">
+	<div class="admin_sidebar">
 		<el-menu
 			class="sidebar-el-menu"
 			:default-active="onRoutes"
@@ -8,7 +8,7 @@
 			text-color="#bfcbd9"
 			active-text-color="#20a0ff"
 			unique-opened
-			router
+			:router="true"
 		>
 			<template v-for="item in items">
 				<template v-if="item.subs">
@@ -20,13 +20,7 @@
               <span>{{ item.title }}</span>
             </template>
             <template v-for="subItem in item.subs">
-              <el-sub-menu v-if="subItem.subs" :index="subItem.index" :key="subItem.index" v-auth="item.auth">
-                <template #title>{{ subItem.title }}</template>
-                <el-menu-item v-for="(threeItem, i) in subItem.subs" :key="i" :index="threeItem.index">
-                  {{ threeItem.title }}
-                </el-menu-item>
-              </el-sub-menu>
-              <el-menu-item v-else :index="subItem.index" v-auth="item.auth">
+              <el-menu-item  :index="subItem.index" v-auth="item.auth">
                 {{ subItem.title }}
               </el-menu-item>
             </template>
@@ -54,7 +48,7 @@ const items = [
 	{
 		// icon : https://element-plus.org/en-US/component/icon.html
 		icon: 'Odometer',
-		index: '/admin',
+		index: '/admin/overview',
 		title: '系统首页',
 		auth: 'user',
 		subs: null,
@@ -112,6 +106,7 @@ const items = [
 
 const route = useRoute();
 const onRoutes = computed(() => {
+	console.log("route.path=",route.path)
 	return route.path;
 });
 
@@ -119,7 +114,7 @@ const sidebar = useSidebarStore();
 </script>
 
 <style scoped>
-.sidebar {
+.admin_sidebar {
 	display: block;
 	position: absolute;
 	left: 0;
@@ -128,7 +123,7 @@ const sidebar = useSidebarStore();
 	overflow-y: scroll;
 }
 
-.sidebar::-webkit-scrollbar {
+.admin_sidebar::-webkit-scrollbar {
 	width: 0;
 }
 
@@ -136,7 +131,7 @@ const sidebar = useSidebarStore();
 	width: 250px;
 }
 
-.sidebar > ul {
+.admin_sidebar > ul {
 	height: 100%;
 }
 </style>

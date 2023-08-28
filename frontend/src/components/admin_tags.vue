@@ -1,11 +1,11 @@
 <template>
 	<div class="tags" v-if="tags.show">
-<!--		{{tags.list}}-->
 		<ul>
-
 			<li class="tags-li" v-for="(item, index) in tags.list" :class="{ active: isActive(item.path) }" :key="index">
 				<router-link :to="item.path" class="tags-li-title">{{ item.title }}</router-link>
-				<el-icon @click="closeTags(index)"><Close /></el-icon>
+				<el-icon @click="closeTags(index)">
+					<Close/>
+				</el-icon>
 			</li>
 		</ul>
 		<div class="tags-close-box">
@@ -13,7 +13,7 @@
 				<el-button size="small" type="primary">
 					Tags options
 					<el-icon class="el-icon--right">
-						<arrow-down />
+						<arrow-down/>
 					</el-icon>
 				</el-button>
 				<template #dropdown>
@@ -28,9 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { useTagsStore } from '@/stores/tags';
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
+import {useTagsStore} from '@/stores/tags';
+import {onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
 import {Close, Fold, Message} from "@element-plus/icons-vue";
+
 const route = useRoute();
 const router = useRouter();
 const isActive = (path: string) => {
@@ -46,34 +47,38 @@ const closeTags = (index: number) => {
 	if (item) {
 		delItem.path === route.fullPath && router.push(item.path);
 	} else {
-		router.push('/admin');
+		router.push('/admin/overview');
 	}
 };
 
 // 设置标签
 const setTags = (route: any) => {
-	// console.log("route=",route)
 	const isExist = tags.list.some(item => {
 		return item.path === route.fullPath;
 	});
 	if (!isExist) {
 		if (tags.list.length >= 8) tags.delTagsItem(0);
+		console.log("route.name=", route.name)
+		console.log("route.title=", route.meta.title)
+		console.log("route.path=", route.path)
 		tags.setTagsItem({
 			name: route.name,
 			title: route.meta.title,
-			path: route.fullPath
+			path: route.path,
 		});
 	}
 };
 setTags(route);
+console.log("route===",route)
 onBeforeRouteUpdate(to => {
+	console.log("to===",to)
 	setTags(to);
 });
 
 // 关闭全部标签
 const closeAll = () => {
 	tags.clearTags();
-	router.push('/admin');
+	router.push('/admin/overview');
 };
 // 关闭其他标签
 const closeOther = () => {

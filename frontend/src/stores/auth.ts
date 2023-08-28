@@ -1,6 +1,5 @@
 import {defineStore} from "pinia";
 import router from "~/plugins/router";
-import {sendGetReq, sendPostReq} from "~/api/mock";
 import {ElMessage} from 'element-plus';
 
 interface ObjectList {
@@ -37,15 +36,11 @@ export const useAuthStore = defineStore('auth', {
 				// Date.parse(...) 返回1970年1月1日UTC以来的毫秒数
 				// Token 被设置为1h，因此这里加上60000 * 60毫秒
 				const expiredTime = Date.now() + 60000 * 60;
-				console.log(res.data.access)
-				console.log(res.data.refresh)
-				console.log(expiredTime.toString())
 				localStorage.setItem("access", res.data.access);
 				localStorage.setItem("refresh", res.data.refresh);
 				localStorage.setItem("expiredTime", expiredTime.toString());
 				localStorage.setItem("username", data.account);
 				let resp = {data: {"is_superuser": "true"}};
-				console.log(resp.data.is_superuser)
 				// const resp = sendGetReq({uri: "/user/${data.account}/"}).then((resp) => {
 				localStorage.setItem("isSuperuser", resp.data.is_superuser);
 				// 路由跳转，登录成功后跳转到
