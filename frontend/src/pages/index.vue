@@ -5,5 +5,5 @@
 </style>
 
 <template>
-	<img src="svg_wave.svg">
+	<img src="/svg_wave.svg" alt="wave">
 </template>

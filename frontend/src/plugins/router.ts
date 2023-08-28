@@ -64,14 +64,14 @@ export const router = createRouter({
 export const getRoutes = createGetRoutes(router)
 
 router.beforeEach((to, from, next) => {
-	document.title = `${to.meta.title} | vue-manage-system`;
+	document.title = `${to.meta.title} | CloudPlatformMonitor`;
 	const role = localStorage.getItem('username');
 	const auth = useAuthStore();
 	if (!role && to.path !== '/login') {
 		next('/login');
 	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
 		// 如果没有权限，则进入403
-		next('/403');
+		next('/404');
 	} else {
 		next();
 	}

@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import router from "~/plugins/router";
+import router from "@/plugins/router";
 import {ElMessage} from 'element-plus';
 
 interface ObjectList {

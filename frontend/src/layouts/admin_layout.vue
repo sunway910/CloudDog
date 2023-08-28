@@ -3,7 +3,7 @@
 	<admin_sidebar/>
 	<div class="tag_content-box" :class="{ 'content-collapse': sidebar.collapse }">
 		<admin_tags/>
-		<div class="content">
+		<div class="admin_content">
 			<router-view v-slot="{ Component }">
 				<transition name="move" mode="out-in">
 					<keep-alive :include="tags.nameList">

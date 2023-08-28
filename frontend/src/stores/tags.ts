@@ -21,6 +21,7 @@ export const useTagsStore = defineStore('tags', {
 		}
 	},
 	actions: {
+		persist: true,
 		delTagsItem(index: number) {
 			this.list.splice(index, 1);
 		},
