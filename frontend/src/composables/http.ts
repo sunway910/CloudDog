@@ -11,7 +11,7 @@ http.interceptors.request.use(
 		return config
 	},
 	function (error) {
-		toast.warning(error.message ?? '未知请求错误')
+		toast.warning(error.message ?? 'unknown request error')
 		// 对请求错误做些什么
 		return Promise.reject(error)
 	},
@@ -38,16 +38,16 @@ http.interceptors.response.use(
 		if (!msg) {
 			switch (status) {
 				case 400:
-					msg = '参数错误'
+					msg = 'parms error'
 					break
 				case 500:
-					msg = '服务端错误'
+					msg = 'server error'
 					break
 				case 404:
-					msg = '路由未找到'
+					msg = 'route error'
 					break
 				default:
-					msg = error.message ?? '未知响应错误'
+					msg = error.message ?? 'unknown response error'
 					break
 			}
 		}

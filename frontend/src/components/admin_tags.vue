@@ -31,7 +31,6 @@
 import {useTagsStore} from '@/stores/tags';
 import {onBeforeRouteLeave,onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
 import {Close} from "@element-plus/icons-vue";
-// import router from "@/plugins/router";
 const route = useRoute();
 const router = useRouter();
 const isActive = (path: string) => {
@@ -157,7 +156,8 @@ const handleTags = (command: string) => {
 }
 
 .tags-li.active .tags-li-title {
-	color: #fff;
+	color: #000000;
+	font-weight: bolder;
 }
 
 .tags-close-box {

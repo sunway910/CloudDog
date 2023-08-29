@@ -8,7 +8,7 @@
 			text-color="#bfcbd9"
 			active-text-color="#20a0ff"
 			unique-opened
-			:router="true"
+			router
 		>
 			<template v-for="item in items">
 				<template v-if="item.subs">

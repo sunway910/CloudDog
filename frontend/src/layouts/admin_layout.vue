@@ -19,10 +19,8 @@
 <script setup lang="ts">
 import {useSidebarStore} from '@/stores/sidebar';
 import {useTagsStore} from '@/stores/tags';
-
 const sidebar = useSidebarStore();
 const tags = useTagsStore();
-// console.log("tags=",tags)
 </script>
 
 <style scoped>
@@ -36,5 +34,17 @@ const tags = useTagsStore();
 	-webkit-transition: left .3s ease-in-out;
 	transition: left .3s ease-in-out;
 	background: #f0f0f0;
+}
+
+.content-collapse {
+	left: 65px;
+}
+
+.admin_content {
+	width: auto;
+	height: 100%;
+	padding: 10px;
+	overflow-y: scroll;
+	box-sizing: border-box;
 }
 </style>

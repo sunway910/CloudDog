@@ -3,11 +3,11 @@
 		<div class="product_container">
 			<div class="handle-box">
 				<el-select v-model="query.name" placeholder="waf" class="handle-select mr10">
-					<el-option key="1" label="广东省" value="广东省"></el-option>
-					<el-option key="2" label="湖南省" value="湖南省"></el-option>
+					<el-option key="1" label="非中国大陆" value="mainland"></el-option>
+					<el-option key="2" label="中国大陆" value="oversea"></el-option>
 				</el-select>
 				<el-input v-model="query.name" placeholder="waf" class="handle-input mr10"></el-input>
-				<el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
+				<el-button type="primary" :icon="Search" @click="handleSearch">search</el-button>
 				<el-button type="primary" :icon="Plus">新增</el-button>
 			</div>
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
@@ -180,7 +180,6 @@ const saveEdit = () => {
 
 <style scoped>
 .handle-box {
-	padding-top: 30px;
 	margin-bottom: 20px;
 }
 
@@ -206,5 +205,12 @@ const saveEdit = () => {
 	margin: auto;
 	width: 40px;
 	height: 40px;
+}
+
+.product_container {
+	padding: 30px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
 }
 </style>

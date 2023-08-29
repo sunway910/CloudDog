@@ -7,7 +7,7 @@ const {availableLocales, locale} = useI18n()
 
 </script>
 
-
+<!--// I18n-->
 <template>
 	<div class="relative">
 		<div class="inline-flex items-center overflow-hidden rounded-md">

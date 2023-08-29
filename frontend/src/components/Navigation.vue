@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
-import { SwitchIcon } from 'vue-dark-switch'
+import {SwitchIcon} from 'vue-dark-switch'
 
-const { t } = useI18n();
+const {t} = useI18n();
 
 </script>
 
@@ -101,7 +101,7 @@ const { t } = useI18n();
 
 			<!--dark or light-->
 			<li class="h-10 w-10 flex items-center justify-center">
-			<SwitchIcon unmount-persets/>
+				<SwitchIcon unmount-persets/>
 			</li>
 		</ul>
 	</nav>

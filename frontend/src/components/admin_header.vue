@@ -130,8 +130,14 @@ const handleCommand = (command: string) => {
 	align-items: center;
 }
 
+.btn-fullscreen {
+	transform: rotate(45deg);
+	margin-right: 5px;
+	font-size: 24px;
+}
 
-.btn-bell {
+.btn-bell,
+.btn-fullscreen {
 	position: relative;
 	width: 30px;
 	height: 30px;
@@ -172,4 +178,7 @@ const handleCommand = (command: string) => {
 	align-items: center;
 }
 
+.el-dropdown-menu__item {
+	text-align: center;
+}
 </style>

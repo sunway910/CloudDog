@@ -3,8 +3,8 @@
 		<div class="product_container">
 			<div class="handle-box">
 				<el-select v-model="query.name" placeholder="ecs" class="handle-select mr10">
-					<el-option key="1" label="广东省" value="广东省"></el-option>
-					<el-option key="2" label="湖南省" value="湖南省"></el-option>
+					<el-option key="1" label="hongkong" value="香港"></el-option>
+					<el-option key="2" label="shenzhen" value="深圳"></el-option>
 				</el-select>
 				<el-input v-model="query.name" placeholder="ecs" class="handle-input mr10"></el-input>
 				<el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
@@ -37,7 +37,7 @@
 					</template>
 				</el-table-column>
 			</el-table>
-			<div class="pagination">
+			<div class="admin_pagination">
 				<el-pagination
 					background
 					layout="total, prev, pager, next"
@@ -50,16 +50,16 @@
 		</div>
 
 		<!-- 编辑弹出框 -->
-		<el-dialog title="编辑" v-model="editVisible" width="30%">
+		<el-dialog title="Edit" v-model="editVisible" width="30%">
 			<el-form label-width="70px">
-				<el-form-item label="用户名">
+				<el-form-item label="Username">
 					<el-input v-model="form.name"></el-input>
 				</el-form-item>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
-					<el-button @click="editVisible = false">取 消</el-button>
-					<el-button type="primary" @click="saveEdit">确 定</el-button>
+					<el-button @click="editVisible = false">Cancel</el-button>
+					<el-button type="primary" @click="saveEdit">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -180,7 +180,6 @@ const saveEdit = () => {
 
 <style scoped>
 .handle-box {
-	padding-top: 30px;
 	margin-bottom: 20px;
 }
 
@@ -206,5 +205,12 @@ const saveEdit = () => {
 	margin: auto;
 	width: 40px;
 	height: 40px;
+}
+
+.product_container {
+	padding: 30px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
 }
 </style>
