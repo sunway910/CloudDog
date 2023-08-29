@@ -39,11 +39,8 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Footer: typeof import('./../../src/components/Footer.vue')['default']
-    Header: typeof import('./../../src/components/header.vue')['default']
     Navigation: typeof import('./../../src/components/Navigation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Sidebar: typeof import('./../../src/components/sidebar.vue')['default']
-    Tags: typeof import('./../../src/components/tags.vue')['default']
   }
 }

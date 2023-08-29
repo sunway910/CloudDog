@@ -1,9 +1,13 @@
+<template>
+	<div>
+		now we run many project in this site
+	</div>
+</template>
+
 <script setup lang="ts">
 
 </script>
-<template>
 
-</template>
 <style scoped>
 
 </style>

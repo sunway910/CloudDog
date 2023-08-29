@@ -68,7 +68,7 @@
 	</div>
 </template>
 
-<script setup lang="ts" name="user">
+<script setup lang="ts">
 import { reactive, ref } from 'vue';
 import avatar from '@/assets/vue.svg';
 

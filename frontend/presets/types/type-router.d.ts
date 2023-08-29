@@ -48,7 +48,6 @@ declare module 'vue-router/auto/routes' {
     '/admin/product/waf': RouteRecordInfo<'/admin/product/waf', '/admin/product/waf', Record<never, never>, Record<never, never>>,
     '/admin/system/cron': RouteRecordInfo<'/admin/system/cron', '/admin/system/cron', Record<never, never>, Record<never, never>>,
     '/admin/system/messages': RouteRecordInfo<'/admin/system/messages', '/admin/system/messages', Record<never, never>, Record<never, never>>,
-    '/admin/system/tabs': RouteRecordInfo<'/admin/system/tabs', '/admin/system/tabs', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
   }
 }

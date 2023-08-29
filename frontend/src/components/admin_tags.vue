@@ -1,6 +1,6 @@
 <template>
 	<div class="tags" v-if="tags.show">
-		<ul>
+		<ul style="padding-left: 10px">
 			<li class="tags-li" v-for="(item, index) in tags.list" :class="{ active: isActive(item.path) }" :key="index">
 				<router-link :to="item.path" class="tags-li-title">{{ item.title }}</router-link>
 				<el-icon @click="closeTags(index)">
