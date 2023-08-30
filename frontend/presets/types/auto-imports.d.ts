@@ -9,6 +9,7 @@ declare global {
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const alertStore: typeof import('../../src/stores/alert_store')['default']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
+  const authorization: typeof import('../../src/stores/authorization')['default']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']

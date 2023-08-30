@@ -106,7 +106,6 @@ const items = [
 
 const route = useRoute();
 const onRoutes = computed(() => {
-	console.log("route.path=",route.path)
 	return route.path;
 });
 

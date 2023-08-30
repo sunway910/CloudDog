@@ -5,7 +5,7 @@
 		</h3>
 
 		<el-form-item prop="username">
-			<el-input type="text" v-model="loginForm.account" placeholder="Please input your account"></el-input>
+			<el-input type="text" v-model="loginForm.username" placeholder="Please input your account"></el-input>
 		</el-form-item>
 
 		<el-form-item prop="password">
@@ -33,12 +33,12 @@ let checked = true;
 
 
 let loginForm = reactive({
-	account: "sunway",
+	username: "sunway",
 	password: "123456"
 });
 
 const rules = {
-	account: [{required: true, message: "please enter account", trigger: "blur"}, {
+	username: [{required: true, message: "please enter username", trigger: "blur"}, {
 		min: 5,
 		max: 14,
 		message: "5 to 14 characters in length",
@@ -58,8 +58,6 @@ const SignIn = async () => {
 	// 使用 actions，当作函数一样直接调用
 	// login action 定义为了 async 函数，所以它返回一个 Promise
 	await userStore.login(loginForm)
-	loginForm.username = ''
-	loginForm.password = ''
 }
 
 </script>

@@ -320,6 +320,7 @@
     "useTagsStore": true,
     "fetchData": true,
     "request": true,
-    "usePermissStore": true
+    "usePermissStore": true,
+    "authorization": true
   }
 }

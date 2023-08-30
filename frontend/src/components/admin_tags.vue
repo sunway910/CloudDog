@@ -57,9 +57,6 @@ const setTags = (route: any) => {
 	});
 	if (!isExist) {
 		if (tags.list.length >= 8) tags.delTagsItem(0);
-		console.log("route.name=", route.name)
-		console.log("route.title=", route.meta.title)
-		console.log("route.path=", route.path)
 		tags.setTagsItem({
 			name: route.name,
 			title: route.meta.title,
@@ -68,15 +65,12 @@ const setTags = (route: any) => {
 	}
 };
 setTags(route);
-console.log("route===", route)
 onBeforeRouteUpdate((to, from) => {
 	console.log("to===", to)
 	console.log("from===", from)
 	setTags(to);
 });
 onBeforeRouteLeave( (to, from) => {
-    console.log("from=======================",from)
-    console.log("to=======================",to)
 		setTags(to);
 })
 // 关闭全部标签
@@ -143,6 +137,7 @@ const handleTags = (command: string) => {
 
 .tags-li.active {
 	color: #fff;
+	background-color: #409EFF;
 }
 
 .tags-li-title {
