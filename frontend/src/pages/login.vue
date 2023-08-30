@@ -14,7 +14,7 @@
 
 		<el-checkbox v-model="checked" class="loginRemember">remember me</el-checkbox>
 
-		<el-button type="primary" style="width:100%" @click="SignIn">Sign in</el-button>
+		<el-button type="primary" style="width:100%" @click="login">Sign in</el-button>
 
 	</el-form>
 </template>
@@ -54,7 +54,7 @@ const rules = {
 // 实例化 store
 const userStore = useAuthStore()
 
-const SignIn = async () => {
+const login = async () => {
 	// 使用 actions，当作函数一样直接调用
 	// login action 定义为了 async 函数，所以它返回一个 Promise
 	await userStore.login(loginForm)
