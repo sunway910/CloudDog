@@ -42,9 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'corsheaders',
-    'article',
     'user',
-    'comment',
     'alibabacloud_product',
     'project',
     'django_apscheduler'
