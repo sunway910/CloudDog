@@ -25,8 +25,9 @@ class Project(models.Model):
         return self.project_name
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        super(Project, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'project'
         ordering = ['-id']
+
