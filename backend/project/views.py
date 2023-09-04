@@ -58,10 +58,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def get_project_list(self, request):
+        print("request=====",request)
         queryset = Project.objects.all()
         project_name = request.query_params.get('project_name', None)
         if project_name is not None:
-            queryset = queryset.filter(title__icontains=project_name)
+            queryset = queryset.filter(project_name__icontains=project_name)
 
         projects_serializer = ProjectSerializer(queryset, many=True)
         return JsonResponse(projects_serializer.data, safe=False)
