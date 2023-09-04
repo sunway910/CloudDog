@@ -1,7 +1,9 @@
+from . import views
 from django.urls import path
-from project import views
+from django.views.decorators.cache import cache_page
+
+app_name = "project"
 
 urlpatterns = [
-    path('api/project/list', views.get_project_list),
-    path('api/project/edit/(P<pk>[0-9]+)', views.write_project)
+    path(r'api/project/list', views.ProjectViewSet.as_view),
 ]

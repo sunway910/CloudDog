@@ -21,10 +21,10 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 from user.views import UserViewSet
-from project.views import get_project_list
+from project.views import ProjectViewSet
 router = DefaultRouter()
 router.register(r'user', UserViewSet)
-# router.register(r'project/list', get_project_list)
+router.register(r'project', ProjectViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
