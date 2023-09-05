@@ -86,15 +86,51 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8000',
     'http://127.0.0.1:8000',
     'http://localhost:8080',
+    'http://127.0.0.1:8080',
 ]
+
+# 跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS_ORIGIN_WHITELIST = (
+#     '*'
+# )
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+    'HTTP_AUTHORIZATION',
+)
 
 # Token 有效期
 SIMPLE_JWT = {
     # token 过期时间 1h
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
 }
 
 ROOT_URLCONF = 'config.urls'

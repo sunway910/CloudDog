@@ -17,14 +17,13 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 from user.views import UserViewSet
-from project.views import ProjectViewSet
+
 router = DefaultRouter()
 router.register(r'user', UserViewSet)
-router.register(r'project', ProjectViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,7 +32,7 @@ urlpatterns = [
     # 使用form表单或JSON将有效的username和password字段POST到api/token/时会获取token,其他api则需要在http header中设置token
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/project/list', include('project.urls')),
+    re_path(r'', include('project.urls'), name='project'),
 ]
 
 if settings.DEBUG:
