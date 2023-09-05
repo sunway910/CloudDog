@@ -1,10 +1,14 @@
 const serverUrl = "http://127.0.0.1:8000/api"
 import axios from "axios";
+
 export const http = axios.create()
 http.interceptors.request.use(
 	function (config) {
+		// let token = 'JWT' + " " + localStorage.getItem('access')
+		let token = localStorage.getItem('access')
 		config.headers['Content-Type'] = 'application/json'
-		config.headers['Authorization'] = localStorage.getItem('access')
+		config.headers['authorization'] = token
+		console.log("config.headers['Authorization']=", token)
 		if (config.method === 'post') {
 			if (!config.data) { // 没有参数时，config.data为null，需要转下类型
 				config.data = {}
@@ -63,21 +67,21 @@ http.interceptors.response.use(
 )
 
 export const sendGetReq = async ({uri}: { uri: string }) => {
-    return await http.get(serverUrl + uri)
+	return await http.get(serverUrl + uri)
 }
 
 export const sendPostReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {
-  return await http.post(serverUrl + uri, payload, config_obj)
+	return await http.post(serverUrl + uri, payload, config_obj)
 }
 
 export const sendPutReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {
-    return await http.put(serverUrl + uri, payload, config_obj)
+	return await http.put(serverUrl + uri, payload, config_obj)
 }
 
 export const sendPatchReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {
-    return await http.patch(serverUrl + uri, payload, config_obj)
+	return await http.patch(serverUrl + uri, payload, config_obj)
 }
 
 export const sendDeleteReq = async ({uri, config_obj}: { uri: string, config_obj: any }) => {
-    return await http.delete(serverUrl + uri, config_obj)
+	return await http.delete(serverUrl + uri, config_obj)
 }

@@ -66,7 +66,7 @@
 	</div>
 </template>
 
-<script setup lang="ts" >
+<script setup lang="ts">
 import {ref, reactive} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
@@ -190,16 +190,20 @@ const saveEdit = () => {
 .handle-input {
 	width: 300px;
 }
+
 .table {
 	width: 100%;
 	font-size: 14px;
 }
+
 .red {
 	color: #F56C6C;
 }
+
 .mr10 {
 	margin-right: 10px;
 }
+
 .table-td-thumb {
 	display: block;
 	margin: auto;
