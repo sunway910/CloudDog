@@ -1,3 +1,5 @@
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdminUserOrReadOnly
 from handler import APIResponse
 from project.models import Project
 from project.serializers import ProjectSerializer
@@ -6,6 +8,7 @@ from rest_framework.decorators import api_view
 import time
 
 logger = logging.getLogger(__name__)
+permission_classes = [IsAuthenticated, IsAdminUserOrReadOnly]
 
 
 @api_view(['GET'])

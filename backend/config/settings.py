@@ -78,10 +78,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     # 将全局权限控制方案设置为仅允许认证用户访问
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 将全局权限控制方案设置为仅允许认证用户访问
+        'rest_framework.permissions.AllowAny',
+    ),
 }
 
 CORS_ORIGIN_WHITELIST = [
