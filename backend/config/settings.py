@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'django_filters',
     'corsheaders',
     'user',
@@ -73,16 +75,13 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
-    # 使用 Json Web Token 认证机制
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAdminUser',
-    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     # 将全局权限控制方案设置为仅允许认证用户访问
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
 }
 
 CORS_ORIGIN_WHITELIST = [
@@ -96,19 +95,7 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-# CORS_ORIGIN_WHITELIST = (
-#     '*'
-# )
 
-CORS_ALLOW_METHODS = (
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-    'VIEW',
-)
 
 CORS_ALLOW_HEADERS = (
     'XMLHttpRequest',
@@ -130,7 +117,8 @@ SIMPLE_JWT = {
     # token 过期时间 1h
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "AUTH_HEADER_NAME": "AUTHORIZATION",
+    "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
 }
 
 ROOT_URLCONF = 'config.urls'

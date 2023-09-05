@@ -36,7 +36,7 @@ export const useAuthStore = defineStore('auth', {
                         // Date.parse(...) 返回1970年1月1日UTC以来的毫秒数
                         // Token 被设置为1h，因此这里加上60000 * 60毫秒
                         const expiredTime = Date.now() + 60000 * 60;
-                        localStorage.setItem("access", res.data.access);
+                        localStorage.setItem("access", "Bearer" + '\xa0' + res.data.access);
                         localStorage.setItem("refresh", res.data.refresh);
                         localStorage.setItem("expiredTime", expiredTime.toString());
                         localStorage.setItem("username", data.username);
