@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    "rest_framework_swagger",
     'django_filters',
     'corsheaders',
     'user',
@@ -52,8 +52,8 @@ INSTALLED_APPS = [
 
 # python manage.py migrate
 # django_apscheduler_django job——用于存储任务的表格
-# django_apscheduler_django jobexecution——用于存储任务执行状态的表格
-# django_apscheduler_django jobexecution——用于存储任务执行状态的表格
+# django_apscheduler_django job execution——用于存储任务执行状态的表格
+# django_apscheduler_django job execution——用于存储任务执行状态的表格
 
 # 分钟(0-59) 小时(0-23) 每个月的哪一天(1-31) 月份(1-12) 周几(0-6)
 CRONJOBS = [
@@ -72,30 +72,22 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        # 将全局权限控制方案设置为仅允许认证用户访问
-        'rest_framework.permissions.AllowAny',
-    ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     # 将全局权限控制方案设置为仅允许认证用户访问
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
 }
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
-]
 
 # 跨域增加忽略
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
-
-
 
 CORS_ALLOW_HEADERS = (
     'XMLHttpRequest',
@@ -109,7 +101,6 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
     'Pragma',
-    'HTTP_AUTHORIZATION',
 )
 
 # Token 有效期
@@ -117,8 +108,6 @@ SIMPLE_JWT = {
     # token 过期时间 1h
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
-    "AUTH_HEADER_NAME": "AUTHORIZATION",
-    "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
 }
 
 ROOT_URLCONF = 'config.urls'

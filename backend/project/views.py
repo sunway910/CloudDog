@@ -1,17 +1,20 @@
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from .permissions import IsAdminUserOrReadOnly
 from handler import APIResponse
 from project.models import Project
 from project.serializers import ProjectSerializer
 import logging
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 import time
 
 logger = logging.getLogger(__name__)
-permission_classes = [IsAuthenticated, IsAdminUserOrReadOnly]
 
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def list_api(request):
     if request.method == 'GET':
         projects = Project.objects.all().order_by('-id')
@@ -20,6 +23,8 @@ def list_api(request):
 
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def detail(request):
     try:
         pk = request.GET.get('id', -1)
@@ -32,6 +37,7 @@ def detail(request):
 
 
 @api_view(['POST'])
+# @permission_classes([IsAuthenticated, IsAdminUserOrReadOnly])
 def create(request):
     serializer = ProjectSerializer(data=request.data)
     if serializer.is_valid():
@@ -44,6 +50,7 @@ def create(request):
 
 
 @api_view(['POST'])
+# @permission_classes([IsAuthenticated, IsAdminUserOrReadOnly])
 def update(request):
     try:
         pk = request.GET.get('id', -1)
@@ -60,6 +67,7 @@ def update(request):
 
 
 @api_view(['POST'])
+# @permission_classes([IsAuthenticated, IsAdminUserOrReadOnly])
 def delete(request):
     try:
         ids = request.GET.get('ids')
