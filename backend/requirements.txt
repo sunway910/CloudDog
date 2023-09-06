@@ -3,7 +3,7 @@ alibabacloud_ecs20140526==3.0.8
 alibabacloud_tea_openapi==0.3.7
 alibabacloud_tea_console==0.0.1
 alibabacloud_tea_util==0.3.11
-Django==4.2.0
+Django==4.2.5
 djangorestframework==3.14.0
 django-cors-headers==4.2.0
 markdown==3.4.4
