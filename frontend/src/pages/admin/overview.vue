@@ -16,19 +16,19 @@
 			</div>
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-				<el-table-column prop="cloud_platform" align="center" label="cloud_platform"></el-table-column>
-				<el-table-column prop="account" align="center" label="account"></el-table-column>
-				<el-table-column prop="project_name" align="center" label="project_name"></el-table-column>
-				<el-table-column label="status" align="center">
+				<el-table-column prop="cloud_platform" align="center" label="Cloud Platform"></el-table-column>
+				<el-table-column prop="account" align="center" label="Account"></el-table-column>
+				<el-table-column prop="project_name" align="center" label="Project Name"></el-table-column>
+				<el-table-column label="Status" align="center">
 					<template #default="scope">
 						<el-tag :type="scope.row.status === 'Running' ? 'success' : scope.row.status === 'Stopped' ? 'danger' : ''">
 							{{ scope.row.status }}
 						</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column prop="create_time" label="create_time" align="center"></el-table-column>
+				<el-table-column prop="create_time" label="Create Time" align="center"></el-table-column>
 
-				<el-table-column label="操作" width="220" align="center">
+				<el-table-column label="Operation" width="220" align="center">
 					<template #default="scope">
 						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)">
 							Edit
@@ -126,7 +126,11 @@ const getData = () => {
 	pageTotal.value = obj.length;
 	tableData.value = arr;
 	const res = sendGetReq({uri: "/project/list"}).then((res) => {
-		  console.log("res.data===========",res.data)
+			console.log("res.data===========", res.data)
+		}
+	);
+	const res2 = sendGetReq({uri: "/project/detail?id=1"}).then((res) => {
+			console.log("res.detail===========", res.data)
 		}
 	);
 };
