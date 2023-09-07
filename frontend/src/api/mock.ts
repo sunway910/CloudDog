@@ -55,7 +55,6 @@ http.interceptors.response.use(
 					break
 			}
 		}
-
 		toast.warning(msg)
 		// 超出 2xx 范围的状态码都会触发该函数。
 		// 对响应错误做点什么
@@ -63,8 +62,8 @@ http.interceptors.response.use(
 	},
 )
 
-export const sendGetReq = async ({uri}: { uri: string }) => {
-	return await http.get(serverUrl + uri)
+export const sendGetReq = async ({uri, params}: { uri: string, params: any }) => {
+	return await http.get(serverUrl + uri, {params: params})
 }
 
 export const sendPostReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {

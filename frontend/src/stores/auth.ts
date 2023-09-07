@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', {
 		persist: true,
 		login: async function (data: { username: string; password: string }) {
 			try {
-				const res = sendPostReq({uri: "/token/", payload: data, config_obj: null}).then(
+				sendPostReq({uri: "/token/", payload: data, config_obj: null}).then(
 					(res) => {
 						// console.log("login res = ", res)
 						// Date.parse(...) 返回1970年1月1日UTC以来的毫秒数
@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
 						localStorage.setItem("expiredTime", expiredTime.toString());
 						localStorage.setItem("username", data.username);
 						const get_user_auth_uri: string = '/user/' + this.data.username + '/';
-						const resp = sendGetReq({uri: get_user_auth_uri}).then(async (resp) => {
+						sendGetReq({params: undefined, uri: get_user_auth_uri}).then(async (resp) => {
 							localStorage.setItem("isSuperuser", resp.data.is_superuser);
 							const keys = this.defaultList[(data.username == 'admin' || data.username == 'sunway') ? 'admin' : 'user'];
 							this.handleSet(keys);

@@ -2,23 +2,23 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="query.name" placeholder="Cloud Platform" class="handle-select mr10">
-					<el-option key="1" label="All" value="All"></el-option>
-					<el-option key="1" label="Alibabacloud" value="Alibabacloud"></el-option>
-					<el-option key="2" label="Aliyun" value="Aliyun"></el-option>
-					<el-option key="2" label="AWS" value="AWS"></el-option>
-					<el-option key="2" label="Azure" value="Azure"></el-option>
-					<el-option key="2" label="GCP" value="GCP"></el-option>
+				<el-select v-model="query.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
+					<el-option
+						v-for="item in options"
+						:key="item.value"
+						:label="item.label"
+						:value="item.value"
+					/>
 				</el-select>
-				<el-input v-model="query.name" placeholder="Project Name" class="handle-input mr10"></el-input>
-				<el-button type="primary" :icon="Search" @click="handleSearch">Search</el-button>
-				<el-button type="primary" :icon="Plus">New</el-button>
+				<el-input v-model="query.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
+				<el-button :icon="Plus" type="primary">New</el-button>
 			</div>
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
 				<el-table-column prop="cloud_platform" align="center" label="Cloud Platform"></el-table-column>
-				<el-table-column prop="account" align="center" label="Account"></el-table-column>
-				<el-table-column prop="project_name" align="center" label="Project Name"></el-table-column>
+				<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="project_name" align="center" label="Project Name" show-overflow-tooltip></el-table-column>
 				<el-table-column label="Status" align="center">
 					<template #default="scope">
 						<el-tag :type="scope.row.status === 'Running' ? 'success' : scope.row.status === 'Stopped' ? 'danger' : ''">
@@ -30,10 +30,10 @@
 
 				<el-table-column label="Operation" width="220" align="center">
 					<template #default="scope">
-						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)">
+						<el-button text :icon="Edit" @click="handleEdit(scope.$index,scope.row)" v-auth=auth[0]>
 							Edit
 						</el-button>
-						<el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)">
+						<el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-auth=auth[0]>
 							Delete
 						</el-button>
 					</template>
@@ -53,15 +53,18 @@
 		</div>
 
 		<el-dialog title="Edit" v-model="editVisible" width="30%">
-			<el-form label-width="70px">
-				<el-form-item label="Username">
-					<el-input v-model="form.name"></el-input>
+			<el-form label-width="100px">
+				<el-form-item label="Project Name">
+					<el-input v-model="editForm.project_name" placeholder="Please input project name"></el-input>
+				</el-form-item>
+				<el-form-item label="Account">
+					<el-input v-model="editForm.account" placeholder="Multi account must split with blank"></el-input>
 				</el-form-item>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="editVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="saveEdit">Confirm</el-button>
+					<el-button type="primary" @click="editProject">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -75,6 +78,35 @@ import {ElMessage, ElMessageBox} from 'element-plus';
 import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
 import router from "~/plugins/router";
 
+const auth = ['admin', 'user']
+
+const options = [
+	{
+		value: 'All',
+		label: 'All',
+	},
+	{
+		value: 'AlibabaCloud',
+		label: 'AlibabaCloud',
+	},
+	{
+		value: 'Aliyun',
+		label: 'Aliyun',
+	},
+	{
+		value: 'AWS',
+		label: 'AWS',
+	},
+	{
+		value: 'Azure',
+		label: 'Azure',
+	},
+	{
+		value: 'GCP',
+		label: 'GCP',
+	},
+]
+
 interface TableItem {
 	id: number;
 	cloud_platform: string;
@@ -85,76 +117,56 @@ interface TableItem {
 }
 
 const query = reactive({
-	name: '',
+	cloud_platform: null,
+	project_name: null,
 	pageIndex: 1,
-	pageSize: 10
+	pageSize: 10,
 });
 
 
-const obj = [
-	{
-		id: 1,
-		cloud_platform: "AlibabaCloud",
-		account: 'sunway@mtr.onaliyun.com',
-		project_name: "mtr",
-		status: "Running",
-		create_time: "2019-11-1"
-	},
-	{
-		id: 2,
-		cloud_platform: "AlibabaCloud",
-		account: 'sunway@hci.onaliyun.com',
-		project_name: "hci",
-		status: "Running",
-		create_time: "2019-11-1"
-	},
-];
-
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
-
-const arr = [];
-
-Object.keys(obj).forEach(v => {
-	let o = {};
-	o = obj[v];
-	arr.push(o)
-})
-
 // 获取表格数据
-const getData = () => {
-	pageTotal.value = obj.length;
-	tableData.value = arr;
-	const res = sendGetReq({uri: "/project/list"}).then((res) => {
-			console.log("res.data===========", res.data)
-		}
-	);
-	const res2 = sendGetReq({uri: "/project/detail?id=1"}).then((res) => {
-			console.log("res.detail===========", res.data)
+const getProjectList = () => {
+	sendGetReq({params: undefined, uri: "/project/list"}).then((res) => {
+			pageTotal.value = parseInt(res.data.data.length)
+			res.data.data.map((item) => {
+				let accountList = [];
+				for (let j = 0; j < item.account.length; j++) {
+					accountList.push(item.account[j])
+				}
+				item.account = accountList.join(' ')
+			})
+			console.log("res.data.data", res.data.data)
+			tableData.value = res.data.data
 		}
 	);
 };
-getData();
+getProjectList();
 
-// 查询操作
-const handleSearch = () => {
-	query.pageIndex = 1;
-	getData();
+
+const searchProjects = () => {
+	sendGetReq({uri: "/project/detail", params: {cloud_platform: query.cloud_platform, project_name: query.project_name}}).then((res) => {
+			console.log("res.data===========", res.data)
+			pageTotal.value = parseInt(res.data.data.length)
+			tableData.value = res.data.data
+		}
+	);
 };
-// 分页导航
+
 const handlePageChange = (val: number) => {
 	query.pageIndex = val;
-	getData();
+	getProjectList();
 };
 
 // 删除操作
 const handleDelete = (index: number) => {
 	// 二次确认删除
-	ElMessageBox.confirm('确定要删除吗？', '提示', {
+	ElMessageBox.confirm('Are you sure you want to delete it', 'Message', {
 		type: 'warning'
 	})
 		.then(() => {
-			ElMessage.success('删除成功');
+			ElMessage.success('delete successfully');
 			tableData.value.splice(index, 1);
 		})
 		.catch(() => {
@@ -162,21 +174,40 @@ const handleDelete = (index: number) => {
 };
 
 // 表格编辑时弹窗和保存
+let editData = ref<TableItem>();
 const editVisible = ref(false);
-let form = reactive({
-	name: ''
+let editForm = reactive({
+	project_name: "",
+	account: "",
 });
 let idx: number = -1;
 const handleEdit = (index: number, row: any) => {
 	idx = index;
-	form.name = row.name;
 	editVisible.value = true;
+	editData.value = row;
+	editForm.project_name = row.project_name;
+	console.log("row.account========",row.account)
+	editForm.account = row.account;
 };
-const saveEdit = () => {
+const editProject = () => {
 	editVisible.value = false;
-	ElMessage.success(`修改第 ${idx + 1} 行成功`);
-	tableData.value[idx].project_name = form.name;
-};
+	if ("project_name" in editData.value) {
+		editData.value.project_name = editForm.project_name;
+	}
+	if ("account" in editData.value) {
+		editData.value.account = editForm.account;
+	}
+	console.log("after process edit data = \n", editData.value)
+	sendPostReq({uri: "/project/update", payload: editData.value, config_obj: null}).then(
+		(res) => {
+
+		}
+	)
+	tableData.value[idx].project_name = editForm.project_name;
+	tableData.value[idx].account = editForm.account;
+	editData = ref<TableItem>();
+	ElMessage.success(`edit row: ${idx + 1} successfully`);
+}
 </script>
 
 <style scoped>
