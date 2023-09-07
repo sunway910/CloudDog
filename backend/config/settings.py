@@ -106,7 +106,7 @@ CORS_ALLOW_HEADERS = (
 # Token 有效期
 SIMPLE_JWT = {
     # token 过期时间 1h
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
 }
 
