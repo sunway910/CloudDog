@@ -2,19 +2,20 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="query.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
+				<el-select v-model="queryConditions.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
 					<el-option
-						v-for="item in options"
+						v-for="item in platformOptions"
 						:key="item.value"
 						:label="item.label"
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="query.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
-				<el-button :icon="Plus" type="primary">New</el-button>
+				<el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=auth[0] style="float: right">New</el-button>
+				<el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
 			</div>
-			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+			<el-table :data="projectList" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
 				<el-table-column prop="cloud_platform" align="center" label="Cloud Platform"></el-table-column>
 				<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
@@ -30,10 +31,10 @@
 
 				<el-table-column label="Operation" width="220" align="center">
 					<template #default="scope">
-						<el-button text :icon="Edit" @click="handleEdit(scope.$index,scope.row)" v-auth=auth[0]>
+						<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)" v-auth=auth[0]>
 							Edit
 						</el-button>
-						<el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-auth=auth[0]>
+						<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)" v-auth=auth[0]>
 							Delete
 						</el-button>
 					</template>
@@ -44,27 +45,62 @@
 				<el-pagination
 					background
 					layout="total, prev, pager, next"
-					:current-page="query.pageIndex"
-					:page-size="query.pageSize"
+					:current-page="queryConditions.pageIndex"
+					:page-size="queryConditions.pageSize"
 					:total="pageTotal"
 					@current-change="handlePageChange"
 				></el-pagination>
 			</div>
 		</div>
 
-		<el-dialog title="Edit" v-model="editVisible" width="30%">
-			<el-form label-width="100px">
-				<el-form-item label="Project Name">
-					<el-input v-model="editForm.project_name" placeholder="Please input project name"></el-input>
+		<!-- create or update project -->
+		<el-dialog title="Edit" v-model="DialogVisible" width="40%">
+			<el-form label-width="150px" v-model="createOrUpdateData">
+				<el-form-item label="Cloud Platform">
+					<el-select v-model="createOrUpdateData.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10" :disabled="createOrUpdateRequest">
+						<el-option
+							v-for="item in platformOptions"
+							:key="item.value"
+							:label="item.label"
+							:value="item.value"
+						/>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="Account">
-					<el-input v-model="editForm.account" placeholder="Multi account must split with blank"></el-input>
+					<el-input v-model="createOrUpdateData.account" placeholder="Multi account must split with blank"></el-input>
+				</el-form-item>
+				<el-form-item label="Project Name">
+					<el-input v-model="createOrUpdateData.project_name" placeholder="Please input project name"></el-input>
+				</el-form-item>
+				<el-form-item label="status">
+					<el-select v-model="createOrUpdateData.status" placeholder="Cloud Platform" class="handle-select mr10">
+						<el-option
+							v-for="item in statusOptions"
+							:key="item.value"
+							:label="item.label"
+							:value="item.value"
+						/>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="Create time" required>
+					<el-col :span="11">
+						<el-form-item prop="create_time">
+							<el-date-picker
+								v-model="createOrUpdateData.create_time"
+								type="date"
+								label="Pick a date"
+								placeholder="Pick a date"
+								style="width: 100%"
+								value-format="YYYY-MM-DD"
+							/>
+						</el-form-item>
+					</el-col>
 				</el-form-item>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
-					<el-button @click="editVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="editProject">Confirm</el-button>
+					<el-button @click="DialogVisible = false">Cancel</el-button>
+					<el-button type="primary" @click="createOrUpdateProject">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -75,12 +111,22 @@
 <script setup lang="ts">
 import {ref, reactive} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
-import router from "~/plugins/router";
+import {Delete, Edit, Search, Plus, Refresh} from '@element-plus/icons-vue';
+import router from "@/plugins/router";
+import {sendDeleteReq} from "~/api/mock";
 
 const auth = ['admin', 'user']
-
-const options = [
+const statusOptions = [
+	{
+		value: 'Running',
+		label: 'Running',
+	},
+	{
+		value: 'Stopped',
+		label: 'Stopped',
+	},
+]
+const platformOptions = [
 	{
 		value: 'All',
 		label: 'All',
@@ -107,107 +153,134 @@ const options = [
 	},
 ]
 
-interface TableItem {
-	id: number;
+// The pattern of Project
+interface ProjectItem {
+	id: any;
 	cloud_platform: string;
-	account: string;
+	account: any;
 	project_name: string;
 	status: string;
 	create_time: string;
 }
 
-const query = reactive({
+const projectList = ref<ProjectItem[]>([]);
+const pageTotal = ref(0);
+
+// The conditions of search api
+const queryConditions = reactive({
 	cloud_platform: null,
 	project_name: null,
 	pageIndex: 1,
 	pageSize: 10,
 });
 
+const DialogVisible = ref(false); // el-dialog
+const createOrUpdateRequest = ref(true);  // false means create request, true means update request
+let idx: number = -1;
 
-const tableData = ref<TableItem[]>([]);
-const pageTotal = ref(0);
-// 获取表格数据
+// create or update project
+let createOrUpdateData = reactive<ProjectItem>({
+	id: -1,
+	cloud_platform: "",
+	project_name: "",
+	account: "",
+	status: "",
+	create_time: "",
+});
+
+// get project list
 const getProjectList = () => {
 	sendGetReq({params: undefined, uri: "/project/list"}).then((res) => {
-			pageTotal.value = parseInt(res.data.data.length)
-			res.data.data.map((item) => {
+			res.data.data.map((item) => { // set account_list to account_string( the )
 				let accountList = [];
-				for (let j = 0; j < item.account.length; j++) {
-					accountList.push(item.account[j])
+				for (let i = 0; i < item.account.length; i++) {
+					accountList.push(item.account[i])
 				}
 				item.account = accountList.join(' ')
 			})
-			console.log("res.data.data", res.data.data)
-			tableData.value = res.data.data
-		}
-	);
-};
-getProjectList();
-
-
-const searchProjects = () => {
-	sendGetReq({uri: "/project/detail", params: {cloud_platform: query.cloud_platform, project_name: query.project_name}}).then((res) => {
-			console.log("res.data===========", res.data)
 			pageTotal.value = parseInt(res.data.data.length)
-			tableData.value = res.data.data
+			projectList.value = res.data.data
 		}
-	);
-};
+	).catch((err) => {
+		ElMessage.error(err || 'Get project list error');
+	});
+}
+getProjectList(); // init project list
 
-const handlePageChange = (val: number) => {
-	query.pageIndex = val;
-	getProjectList();
-};
+// search project by cloud_platform and project_name
+const searchProjects = () => {
+	sendGetReq({uri: "/project/detail", params: {cloud_platform: queryConditions.cloud_platform, project_name: queryConditions.project_name}}).then((res) => {
+			pageTotal.value = parseInt(res.data.data.length)
+			projectList.value = res.data.data
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Search project error');
+	});
+}
 
-// 删除操作
-const handleDelete = (index: number) => {
-	// 二次确认删除
+const createOrUpdateProject = () => {
+
+	if (!createOrUpdateRequest.value) {
+		//id is auto generated by postgresDB, create operation does not need param: id
+		createOrUpdateData.id = null
+	}
+
+	createOrUpdateData.account = [createOrUpdateData.account]
+
+	sendPostReq({uri: "/project/create_or_update", payload: createOrUpdateData, config_obj: null}).then(() => {
+		getProjectList() // create operation should requery project list from db
+	})
+
+	if (createOrUpdateRequest.value) { // update operation, do not need to query project list from db
+		projectList.value[idx].project_name = createOrUpdateData.project_name;
+		projectList.value[idx].account = createOrUpdateData.account;
+		ElMessage.success(`${createOrUpdateRequest.value ? "Edit" : "Create"} project successfully`);
+	}
+
+	clearCreateOrUpdateData()  //clear data, set all attributes to ""
+	DialogVisible.value = false // close dialog page
+}
+
+const deleteProject = (row: any) => {
 	ElMessageBox.confirm('Are you sure you want to delete it', 'Message', {
 		type: 'warning'
 	})
 		.then(() => {
+			sendDeleteReq({uri: "/project/delete", params: {id: row.id}})
 			ElMessage.success('delete successfully');
-			tableData.value.splice(index, 1);
 		})
 		.catch(() => {
+			ElMessage.error('delete failed');
 		});
+	getProjectList();
 };
 
-// 表格编辑时弹窗和保存
-let editData = ref<TableItem>();
-const editVisible = ref(false);
-let editForm = reactive({
-	project_name: "",
-	account: "",
-});
-let idx: number = -1;
-const handleEdit = (index: number, row: any) => {
+const handlePageChange = (val: number) => {
+	queryConditions.pageIndex = val;
+	getProjectList();
+};
+
+const handleUpdate = (index: number, row: any) => {
 	idx = index;
-	editVisible.value = true;
-	editData.value = row;
-	editForm.project_name = row.project_name;
-	console.log("row.account========",row.account)
-	editForm.account = row.account;
+	createOrUpdateData = row; // init data which should be updated
+	DialogVisible.value = true; // open dialog page
+	createOrUpdateRequest.value = true // set dialog mode to 'update'
 };
-const editProject = () => {
-	editVisible.value = false;
-	if ("project_name" in editData.value) {
-		editData.value.project_name = editForm.project_name;
-	}
-	if ("account" in editData.value) {
-		editData.value.account = editForm.account;
-	}
-	console.log("after process edit data = \n", editData.value)
-	sendPostReq({uri: "/project/update", payload: editData.value, config_obj: null}).then(
-		(res) => {
 
-		}
-	)
-	tableData.value[idx].project_name = editForm.project_name;
-	tableData.value[idx].account = editForm.account;
-	editData = ref<TableItem>();
-	ElMessage.success(`edit row: ${idx + 1} successfully`);
-}
+const handleCreate = () => {
+	DialogVisible.value = true // open dialog page
+	createOrUpdateRequest.value = false // set dialog mode to 'create'
+};
+
+const clearCreateOrUpdateData = () => {
+	const keys = Object.keys(createOrUpdateData);
+	let obj: { [name: string]: string } = {};
+	keys.forEach((item) => {
+		obj[item] = "";
+	});
+	Object.assign(createOrUpdateData, obj);
+};
+
 </script>
 
 <style scoped>

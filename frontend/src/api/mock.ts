@@ -78,6 +78,6 @@ export const sendPatchReq = async ({uri, payload, config_obj}: { uri: string, pa
 	return await http.patch(serverUrl + uri, payload, config_obj)
 }
 
-export const sendDeleteReq = async ({uri, config_obj}: { uri: string, config_obj: any }) => {
-	return await http.delete(serverUrl + uri, config_obj)
+export const sendDeleteReq = async ({uri, params}: { uri: string, params: any }) => {
+	return await http.delete(serverUrl + uri, {params: params})
 }
