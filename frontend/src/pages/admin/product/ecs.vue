@@ -1,181 +1,192 @@
+<!--Elastic Compute Service-->
 <template>
+
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="query.name" placeholder="ecs" class="handle-select mr10">
-					<el-option key="1" label="hongkong" value="香港"></el-option>
-					<el-option key="2" label="shenzhen" value="深圳"></el-option>
+				<el-select v-model="queryConditions.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
+					<el-option
+						v-for="item in platformOptions"
+						:key="item.value"
+						:label="item.label"
+						:value="item.value"
+					/>
 				</el-select>
-				<el-input v-model="query.name" placeholder="ecs" class="handle-input mr10"></el-input>
-				<el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
-				<el-button type="primary" :icon="Plus">新增</el-button>
+				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
+				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
-			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-				<el-table-column prop="instanceid" label="用户名"></el-table-column>
-				<el-table-column label="属于">
-					<template #default="scope">{{ scope.row.belongto }}</template>
-				</el-table-column>
-				<el-table-column label="状态" align="center">
-					<template #default="scope">
-						<el-tag :type="scope.row.state === '成功' ? 'success' : scope.row.state === '失败' ? 'danger' : ''">
-							{{ scope.row.state }}
-						</el-tag>
-					</template>
-				</el-table-column>
 
-				<el-table-column prop="date" label="注册时间"></el-table-column>
+			<el-scrollbar style="max-height:300px">
+				<el-table :data="elasticComputeResourceList"
+									border
+									ref="multipleTable"
+									header-cell-class-name="table-header"
+									:row-class-name="tableRowClassName"
+									scrollbar-always-on
+									style="width: 100%">
+<!--					<el-table-column prop="api_request_id" align="center" label="Request Id" width="200px"></el-table-column>-->
+					<el-table-column prop="project" align="center" label="Project" show-overflow-tooltip width="100px"></el-table-column>
+					<el-table-column prop="auto_renew_enabled" align="center" label="Auto Renew Enabled" show-overflow-tooltip width="165px"></el-table-column>
+					<el-table-column label="Status" align="center" width="100px">
+						<template #default="scope">
+							<el-tag :type="scope.row.ecs_status === 'Running' ? 'success' : 'danger'">
+								{{ scope.row.ecs_status }}
+							</el-tag>
+						</template>
+					</el-table-column>
+					<el-table-column prop="region_id" align="center" label="Region" show-overflow-tooltip></el-table-column>
+					<el-table-column prop="duration" align="center" label="Renewal Time" show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="renewal_status" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="period_init" align="center" label="Renewal Period Unit" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="expired_time" align="center" label="Expired Time" show-overflow-tooltip width="150px"></el-table-column>
+					<el-table-column prop="instance_id" align="center" label="Instance ID" width="150px"></el-table-column>
+					<el-table-column prop="request_time" align="center" label="Request Time" show-overflow-tooltip width="150px"></el-table-column>
+					<el-table-column prop="product_type" align="center" label="Type" width="80px"></el-table-column>
+					<el-table-column prop="instance_charge_type" align="center" label="Instance Charge Type" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="internet_charge_type" align="center" label="Internet Charge Type" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="stopped_mode" align="center" label="Stopped Mode" show-overflow-tooltip width="140px"></el-table-column>
+					<el-table-column prop="start_time" align="center" label="Instance Start Time" show-overflow-tooltip width="160px"></el-table-column>
+					<el-table-column prop="auto_release_time" align="center" label="Auto Release Time" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="lock_reason" align="center" label="Lock Reason" show-overflow-tooltip width="120px"></el-table-column>
+				</el-table>
+			</el-scrollbar>
 
-				<el-table-column label="操作" width="220" align="center">
-					<template #default="scope">
-						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-auth="15">
-							编辑
-						</el-button>
-						<el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-auth="16">
-							删除
-						</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
 			<div class="admin_pagination">
 				<el-pagination
 					background
 					layout="total, prev, pager, next"
-					:current-page="query.pageIndex"
-					:page-size="query.pageSize"
+					:current-page="queryConditions.pageIndex"
+					:page-size="queryConditions.pageSize"
 					:total="pageTotal"
 					@current-change="handlePageChange"
 				></el-pagination>
 			</div>
 		</div>
 
-		<!-- 编辑弹出框 -->
-		<el-dialog title="Edit" v-model="editVisible" width="30%">
-			<el-form label-width="70px">
-				<el-form-item label="Username">
-					<el-input v-model="form.name"></el-input>
-				</el-form-item>
-			</el-form>
-			<template #footer>
-				<span class="dialog-footer">
-					<el-button @click="editVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="saveEdit">Confirm</el-button>
-				</span>
-			</template>
-		</el-dialog>
 	</div>
 </template>
 
 <script setup lang="ts">
 import {ref, reactive} from 'vue';
-import {ElMessage, ElMessageBox} from 'element-plus';
-import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
+import {ElMessage} from 'element-plus';
+import {Search, Refresh} from '@element-plus/icons-vue';
+import router from "@/plugins/router";
 
-interface TableItem {
-	id: number;
-	instanceid: string;
-	belongto: string;
-	state: string;
-	date: string;
+const auth = ['admin', 'user']
+
+const platformOptions = [
+	{
+		value: 'All',
+		label: 'All',
+	},
+	{
+		value: 'AlibabaCloud',
+		label: 'AlibabaCloud',
+	},
+	{
+		value: 'Aliyun',
+		label: 'Aliyun',
+	},
+	{
+		value: 'AWS',
+		label: 'AWS',
+	},
+	{
+		value: 'Azure',
+		label: 'Azure',
+	},
+	{
+		value: 'GCP',
+		label: 'GCP',
+	},
+]
+
+// The pattern of Project
+interface ElasticComputeResource {
+	api_request_id: any;
+	instance_id: string;
+	request_time: string;
+	product_type: any;
+	project: string,
+	auto_renew_enabled: string,
+	renewal_status: string;
+	period_init: string;
+	duration: string;
+	region_id: string;
+	ecs_status: string;
+	instance_charge_type: string;
+	internet_charge_type: string;
+	expired_time: string;
+	stopped_mode: string;
+	start_time: string;
+	auto_release_time: string;
+	lock_reason: string;
 }
 
-const query = reactive({
-	name: '',
-	pageIndex: 1,
-	pageSize: 10
-});
-
-
-const obj = [
-	{
-		id: 1,
-		instanceid: "ecs1",
-		belongto: 123,
-		state: "成功",
-		date: "2019-11-1"
-	},
-	{
-		id: 2,
-		instanceid: "ecs2",
-		belongto: 456,
-		state: "成功",
-		date: "2019-10-11"
-	},
-	{
-		id: 3,
-		instanceid: "ecs3",
-		belongto: 789,
-		state: "失败",
-		date: "2019-11-11"
-	},
-	{
-		id: 4,
-		instanceid: "ecs4",
-		belongto: 1011,
-		state: "成功",
-		date: "2019-10-20"
-	}
-];
-
-const tableData = ref<TableItem[]>([]);
+const elasticComputeResourceList = ref<ElasticComputeResource[]>([]);
 const pageTotal = ref(0);
 
-const arr = [];
-
-Object.keys(obj).forEach(v => {
-	let o = {};
-	o = obj[v];
-	arr.push(o)
-})
-
-// 获取表格数据
-const getData = () => {
-	pageTotal.value = obj.length;
-	tableData.value = arr;
-};
-getData();
-
-// 查询操作
-const handleSearch = () => {
-	query.pageIndex = 1;
-	getData();
-};
-// 分页导航
-const handlePageChange = (val: number) => {
-	query.pageIndex = val;
-	getData();
-};
-
-// 删除操作
-const handleDelete = (index: number) => {
-	// 二次确认删除
-	ElMessageBox.confirm('确定要删除吗？', '提示', {
-		type: 'warning'
-	})
-		.then(() => {
-			ElMessage.success('删除成功');
-			tableData.value.splice(index, 1);
-		})
-		.catch(() => {
-		});
-};
-
-// 表格编辑时弹窗和保存
-const editVisible = ref(false);
-let form = reactive({
-	name: ''
+// The conditions of search api
+const queryConditions = reactive({
+	cloud_platform: "",
+	project_name: "",
+	pageIndex: 1,
+	pageSize: 10,
 });
-let idx: number = -1;
-const handleEdit = (index: number, row: any) => {
-	idx = index;
-	form.name = row.name;
-	editVisible.value = true;
+
+
+const tableRowClassName = ({row}: {
+	row: ElasticComputeResource
+}) => {
+	if (row.ecs_status === 'Stopped') {
+		return 'warning-row'
+	} else {
+		return 'success-row'
+	}
+}
+
+
+// get Elastic Compute Resource list
+const getECRList = () => {
+	sendGetReq({params: undefined, uri: "/project/list"}).then((res) => {
+			res.data.data.map((item) => { // set account_list to account_string( the )
+				let accountList = [];
+				let regionList = [];
+				for (let i = 0; i < item.account.length; i++) {
+					accountList.push(item.account[i])
+					regionList.push(item.region[i])
+				}
+				item.account = accountList.join(' ')
+				item.region = regionList.join(' ')
+			})
+			pageTotal.value = parseInt(res.data.data.length)
+			elasticComputeResourceList.value = res.data.data
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Get project list error');
+	});
+}
+getECRList(); // init ECR list
+
+// search ECR by cloud_platform and project_name
+const searchProjects = () => {
+	sendGetReq({uri: "/project/detail", params: {cloud_platform: queryConditions.cloud_platform, project_name: queryConditions.project_name}}).then((res) => {
+			pageTotal.value = parseInt(res.data.data.length)
+			elasticComputeResourceList.value = res.data.data
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Search project error');
+	});
+}
+
+
+const handlePageChange = (val: number) => {
+	queryConditions.pageIndex = val;
+	getECRList();
 };
-const saveEdit = () => {
-	editVisible.value = false;
-	ElMessage.success(`修改第 ${idx + 1} 行成功`);
-	tableData.value[idx].instanceid = form.name;
-};
+
+
 </script>
 
 <style scoped>
@@ -184,7 +195,7 @@ const saveEdit = () => {
 }
 
 .handle-select {
-	width: 120px;
+	width: 150px;
 }
 
 .handle-input {
@@ -192,23 +203,13 @@ const saveEdit = () => {
 }
 
 .table {
+	display: flex;
 	width: 100%;
 	font-size: 14px;
 }
 
-.red {
-	color: #F56C6C;
-}
-
 .mr10 {
 	margin-right: 10px;
-}
-
-.table-td-thumb {
-	display: block;
-	margin: auto;
-	width: 40px;
-	height: 40px;
 }
 
 .product_container {
@@ -217,4 +218,24 @@ const saveEdit = () => {
 	border: 1px solid #ddd;
 	border-radius: 5px;
 }
+
+.scrollbar-flex-content {
+	display: flex;
+}
+
+.scrollbar-demo-item {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100px;
+	height: 50px;
+	margin: 10px;
+	text-align: center;
+	border-radius: 4px;
+	background: var(--el-color-danger-light-9);
+	color: var(--el-color-danger);
+}
+
+
 </style>
