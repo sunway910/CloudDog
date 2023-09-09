@@ -1,6 +1,6 @@
 import logging
 
-from .models import EcsInstance, WafInstance, ProductType
+from .models import EcsProject, WafProject, ProductType
 from .permissions import IsAdminUserOrReadOnly
 from django.views.generic.list import ListView
 from django.conf import settings
@@ -78,21 +78,21 @@ class EcsViewList(InstanceBasicViewList):
         """
         get all ecs instances
         """
-        ecs_list = EcsInstance.objects.all()
+        ecs_list = EcsProject.objects.all()
         return ecs_list
 
     def get_queryset_is_bad(self):
         """
         get all ecs instances which status is stopped
         """
-        ecs_list = EcsInstance.objects.filter(ecs_status='Stopped')
+        ecs_list = EcsProject.objects.filter(ecs_status='Stopped')
         return ecs_list
 
     def get_queryset_is_good(self):
         """
         get all ecs instances which status is running
         """
-        ecs_list = EcsInstance.objects.filter(ecs_status='Running')
+        ecs_list = EcsProject.objects.filter(ecs_status='Running')
         return ecs_list
 
 
@@ -110,19 +110,19 @@ class WafViewList(InstanceBasicViewList):
         """
         get all waf instances
         """
-        waf_list = WafInstance.objects.all()
+        waf_list = WafProject.objects.all()
         return waf_list
 
     def get_queryset_is_bad(self):
         """
         get all waf instances which status is expired
         """
-        waf_list = WafInstance.objects.filter(waf_status=0)
+        waf_list = WafProject.objects.filter(waf_status=0)
         return waf_list
 
     def get_queryset_is_good(self):
         """
         get all waf instances which status is keep working
         """
-        waf_list = WafInstance.objects.filter(waf_status=1)
+        waf_list = WafProject.objects.filter(waf_status=1)
         return waf_list

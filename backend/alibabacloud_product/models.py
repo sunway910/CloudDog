@@ -1,5 +1,3 @@
-# ECS 实例
-
 from django.utils import timezone
 from django.db import models
 from project.models import Project
@@ -17,7 +15,7 @@ class ProductType(models.TextChoices):
         app_label = 'ProductType'
 
 
-class InstanceBaseModel(models.Model):
+class ProjectBaseModel(models.Model):
     api_request_id = models.CharField(primary_key=True, default='', max_length=50, db_comment='API Request Id')
     instance_id = models.CharField(default='', max_length=30, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
@@ -28,22 +26,20 @@ class InstanceBaseModel(models.Model):
         on_delete=models.DO_NOTHING,
         related_name='instance_object'
     )
-    # 先拿一个project对象
-    # project.instance_object.all()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
-        app_label = 'RequestBasicInfo'
+        app_label = 'BasicInfo'
 
     @abstractmethod
     def get_basic_info(self):
         pass
 
 
-class EcsInstance(InstanceBaseModel):
+class EcsProject(ProjectBaseModel):
     Status = (
         ('Pending', '创建中'),
         ('Running', '运行中'),
@@ -106,7 +102,7 @@ class EcsInstance(InstanceBaseModel):
         db_table = 'ecs_api_response'
 
 
-class WafInstance(InstanceBaseModel):
+class WafProject(ProjectBaseModel):
     Status = (
         (0, '表示已过期'),
         (1, '表示未过期'),

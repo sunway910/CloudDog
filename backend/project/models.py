@@ -21,6 +21,7 @@ class Project(models.Model):
     id = models.AutoField(primary_key=True, db_comment='主键ID')
     cloud_platform = models.CharField(default='AlibabaCloud', max_length=100, verbose_name='CloudPlatform', db_comment='云平台类型', choices=CloudPlatform)
     account = ArrayField(models.CharField(), default=list, verbose_name='Account', db_comment='项目RAM账号')
+    region = ArrayField(models.CharField(default='Hongkong'), default=list, verbose_name='Region', db_comment='地域')
     project_name = models.CharField(unique=True, default='MTR', max_length=500, verbose_name='ProjectName', db_comment='项目名称')
     project_access_key = models.CharField(default='', max_length=100, verbose_name='AK', db_comment='Access Key')
     project_secret_key = models.CharField(default='', max_length=100, verbose_name='SK', db_comment='Secret Key')

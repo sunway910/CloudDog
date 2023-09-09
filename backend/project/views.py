@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def get_list(request):
     if request.method == 'GET':
-        projects = Project.objects.values('id', 'cloud_platform', 'account', 'project_name', 'status', 'create_time').order_by('-id')
-        serializer = ProjectSerializer(projects, many=True, fields=('id', 'cloud_platform', 'account', 'project_name', 'status', 'create_time'))
+        projects = Project.objects.values('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time').order_by('-id')
+        serializer = ProjectSerializer(projects, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time'))
         return APIResponse(code=0, msg='success', data=serializer.data)
 
 
@@ -37,7 +37,7 @@ def search(request):
             queryset = queryset.filter(project_name__icontains=project_name)
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
-    serializer = ProjectSerializer(queryset, many=True, fields=('id', 'cloud_platform', 'account', 'project_name', 'status', 'create_time'))
+    serializer = ProjectSerializer(queryset, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time'))
     return APIResponse(code=0, msg='request successfully', data=serializer.data)
 
 
@@ -46,22 +46,16 @@ def search(request):
 @permission_classes([IsAdminUserOrReadOnly])
 def create_or_update(request):
     try:
-        if request.data['id'] is not None:
-            Project.objects.filter(id=request.data['id']).update(
-                account=request.data['account'],
-                project_name=request.data['project_name'],
-                status=request.data['status'],
-                create_time=request.data['create_time']
-            )
-        else:
-            Project.objects.create(
-                account=request.data['account'],
-                cloud_platform=request.data['cloud_platform'],
-                project_name=request.data['project_name'],
-                status=request.data['status'],
-                create_time=request.data['create_time']
-            )
-        return APIResponse(code=0, msg='update project successfully', data=request.data)
+        project = Project.objects.update_or_create(id=request.data['id'], defaults={
+            'account': request.data['account'],
+            'region': request.data['region'],
+            'project_name': request.data['project_name'],
+            'status': request.data['status'],
+            'project_access_key': request.data['project_access_key'],
+            'project_secret_key': request.data['project_secret_key'],
+            'create_time': request.data['create_time']
+        })
+        return APIResponse(code=0, msg='operate project successfully', data=project)
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist error')
 

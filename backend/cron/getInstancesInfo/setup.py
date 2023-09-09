@@ -44,7 +44,7 @@ REQUIRES = [
 ]
 
 LONG_DESCRIPTION = ''
-if os.path.exists('./README.md'):
+if os.path.exists('README.md'):
     with open("README.md", encoding='utf-8') as fp:
         LONG_DESCRIPTION = fp.read()
 
