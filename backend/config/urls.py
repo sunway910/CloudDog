@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     re_path(r'', include('project.urls'), name='project'),
+    re_path(r'', include('alibabacloud_product.urls'), name='alibaba_product'),
 ]
 
 if settings.DEBUG:

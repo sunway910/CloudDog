@@ -51,6 +51,22 @@ class Sample:
             print('Response code: ', DescribeInstanceResponseJsonObject['statusCode'])
             instance_list = DescribeInstanceResponseJsonObject['body']['Instances']['Instance']
             for instance in instance_list:
+                # ecs = EcsInstance()
+                # ecs.api_request_id = instance['RequestId']
+                # ecs.instance_id = instance['InstanceId']
+                # ecs.request_time = datetime.time
+                # ecs.product_type = instance['InstanceTypeFamily']
+                # ecs.project = 'mtr'
+                # ecs.region_id = instance['RegionId']
+                # ecs.ecs_status = instance['Status']
+                # ecs.instance_charge_type = instance['InstanceChargeType']
+                # ecs.internet_charge_type = instance['InternetChargeType']
+                # ecs.expired_time = instance['ExpiredTime']
+                # ecs.stopped_mode = instance['StoppedMode']
+                # ecs.auto_release_time = instance['AutoReleaseTime']
+                # ecs.lock_reason = instance['OperationLocks']['LockReason']
+                # print("ecs ===== ", ecs)
+                # ecs.save()
                 print('实例ID：', instance['InstanceId'])
                 print('实例地域：', instance['RegionId'])
                 print('实例状态：', instance['Status'])
@@ -77,6 +93,10 @@ class Sample:
                 print('实例的自动续费状态: ', instance_info['RenewalStatus'])
                 print('自动续费时长的单位: ', instance_info['PeriodUnit'])
                 print('自动续费时长: ', instance_info['Duration'])
+                # ecs.period_init = instance['InstanceTypeFamily']
+                # ecs.duration = instance['InstanceTypeFamily']
+                # ecs.auto_renew_enabled = instance['InstanceTypeFamily']
+                # ecs.renewal_status = instance['InstanceTypeFamily']
                 print('-----------------------------------------------------------------------------------------------------------------------------')
                 print('-----------------------------------------------------------------------------------------------------------------------------')
 

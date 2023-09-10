@@ -15,13 +15,13 @@ class ProductType(models.TextChoices):
         app_label = 'ProductType'
 
 
-class ProjectBaseModel(models.Model):
+class ProductBaseModel(models.Model):
     api_request_id = models.CharField(primary_key=True, default='', max_length=50, db_comment='API Request Id')
     instance_id = models.CharField(default='', max_length=30, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
     product_type = models.CharField(default=ProductType.ECS, max_length=30, verbose_name='ProductName', db_comment='云产品类型', choices=ProductType.choices)
     project = models.ForeignKey(
-        Project,
+        Project.project_name,
         # https://foofish.net/django-foreignkey-on-delete.html
         on_delete=models.DO_NOTHING,
         related_name='instance_object'
@@ -39,7 +39,7 @@ class ProjectBaseModel(models.Model):
         pass
 
 
-class EcsProject(ProjectBaseModel):
+class EcsInstance(ProductBaseModel):
     Status = (
         ('Pending', '创建中'),
         ('Running', '运行中'),
@@ -68,7 +68,7 @@ class EcsProject(ProjectBaseModel):
         ('Not-applicable', '本实例不支持停机不收费功能'),
     )
     project = models.ForeignKey(
-        Project,
+        Project.project_name,
         on_delete=models.DO_NOTHING,
         related_name='ecs_object'
     )
@@ -99,10 +99,10 @@ class EcsProject(ProjectBaseModel):
         super().save(*args, **kwargs)
 
     class Meta:
-        db_table = 'ecs_api_response'
+        db_table = 'alibabacloud_ecs_api_response'
 
 
-class WafProject(ProjectBaseModel):
+class WafProduct(ProductBaseModel):
     Status = (
         (0, '表示已过期'),
         (1, '表示未过期'),
@@ -143,7 +143,7 @@ class WafProject(ProjectBaseModel):
         (1, '表示是'),
     )
     project = models.ForeignKey(
-        Project,
+        Project.project_name,
         on_delete=models.DO_NOTHING,
         related_name='waf_object'
     )
@@ -168,4 +168,4 @@ class WafProject(ProjectBaseModel):
         super().save(*args, **kwargs)
 
     class Meta:
-        db_table = 'waf_api_response'
+        db_table = 'alibabacloud_waf_api_response'

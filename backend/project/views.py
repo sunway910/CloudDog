@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def get_list(request):
     if request.method == 'GET':
-        projects = Project.objects.values('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time').order_by('-id')
-        serializer = ProjectSerializer(projects, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time'))
+        projects = Project.objects.values('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle').order_by('-id')
+        serializer = ProjectSerializer(projects, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle'))
         return APIResponse(code=0, msg='success', data=serializer.data)
 
 
@@ -37,7 +37,7 @@ def search(request):
             queryset = queryset.filter(project_name__icontains=project_name)
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
-    serializer = ProjectSerializer(queryset, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time'))
+    serializer = ProjectSerializer(queryset, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle'))
     return APIResponse(code=0, msg='request successfully', data=serializer.data)
 
 

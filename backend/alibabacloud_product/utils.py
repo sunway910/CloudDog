@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_max_instance_id():
-    from models import ProjectBaseModel
-    return ProjectBaseModel.objects.latest().pk
+    from models import ProductBaseModel
+    return ProductBaseModel.objects.latest().pk
 
 
 def get_sha256(input_string):

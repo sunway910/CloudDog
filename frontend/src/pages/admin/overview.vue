@@ -15,33 +15,43 @@
 				<el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=auth[0] style="float: right">New</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
 			</div>
-			<el-table :data="projectList" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-				<el-table-column prop="cloud_platform" align="center" label="Cloud Platform"></el-table-column>
-				<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
-				<el-table-column prop="region" align="center" label="Region"></el-table-column>
-				<el-table-column prop="project_name" align="center" label="Project Name" show-overflow-tooltip></el-table-column>
-				<el-table-column label="Status" align="center">
-					<template #default="scope">
-						<el-tag :type="scope.row.status === 'Running' ? 'success' : scope.row.status === 'Stopped' ? 'danger' : ''">
-							{{ scope.row.status }}
-						</el-tag>
-					</template>
-				</el-table-column>
-				<el-table-column prop="create_time" label="Create Time" align="center"></el-table-column>
+			<el-scrollbar style="max-height:300px">
+				<el-table :data="projectList" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
+					<el-table-column prop="cloud_platform" align="center" label="Cloud Platform"></el-table-column>
+					<el-table-column prop="project_name" align="center" label="Project Name" show-overflow-tooltip></el-table-column>
+					<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
+					<el-table-column prop="region" align="center" label="Region"></el-table-column>
+					<el-table-column prop="cron_expression" align="center" label="Expression"></el-table-column>
+					<el-table-column align="center" label="Toggle">
+						<template #default="scope">
+							<el-tag :type="scope.row.cron_toggle  ? 'success' : 'danger'">
+								{{ scope.row.cron_toggle ? "On" : "Off" }}
+							</el-tag>
+						</template>
+					</el-table-column>
+					<el-table-column label="Status" align="center">
+						<template #default="scope">
+							<el-tag :type="scope.row.status === 'Running' ? 'success' : scope.row.status === 'Stopped' ? 'danger' : ''">
+								{{ scope.row.status }}
+							</el-tag>
+						</template>
+					</el-table-column>
+					<el-table-column prop="create_time" label="Create Time" align="center"></el-table-column>
 
-				<el-table-column label="Operation" width="220" align="center">
-					<template #default="scope">
-						<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)" v-auth=auth[0]>
-							Edit
-						</el-button>
-						<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)" v-auth=auth[0]>
-							Delete
-						</el-button>
-					</template>
-				</el-table-column>
+					<el-table-column label="Operation" width="220" align="center">
+						<template #default="scope">
+							<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)" v-auth=auth[0]>
+								Edit
+							</el-button>
+							<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)" v-auth=auth[0]>
+								Delete
+							</el-button>
+						</template>
+					</el-table-column>
 
-			</el-table>
+				</el-table>
+			</el-scrollbar>
 			<div class="admin_pagination">
 				<el-pagination
 					background
@@ -85,6 +95,12 @@
 				</el-form-item>
 				<el-form-item label="Secret Key" required v-show="!createOrUpdateRequest">
 					<el-input v-model="createOrUpdateData.project_secret_key" placeholder="Please input SK"></el-input>
+				</el-form-item>
+				<el-form-item label="Cron Expression" required v-show="!createOrUpdateRequest">
+					<el-input v-model="createOrUpdateData.cron_expression" placeholder="Please input crontab"></el-input>
+				</el-form-item>
+				<el-form-item label="Cron Toggle" required v-show="!createOrUpdateRequest">
+					<el-input v-model="createOrUpdateData.cron_toggle" placeholder="Cron Toggle"></el-input>
 				</el-form-item>
 				<el-form-item label="Status" required>
 					<el-select v-model="createOrUpdateData.status" placeholder="Cloud Platform" class="handle-select mr10">
@@ -175,6 +191,8 @@ interface ProjectItem {
 	project_access_key: string,
 	project_secret_key: string,
 	project_name: string;
+	cron_expression: any;
+	cron_toggle: boolean;
 	status: string;
 	create_time: string;
 }
@@ -201,6 +219,8 @@ let createOrUpdateData = reactive<ProjectItem>({
 	project_name: "",
 	project_access_key: "",
 	project_secret_key: "",
+	cron_expression: "",
+	cron_toggle: true,
 	region: "",
 	account: "",
 	status: "",
@@ -222,12 +242,24 @@ const getProjectList = () => {
 			})
 			pageTotal.value = parseInt(res.data.data.length)
 			projectList.value = res.data.data
+			test()
 		}
 	).catch((err) => {
 		ElMessage.error(err || 'Get project list error');
 	});
 }
 getProjectList(); // init project list
+
+const test = () => {
+	console.log("--------------------------------")
+	sendGetReq({params: undefined, uri: "/ecs/list"}).then((res) => {
+			console.log(res)
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Get project list error');
+	});
+}
+
 
 // search project by cloud_platform and project_name
 const searchProjects = () => {
