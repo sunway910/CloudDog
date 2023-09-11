@@ -16,15 +16,17 @@ class ProductType(models.TextChoices):
 
 
 class ProductBaseModel(models.Model):
-    api_request_id = models.CharField(primary_key=True, default='', max_length=50, db_comment='API Request Id')
+    api_request_id = models.CharField(primary_key=True, default='', max_length=100, db_comment='API Request Id')
     instance_id = models.CharField(default='', max_length=30, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
-    product_type = models.CharField(default=ProductType.ECS, max_length=30, verbose_name='ProductName', db_comment='云产品类型', choices=ProductType.choices)
+    product_type = models.CharField(default=ProductType.ECS.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    project_name = models.CharField(default='', max_length=30, verbose_name='Project Name', db_comment='项目名称')
     project = models.ForeignKey(
-        Project.project_name,
+        to="project.Project",  # which table
+        to_field="id",  # which column in table
         # https://foofish.net/django-foreignkey-on-delete.html
-        on_delete=models.DO_NOTHING,
-        related_name='instance_object'
+        on_delete=models.CASCADE,  # When a project is deleted, all products belonging to that project will be deleted
+        related_name='productInProject'  # query a product info from project: project.productInProject.all()
     )
 
     def save(self, *args, **kwargs):
@@ -32,14 +34,14 @@ class ProductBaseModel(models.Model):
 
     class Meta:
         abstract = True
-        app_label = 'BasicInfo'
+        app_label = 'ProductBasicInfo'
 
     @abstractmethod
     def get_basic_info(self):
         pass
 
 
-class EcsInstance(ProductBaseModel):
+class AlibabacloudEcsApiResponse(ProductBaseModel):
     Status = (
         ('Pending', '创建中'),
         ('Running', '运行中'),
@@ -68,19 +70,19 @@ class EcsInstance(ProductBaseModel):
         ('Not-applicable', '本实例不支持停机不收费功能'),
     )
     project = models.ForeignKey(
-        Project.project_name,
-        on_delete=models.DO_NOTHING,
-        related_name='ecs_object'
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='ECSInProject'
     )
-    product_type = ProductType.ECS
 
     """ ECS Instance Property """
-    # API: DescribeInstanceAutoRenewAttribute
-    auto_renew_enabled = models.BooleanField(default=False, verbose_name='AutoRenewEnabled', db_comment='是否已开启自动续费功能')
+    product_type = models.CharField(default=ProductType.ECS.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    auto_renew_enabled = models.BooleanField(default=True, verbose_name='AutoRenewEnabled', db_comment='是否已开启自动续费功能')
+    instance_name = models.CharField(default='', max_length=30, verbose_name='InstanceName', db_comment='实例的自定义名称')
     renewal_status = models.CharField(default='', max_length=30, verbose_name='RenewalStatus', db_comment='实例的自动续费状态')
     period_init = models.CharField(default='', max_length=20, verbose_name='PeriodUnit', db_comment='自动续费时长的单位')
-    duration = models.IntegerField(default=None, verbose_name='Duration', db_comment='自动续费时长')
-    # API: DescribeInstances
+    duration = models.IntegerField(default=0, verbose_name='Duration', db_comment='自动续费时长')
     region_id = models.CharField(default='', max_length=30, verbose_name='RegionId', db_comment='实例地域')
     ecs_status = models.CharField(default='', max_length=20, verbose_name='EcsStatus', db_comment='实例状态', choices=Status)
     instance_charge_type = models.CharField(default='', max_length=30, verbose_name='InstanceChargeType', db_comment='实例付费类型', choices=InstanceChargeType)
@@ -92,17 +94,14 @@ class EcsInstance(ProductBaseModel):
     lock_reason = models.CharField(default='', max_length=30, verbose_name='LockReason', db_comment='实例的锁定原因', choices=LockReason)
 
     def get_basic_info(self):
-        to_string = 'ECS: Region {}, instance {} status is {}'.format(self.region_id, self.instance_id, self.ecs_status)
+        to_string = 'ECS LOG: {} \'s instance {} in {} status is {}'.format(self.project_name, self.instance_name, self.region_id, self.ecs_status)
         return to_string
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'alibabacloud_ecs_api_response'
 
 
-class WafProduct(ProductBaseModel):
+class AlibabacloudWafApiResponse(ProductBaseModel):
     Status = (
         (0, '表示已过期'),
         (1, '表示未过期'),
@@ -143,13 +142,14 @@ class WafProduct(ProductBaseModel):
         (1, '表示是'),
     )
     project = models.ForeignKey(
-        Project.project_name,
-        on_delete=models.DO_NOTHING,
-        related_name='waf_object'
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='WAFInProject'
     )
-    product_type = ProductType.WAF
 
     """ WAF Instance Property """
+    product_type = models.CharField(default=ProductType.WAF.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例是否过期', choices=Status)
     end_date = models.IntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
     version = models.CharField(default='', max_length=40, verbose_name='Version', db_comment='WAF实例的版本', choices=Version)
@@ -161,11 +161,8 @@ class WafProduct(ProductBaseModel):
     trial = models.IntegerField(default=None, verbose_name='Trial', db_comment='当前阿里云账号是否开通了试用版WAF实例', choices=Trial)
 
     def get_basic_info(self):
-        to_string = 'WAF: Region {}, instance {} status is {}'.format(self.region, self.instance_id, self.waf_status)
+        to_string = 'WAF LOG: {} \'s instance {} in {} status is {}'.format(self.project_name, self.instance_id, self.region, self.waf_status)
         return to_string
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'alibabacloud_waf_api_response'

@@ -6,4 +6,5 @@ app_name = "ecs"
 urlpatterns = [
     path('api/ecs/list', views.get_list),
     path('api/ecs/search', views.search),
+    path('api/ecs/init', views.init_list),
 ]
