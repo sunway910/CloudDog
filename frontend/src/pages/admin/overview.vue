@@ -22,7 +22,7 @@
 					<el-table-column prop="project_name" align="center" label="Project Name" show-overflow-tooltip></el-table-column>
 					<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
 					<el-table-column prop="region" align="center" label="Region"></el-table-column>
-					<el-table-column prop="cron_expression" align="center" label="Expression"></el-table-column>
+					<el-table-column prop="cron_expression" align="center" label="Cron Expression"></el-table-column>
 					<el-table-column align="center" label="Toggle">
 						<template #default="scope">
 							<el-tag :type="scope.row.cron_toggle  ? 'success' : 'danger'">
@@ -188,8 +188,8 @@ interface ProjectItem {
 	cloud_platform: string;
 	region: any;
 	account: any;
-	project_access_key: string,
-	project_secret_key: string,
+	project_access_key: any,
+	project_secret_key: any,
 	project_name: string;
 	cron_expression: any;
 	cron_toggle: boolean;
@@ -217,8 +217,8 @@ let createOrUpdateData = reactive<ProjectItem>({
 	id: -1,
 	cloud_platform: "",
 	project_name: "",
-	project_access_key: "",
-	project_secret_key: "",
+	project_access_key: null,
+	project_secret_key: null,
 	cron_expression: "",
 	cron_toggle: true,
 	region: "",
@@ -242,7 +242,6 @@ const getProjectList = () => {
 			})
 			pageTotal.value = parseInt(res.data.data.length)
 			projectList.value = res.data.data
-			test()
 		}
 	).catch((err) => {
 		ElMessage.error(err || 'Get project list error');
@@ -250,15 +249,7 @@ const getProjectList = () => {
 }
 getProjectList(); // init project list
 
-const test = () => {
-	console.log("--------------------------------")
-	sendGetReq({params: undefined, uri: "/ecs/list"}).then((res) => {
-			console.log(res)
-		}
-	).catch((err) => {
-		ElMessage.error(err || 'Get project list error');
-	});
-}
+
 
 
 // search project by cloud_platform and project_name
