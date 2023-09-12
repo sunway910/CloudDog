@@ -186,4 +186,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-PAGINATE_BY = 15
+PAGINATOR = {
+    'max_page_size': 50,
+    'page_index': 'page_index',
+    'page_size': 'page_size'
+}

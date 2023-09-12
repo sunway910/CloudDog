@@ -1,14 +1,20 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.paginator import Paginator
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
 from handler import APIResponse
 from project.models import Project
 from project.serializers import ProjectSerializer
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from paginator import CustomPaginator
 from .permissions import IsAdminUserOrReadOnly
+
 import logging
 import time
 
 logger = logging.getLogger(__name__)
+
+PROJECT_SERIALIZER_FIELDS = ['id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle']
 
 
 @api_view(['GET'])
@@ -16,8 +22,22 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def get_list(request):
     if request.method == 'GET':
-        projects = Project.objects.values('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle').order_by('-id')
-        serializer = ProjectSerializer(projects, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle'))
+        projectList = Project.objects.values(
+            'id',
+            'cloud_platform',
+            'region',
+            'account',
+            'project_name',
+            'status',
+            'create_time',
+            'cron_expression',
+            'cron_toggle'
+        ).order_by('-id')
+
+        paginator = CustomPaginator(request, projectList)
+        data = paginator.get_page()
+
+        serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
         return APIResponse(code=0, msg='success', data=serializer.data)
 
 
@@ -30,14 +50,26 @@ def search(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
-        queryset = Project.objects.all()
+        projectList = Project.objects.values(
+            'id',
+            'cloud_platform',
+            'region',
+            'account',
+            'project_name',
+            'status',
+            'create_time',
+            'cron_expression',
+            'cron_toggle'
+        ).order_by('-id')
         if cloud_platform and cloud_platform != "All":
-            queryset = queryset.filter(cloud_platform=cloud_platform)
+            projectList = projectList.filter(cloud_platform=cloud_platform)
         if project_name:
-            queryset = queryset.filter(project_name__icontains=project_name)
+            projectList = projectList.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, projectList)
+        data = paginator.get_page()
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
-    serializer = ProjectSerializer(queryset, many=True, fields=('id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle'))
+    serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
     return APIResponse(code=0, msg='request successfully', data=serializer.data)
 
 

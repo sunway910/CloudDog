@@ -9,10 +9,10 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 
 from alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer
 from handler import APIResponse
+from paginator import CustomPaginator
 from project.models import Project
 from alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
 from asgiref.sync import sync_to_async
-
 
 import logging
 import asyncio
@@ -42,7 +42,8 @@ def create_client(access_key_id: str, access_key_secret: str, ) -> EcsApiClient:
 
 @sync_to_async
 def get_ecs_api_response() -> None:
-    project_list = Project.objects.filter(project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True).values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         client = create_client(project['project_access_key'], project['project_secret_key'])
@@ -101,7 +102,9 @@ def init_list(request):
 @permission_classes([IsAuthenticated])
 def get_list(request):
     alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all()
-    serializer = AlibabacloudEcsApiResponseSerializer(alibabacloudEcsApiResponse, many=True)
+    paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
+    data = paginator.get_page()
+    serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
     return APIResponse(code=0, msg='success', data=serializer.data)
 
 
@@ -112,12 +115,14 @@ def search(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
-        queryset = AlibabacloudEcsApiResponse.objects.all()
+        alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all()
         if cloud_platform and cloud_platform != "All":
-            queryset = queryset.filter(cloud_platform=cloud_platform)
+            alibabacloudEcsApiResponse = alibabacloudEcsApiResponse.filter(cloud_platform=cloud_platform)
         if project_name:
-            queryset = queryset.filter(project_name__icontains=project_name)
+            alibabacloudEcsApiResponse = alibabacloudEcsApiResponse.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
+        data = paginator.get_page()
     except AlibabacloudEcsApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
-    serializer = AlibabacloudEcsApiResponseSerializer(queryset, many=True)
+    serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
     return APIResponse(code=0, msg='request successfully', data=serializer.data)
