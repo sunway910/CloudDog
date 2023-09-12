@@ -12,16 +12,35 @@
 				</el-select>
 				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
-				<el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=auth[0] style="float: right">New</el-button>
+				<el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">New</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
 			</div>
-			<el-scrollbar style="max-height:300px">
-				<el-table :data="projectList" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-					<el-table-column prop="cloud_platform" align="center" label="Cloud Platform"></el-table-column>
-					<el-table-column prop="project_name" align="center" label="Project Name" show-overflow-tooltip></el-table-column>
+			<el-scrollbar>
+				<el-table :data="projectList.slice((queryConditions.pageIndex - 1) * queryConditions.pageSize, queryConditions.pageIndex * queryConditions.pageSize)" border class="table"
+									header-cell-class-name="table-header">
+					<!--					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>-->
+					<el-table-column align="center" label="Cloud Platform">
+						<template #default="scope">
+							<div style="font-weight: bold;color: red">
+								{{ scope.row.cloud_platform }}
+							</div>
+						</template>
+					</el-table-column>
+					<el-table-column align="center" label="Project Name" show-overflow-tooltip>
+						<template #default="scope">
+							<div style="font-weight: bold">
+								{{ scope.row.project_name }}
+							</div>
+						</template>
+					</el-table-column>
 					<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
-					<el-table-column prop="region" align="center" label="Region"></el-table-column>
+					<el-table-column align="center" label="Region">
+						<template #default="scope" style="font-weight: bold">
+							<div style="font-weight: bold">
+								{{ scope.row.region.toString().split('-')[1].substring(0, 1).toUpperCase() + scope.row.region.toString().split('-')[1].substring(1).toLowerCase() }}
+							</div>
+						</template>
+					</el-table-column>
 					<el-table-column prop="cron_expression" align="center" label="Cron Expression"></el-table-column>
 					<el-table-column align="center" label="Toggle">
 						<template #default="scope">
@@ -39,12 +58,12 @@
 					</el-table-column>
 					<el-table-column prop="create_time" label="Create Time" align="center"></el-table-column>
 
-					<el-table-column label="Operation" width="220" align="center">
+					<el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))">
 						<template #default="scope">
-							<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)" v-auth=auth[0]>
+							<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)">
 								Edit
 							</el-button>
-							<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)" v-auth=auth[0]>
+							<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)">
 								Delete
 							</el-button>
 						</template>
@@ -55,11 +74,13 @@
 			<div class="admin_pagination">
 				<el-pagination
 					background
-					layout="total, prev, pager, next"
+					layout="prev, pager, next,jumper, ->, total, slot"
 					:current-page="queryConditions.pageIndex"
+					:page-sizes="[5, 10, 15, 20]"
 					:page-size="queryConditions.pageSize"
 					:total="pageTotal"
 					@current-change="handlePageChange"
+					@size-change="handleSizeChange"
 				></el-pagination>
 			</div>
 		</div>
@@ -143,8 +164,10 @@ import {ref, reactive} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {Delete, Edit, Search, Plus, Refresh} from '@element-plus/icons-vue';
 import router from "@/plugins/router";
+import {useAuthStore} from "~/stores/auth";
 
-const auth = ['admin', 'user']
+const auth = useAuthStore();
+const role = ['admin', 'user']
 const statusOptions = [
 	{
 		value: 'Running',
@@ -205,7 +228,7 @@ const queryConditions = reactive({
 	cloud_platform: "",
 	project_name: "",
 	pageIndex: 1,
-	pageSize: 10,
+	pageSize: 5,
 });
 
 const DialogVisible = ref(false); // el-dialog
@@ -229,7 +252,13 @@ let createOrUpdateData = reactive<ProjectItem>({
 
 // get project list
 const getProjectList = () => {
-	sendGetReq({params: undefined, uri: "/project/list"}).then((res) => {
+	sendGetReq({
+		uri: "/project/list",
+		params: {
+			page_index: queryConditions.pageIndex,
+			page_size: queryConditions.pageSize
+		}
+	}).then((res) => {
 			res.data.data.map((item) => { // set account_list to account_string( the )
 				let accountList = [];
 				let regionList = [];
@@ -250,11 +279,17 @@ const getProjectList = () => {
 getProjectList(); // init project list
 
 
-
-
 // search project by cloud_platform and project_name
 const searchProjects = () => {
-	sendGetReq({uri: "/project/detail", params: {cloud_platform: queryConditions.cloud_platform, project_name: queryConditions.project_name}}).then((res) => {
+	sendGetReq({
+		uri: "/project/detail",
+		params: {
+			page_index: queryConditions.pageIndex,
+			page_size: queryConditions.pageSize,
+			cloud_platform: queryConditions.cloud_platform,
+			project_name: queryConditions.project_name
+		}
+	}).then((res) => {
 			pageTotal.value = parseInt(res.data.data.length)
 			projectList.value = res.data.data
 		}
@@ -306,6 +341,10 @@ const handlePageChange = (val: number) => {
 	getProjectList();
 };
 
+const handleSizeChange = (val: number) => {
+	queryConditions.pageSize = val
+};
+
 const handleUpdate = (index: number, row: any) => {
 	idx = index;
 	createOrUpdateData = row; // init data which should be updated
@@ -330,7 +369,12 @@ const clearCreateOrUpdateData = () => {
 
 </script>
 
-<style scoped>
+<style>
+
+.el-scrollbar__bar.is-horizontal {
+	height: 15px !important;
+}
+
 .handle-box {
 	margin-bottom: 20px;
 }

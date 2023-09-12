@@ -18,9 +18,8 @@
 			</div>
 
 			<el-scrollbar>
-				<el-table :data="elasticComputeResourceList"
+				<el-table :data="elasticComputeResourceList.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)"
 									border
-									ref="multipleTable"
 									header-cell-class-name="table-header"
 									:row-class-name="tableRowClassName"
 									scrollbar-always-on
@@ -79,7 +78,13 @@
 					<el-table-column prop="start_time" align="center" label="Instance Start Time" show-overflow-tooltip width="160px"></el-table-column>
 					<el-table-column prop="instance_id" align="center" label="Instance ID" width="150px" show-overflow-tooltip></el-table-column>
 					<el-table-column prop="lock_reason" align="center" label="Lock Reason" show-overflow-tooltip width="120px"></el-table-column>
-					<el-table-column prop="auto_release_time" align="center" label="Auto Release Time" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="auto_release_time" align="center" label="Auto Release Time" show-overflow-tooltip width="180px">
+						<template #default="scope">
+							<el-tag>
+								{{ scope.row.auto_release_time ? scope.row.auto_release_time : '-' }}
+							</el-tag>
+						</template>
+					</el-table-column>
 
 				</el-table>
 			</el-scrollbar>
@@ -88,8 +93,8 @@
 				<el-pagination
 					background
 					layout="total, prev, pager, next"
-					:current-page="queryConditions.pageIndex"
-					:page-size="queryConditions.pageSize"
+					:current-page="pageIndex"
+					:page-size="pageSize"
 					:total="pageTotal"
 					@current-change="handlePageChange"
 				></el-pagination>
@@ -164,11 +169,8 @@ const pageTotal = ref(0);
 const queryConditions = reactive({
 	cloud_platform: "",
 	project_name: "",
-	pageIndex: 1,
-	pageSize: 10,
 });
-
-
+let pageIndex = 1, pageSize = 20;
 const tableRowClassName = ({row}: {
 	row: ElasticComputeResource
 }) => {
@@ -182,7 +184,13 @@ const tableRowClassName = ({row}: {
 
 // get Elastic Compute Resource list
 const getECRList = () => {
-	sendGetReq({params: undefined, uri: "/ecs/list"}).then((res) => {
+	sendGetReq({
+		params: {
+			page_index: pageIndex,
+			page_size: pageSize
+		},
+		uri: "/ecs/list"
+	}).then((res) => {
 			pageTotal.value = parseInt(res.data.data.length)
 			elasticComputeResourceList.value = res.data.data
 		}
@@ -205,14 +213,15 @@ const searchProjects = () => {
 
 
 const handlePageChange = (val: number) => {
-	queryConditions.pageIndex = val;
+	console.log("row==", val)
+	pageIndex = val;
 	getECRList();
 };
 
 
 </script>
 
-<style scoped>
+<style>
 .handle-box {
 	margin-bottom: 20px;
 }
@@ -242,22 +251,8 @@ const handlePageChange = (val: number) => {
 	border-radius: 5px;
 }
 
-.scrollbar-flex-content {
-	display: flex;
-}
-
-.scrollbar-demo-item {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100px;
-	height: 50px;
-	margin: 10px;
-	text-align: center;
-	border-radius: 4px;
-	background: var(--el-color-danger-light-9);
-	color: var(--el-color-danger);
+.el-scrollbar__bar.is-horizontal {
+	height: 15px !important;
 }
 
 .el-table .warning-row {

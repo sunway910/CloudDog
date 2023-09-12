@@ -36,7 +36,7 @@ html.dark {
 */
 ::-webkit-scrollbar {
 	width: 8px;
-	height: 11px;
+	height: 15px;
 	background-color: rgb(246, 247, 248);
 }
 
@@ -49,6 +49,7 @@ html.dark {
 	background-color: rgb(246, 247, 248);
 	border-radius: 10px;
 }
+
 
 html.dark ::-webkit-scrollbar,
 html.dark ::-webkit-scrollbar-track {
