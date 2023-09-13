@@ -19,6 +19,9 @@ const {t} = useI18n();
 					 target="_blank">
 					About
 				</a>
+        <RouterLink class="rounded-lg px-3" to="/admin/overview">
+					Admin
+				</RouterLink>
 				<RouterLink class="rounded-lg px-3" to="/login">
 					Login
 				</RouterLink>
