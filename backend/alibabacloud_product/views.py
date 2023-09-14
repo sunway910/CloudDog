@@ -6,6 +6,8 @@ from alibabacloud_tea_util.client import Client as UtilClient
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from alibabacloud_waf_openapi20190910.client import Client as WAFApiClient
+from alibabacloud_waf_openapi20190910 import models as waf_openapi_20190910_models
 
 from alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer
 from handler import APIResponse
@@ -21,7 +23,7 @@ import json
 logger = logging.getLogger(__name__)
 
 
-def create_client(access_key_id: str, access_key_secret: str, ) -> EcsApiClient:
+def create_ecs_client(access_key_id: str, access_key_secret: str, ) -> EcsApiClient:
     """
     use AK&SK to init Client
     @param access_key_id: LTAI5sQAwvrwHZQx7PuG2ur4
@@ -40,13 +42,32 @@ def create_client(access_key_id: str, access_key_secret: str, ) -> EcsApiClient:
     return EcsApiClient(config)
 
 
+def create_waf_client(access_key_id: str, access_key_secret: str, ) -> WAFApiClient:
+    """
+    使用AK&SK初始化账号Client
+    @param access_key_id:
+    @param access_key_secret:
+    @return: Client
+    @throws Exception
+    """
+    config = open_api_models.Config(
+        # 必填，您的 AccessKey ID,
+        access_key_id=access_key_id,
+        # 必填，您的 AccessKey Secret,
+        access_key_secret=access_key_secret
+    )
+    # Endpoint 请参考 https://api.aliyun.com/product/waf-openapi
+    config.endpoint = f'wafopenapi.cn-hangzhou.aliyuncs.com'
+    return WAFApiClient(config)
+
+
 @sync_to_async
-def get_ecs_api_response() -> None:
+def get_ecr_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     runtime = util_models.RuntimeOptions()
     for project in project_list:
-        client = create_client(project['project_access_key'], project['project_secret_key'])
+        client = create_ecs_client(project['project_access_key'], project['project_secret_key'])
         for region in project['region']:
             describe_instances_request = ecs_20140526_models.DescribeInstancesRequest(region_id=region)
             try:
@@ -89,29 +110,60 @@ def get_ecs_api_response() -> None:
                 UtilClient.assert_as_string(error)
 
 
+@sync_to_async
+def get_waf_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    print("project_list", project_list)
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        print("project['project_access_key']", project['project_access_key'])
+        print("project['project_secret_key']", project['project_secret_key'])
+        client = create_waf_client(project['project_access_key'], project['project_secret_key'])
+        describe_instance_info_request = waf_openapi_20190910_models.DescribeInstanceInfoRequest()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            res = client.describe_instance_info_with_options(describe_instance_info_request, runtime)
+            DescribeInstanceAutoRenewAttributeResponseToStr = UtilClient.to_jsonstring(res)
+            DescribeInstanceAutoRenewAttributeResponseJsonObject = json.loads(DescribeInstanceAutoRenewAttributeResponseToStr)
+            print("DescribeInstanceAutoRenewAttributeResponseJsonObject==", DescribeInstanceAutoRenewAttributeResponseJsonObject)
+        except Exception as error:
+            # 如有需要，请打印 error
+            UtilClient.assert_as_string(error.message)
+
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_list(request):
-    res = asyncio.run(get_ecs_api_response())
+def init_ecr_list(request):
+    res = asyncio.run(get_ecr_api_response())
     return APIResponse(code=0, msg='request successfully', data=res)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def get_list(request):
-    alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all()
-    paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
-    data = paginator.get_page()
-    serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
-    return APIResponse(code=0, msg='success', data=serializer.data)
+def init_waf_list(request):
+    res = asyncio.run(get_waf_api_response())
+    return APIResponse(code=0, msg='request successfully', data=res)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def search(request):
+def get_ecr_list(request):
+    alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all()
+    paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
+    total = paginator.count
+    data = paginator.get_page()
+    serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
+    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def search_ecr(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
@@ -121,8 +173,9 @@ def search(request):
         if project_name:
             alibabacloudEcsApiResponse = alibabacloudEcsApiResponse.filter(project_name__icontains=project_name)
         paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
+        total = paginator.count
         data = paginator.get_page()
     except AlibabacloudEcsApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
-    return APIResponse(code=0, msg='request successfully', data=serializer.data)
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

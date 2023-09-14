@@ -36,9 +36,10 @@ def get_list(request):
 
         paginator = CustomPaginator(request, projectList)
         data = paginator.get_page()
+        total = paginator.count
 
         serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
-        return APIResponse(code=0, msg='success', data=serializer.data)
+        return APIResponse(code=0, msg='success', total=total, data=serializer.data)
 
 
 # select * from project where project.project_name = project_name and cloud_platform = cloud_platform
@@ -67,10 +68,11 @@ def search(request):
             projectList = projectList.filter(project_name__icontains=project_name)
         paginator = CustomPaginator(request, projectList)
         data = paginator.get_page()
+        total = paginator.count
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
-    return APIResponse(code=0, msg='request successfully', data=serializer.data)
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['POST'])
