@@ -2,7 +2,7 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="queryConditions.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
+				<el-select v-model="queryConditions.region" placeholder="Cloud Platform" class="handle-select mr10">
 					<el-option
 						v-for="item in platformOptions"
 						:key="item.value"
@@ -16,7 +16,7 @@
 				<el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
 			</div>
 			<el-scrollbar>
-				<el-table :data="projectList.slice((queryConditions.pageIndex - 1) * queryConditions.pageSize, queryConditions.pageIndex * queryConditions.pageSize)" border class="table"
+				<el-table :data="projectList" border class="table"
 									header-cell-class-name="table-header">
 					<!--					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>-->
 					<el-table-column align="center" label="Cloud Platform">
@@ -71,17 +71,21 @@
 
 				</el-table>
 			</el-scrollbar>
+
+
 			<div class="admin_pagination">
 				<el-pagination
-					background
-					layout="prev, pager, next,jumper, ->, total, slot"
-					:current-page="queryConditions.pageIndex"
-					:page-sizes="[5, 10, 15, 20]"
-					:page-size="queryConditions.pageSize"
-					:total="pageTotal"
-					@current-change="handlePageChange"
+					v-model:current-page="currentPageIndex"
+					v-model:page-size="pageSize"
+					:page-sizes="[10, 20, 30, 50]"
+					:small="small"
+					:disabled="disabled"
+					:background="background"
+					layout="total, sizes, prev, pager, next, jumper"
+					:total=pageTotal
 					@size-change="handleSizeChange"
-				></el-pagination>
+					@current-change="handlePageChange"
+				/>
 			</div>
 		</div>
 
@@ -89,7 +93,7 @@
 		<el-dialog title="Edit" v-model="DialogVisible" width="40%">
 			<el-form label-width="150px" v-model="createOrUpdateData">
 				<el-form-item label="Cloud Platform">
-					<el-select v-model="createOrUpdateData.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10" :disabled="createOrUpdateRequest">
+					<el-select v-model="createOrUpdateData.region" placeholder="Cloud Platform" class="handle-select mr10" :disabled="createOrUpdateRequest">
 						<el-option
 							v-for="item in platformOptions"
 							:key="item.value"
@@ -165,7 +169,9 @@ import {ElMessage, ElMessageBox} from 'element-plus';
 import {Delete, Edit, Search, Plus, Refresh} from '@element-plus/icons-vue';
 import router from "@/plugins/router";
 import {useAuthStore} from "~/stores/auth";
-
+const small = ref(false)
+const background = ref(true)
+const disabled = ref(false)
 const auth = useAuthStore();
 const role = ['admin', 'user']
 const statusOptions = [
@@ -208,7 +214,7 @@ const platformOptions = [
 // The pattern of Project
 interface ProjectItem {
 	id: any;
-	cloud_platform: string;
+	region: string;
 	region: any;
 	account: any;
 	project_access_key: any,
@@ -225,12 +231,11 @@ const pageTotal = ref(0);
 
 // The conditions of search api
 const queryConditions = reactive({
-	cloud_platform: "",
+	region: "",
 	project_name: "",
-	pageIndex: 1,
-	pageSize: 5,
 });
-
+let currentPageIndex = ref(1);
+let pageSize = ref(10);
 const DialogVisible = ref(false); // el-dialog
 const createOrUpdateRequest = ref(true);  // false means create request, true means update request
 let idx: number = -1;
@@ -238,7 +243,7 @@ let idx: number = -1;
 // create or update project
 let createOrUpdateData = reactive<ProjectItem>({
 	id: -1,
-	cloud_platform: "",
+	region: "",
 	project_name: "",
 	project_access_key: null,
 	project_secret_key: null,
@@ -255,8 +260,8 @@ const getProjectList = () => {
 	sendGetReq({
 		uri: "/project/list",
 		params: {
-			page_index: queryConditions.pageIndex,
-			page_size: queryConditions.pageSize
+			page_index: currentPageIndex.value,
+			page_size: pageSize.value
 		}
 	}).then((res) => {
 			res.data.data.map((item) => { // set account_list to account_string( the )
@@ -282,11 +287,11 @@ getProjectList(); // init project list
 // search project by cloud_platform and project_name
 const searchProjects = () => {
 	sendGetReq({
-		uri: "/project/detail",
+		uri: "/project/search",
 		params: {
-			page_index: queryConditions.pageIndex,
-			page_size: queryConditions.pageSize,
-			cloud_platform: queryConditions.cloud_platform,
+			page_index: currentPageIndex.value,
+			page_size: pageSize.value,
+			region: queryConditions.region,
 			project_name: queryConditions.project_name
 		}
 	}).then((res) => {
@@ -337,13 +342,14 @@ const deleteProject = (row: any) => {
 };
 
 const handlePageChange = (val: number) => {
-	queryConditions.pageIndex = val;
+	currentPageIndex.value = val;
 	getProjectList();
 };
 
 const handleSizeChange = (val: number) => {
-	queryConditions.pageSize = val
-};
+	pageSize.value = val;
+	getProjectList();
+}
 
 const handleUpdate = (index: number, row: any) => {
 	idx = index;

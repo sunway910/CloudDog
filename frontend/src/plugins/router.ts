@@ -65,7 +65,7 @@ export const getRoutes = createGetRoutes(router)
 
 router.beforeEach((to, from, next) => {
 	document.title = `${to.meta.title} | CloudPlatformMonitor`;
-	const role = localStorage.getItem('username');
+	const role = localStorage.getItem('access');
 	const auth = useAuthStore();
 	if (!role && to.path !== '/login') {
 		next('/login');

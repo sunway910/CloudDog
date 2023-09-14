@@ -1,210 +1,232 @@
+<!--Elastic Compute Service-->
 <template>
+
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="query.name" placeholder="waf" class="handle-select mr10">
-					<el-option key="1" label="非中国大陆" value="mainland"></el-option>
-					<el-option key="2" label="中国大陆" value="oversea"></el-option>
+				<el-select v-model="queryConditions.region" placeholder="Region" class="handle-select mr10">
+					<el-option
+						v-for="item in regionOptions"
+						:key="item.value"
+						:label="item.label"
+						:value="item.value"
+					/>
 				</el-select>
-				<el-input v-model="query.name" placeholder="waf" class="handle-input mr10"></el-input>
-				<el-button type="primary" :icon="Search" @click="handleSearch">search</el-button>
-				<el-button type="primary" :icon="Plus">新增</el-button>
+				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
+				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
-			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-				<el-table-column prop="instanceid" label="用户名"></el-table-column>
-				<el-table-column label="属于">
-					<template #default="scope">{{ scope.row.belongto }}</template>
-				</el-table-column>
-				<el-table-column label="状态" align="center">
-					<template #default="scope">
-						<el-tag :type="scope.row.state === '成功' ? 'success' : scope.row.state === '失败' ? 'danger' : ''">
-							{{ scope.row.state }}
-						</el-tag>
-					</template>
-				</el-table-column>
 
-				<el-table-column prop="date" label="注册时间"></el-table-column>
+			<el-scrollbar>
+				<el-table :data="WAFResourceList"
+									border
+									header-cell-class-name="table-header"
+									:row-class-name="tableRowClassName"
+									scrollbar-always-on
+									style="width: 100%">
+					<el-table-column prop="api_request_id" align="center" label="Request ID" width="100px" show-overflow-tooltip></el-table-column>
 
-				<el-table-column label="操作" width="220" align="center">
-					<template #default="scope">
-						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-auth="15">
-							编辑
-						</el-button>
-						<el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-auth="16">
-							删除
-						</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
-			<div class="pagination">
+					<el-table-column align="center" label="Region" show-overflow-tooltip width="150px" font-weight: bold>
+						<template #default="scope" style="font-weight: bold">
+							<div style="font-weight: bold">
+								{{ scope.row.region}}
+							</div>
+						</template>
+					</el-table-column>
+
+					<el-table-column label="Status" align="center" width="100px">
+						<template #default="scope">
+							<el-tag :type="scope.row.waf_status === 'Running' ? 'success' : 'danger'">
+								{{ scope.row.ecs_status }}
+							</el-tag>
+						</template>
+					</el-table-column>
+
+					<el-table-column align="center" label="End Date" show-overflow-tooltip width="150px">
+						<template #default="scope">
+							<el-tag>
+								{{ scope.row.end_date }}
+							</el-tag>
+						</template>
+					</el-table-column>
+
+					<el-table-column prop="api_request_id" align="center" label="Instance Charge Type" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="instance_id" align="center" label="Renewal Time" show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="request_time" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="product_type" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="project" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="version" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="remain_day" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="pay_type" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="in_debt" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="subscription_type" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="trial" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+
+				</el-table>
+			</el-scrollbar>
+
+			<div class="admin_pagination">
 				<el-pagination
-					background
-					layout="total, prev, pager, next"
-					:current-page="query.pageIndex"
-					:page-size="query.pageSize"
-					:total="pageTotal"
+					v-model:current-page="currentPageIndex"
+					v-model:page-size="pageSize"
+					:page-sizes="[10, 20, 30, 50]"
+					:small="small"
+					:disabled="disabled"
+					:background="background"
+					layout="total, sizes, prev, pager, next, jumper"
+					:total=pageTotal
+					@size-change="handleSizeChange"
 					@current-change="handlePageChange"
-				></el-pagination>
+				/>
 			</div>
 		</div>
 
-		<!-- 编辑弹出框 -->
-		<el-dialog title="编辑" v-model="editVisible" width="30%">
-			<el-form label-width="70px">
-				<el-form-item label="用户名">
-					<el-input v-model="form.name"></el-input>
-				</el-form-item>
-			</el-form>
-			<template #footer>
-				<span class="dialog-footer">
-					<el-button @click="editVisible = false">取 消</el-button>
-					<el-button type="primary" @click="saveEdit">确 定</el-button>
-				</span>
-			</template>
-		</el-dialog>
 	</div>
 </template>
 
-<script setup lang="ts" >
+<script setup lang="ts">
 import {ref, reactive} from 'vue';
-import {ElMessage, ElMessageBox} from 'element-plus';
-import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
+import {ElMessage} from 'element-plus';
+import {Search, Refresh} from '@element-plus/icons-vue';
+import router from "@/plugins/router";
 
-interface TableItem {
-	id: number;
-	instanceid: string;
-	belongto: string;
-	state: string;
-	date: string;
+const auth = ['admin', 'user']
+const small = ref(false)
+const background = ref(true)
+const disabled = ref(false)
+const regionOptions = [
+	{
+		value: '非中国大陆',
+		label: 'Oversea',
+	},
+	{
+		value: '中国大陆',
+		label: 'Mainland',
+	},
+]
+
+// The pattern of Project
+interface WAFResource {
+	api_request_id: any,
+	instance_id: string,
+	request_time: string,
+	product_type: string,
+	project: string,
+	waf_status: number,
+	end_date: bigint,
+	version: string,
+	remain_day: number,
+	region: string,
+	pay_type: number,
+	in_debt: number,
+	subscription_type: string,
+	trial: number,
 }
 
-const query = reactive({
-	name: '',
-	pageIndex: 1,
-	pageSize: 10
-});
-
-
-const obj = [
-	{
-		id: 1,
-		instanceid: "waf1",
-		belongto: 123,
-		state: "成功",
-		date: "2019-11-1"
-	},
-	{
-		id: 2,
-		instanceid: "waf3",
-		belongto: 456,
-		state: "成功",
-		date: "2019-10-11"
-	},
-	{
-		id: 3,
-		instanceid: "waf3",
-		belongto: 789,
-		state: "失败",
-		date: "2019-11-11"
-	},
-	{
-		id: 4,
-		instanceid: "waf4",
-		belongto: 1011,
-		state: "成功",
-		date: "2019-10-20"
-	}
-];
-
-const tableData = ref<TableItem[]>([]);
+const WAFResourceList = ref<WAFResource[]>([]);
 const pageTotal = ref(0);
 
-const arr = [];
-
-Object.keys(obj).forEach(v => {
-	let o = {};
-	o = obj[v];
-	arr.push(o)
-})
-
-// 获取表格数据
-const getData = () => {
-	pageTotal.value = obj.length;
-	tableData.value = arr;
-};
-getData();
-
-// 查询操作
-const handleSearch = () => {
-	query.pageIndex = 1;
-	getData();
-};
-// 分页导航
-const handlePageChange = (val: number) => {
-	query.pageIndex = val;
-	getData();
-};
-
-// 删除操作
-const handleDelete = (index: number) => {
-	// 二次确认删除
-	ElMessageBox.confirm('确定要删除吗？', '提示', {
-		type: 'warning'
-	})
-		.then(() => {
-			ElMessage.success('删除成功');
-			tableData.value.splice(index, 1);
-		})
-		.catch(() => {
-		});
-};
-
-// 表格编辑时弹窗和保存
-const editVisible = ref(false);
-let form = reactive({
-	name: ''
+// The conditions of search api
+const queryConditions = reactive({
+	region: "",
+	project_name: "",
 });
-let idx: number = -1;
-const handleEdit = (index: number, row: any) => {
-	idx = index;
-	form.name = row.name;
-	editVisible.value = true;
+
+let currentPageIndex = ref(1);
+let pageSize = ref(10);
+
+const tableRowClassName = ({row}: { row: WAFResource }) => {
+	if (row.waf_status === 1) {
+		return 'success-row'
+	} else {
+		return 'warning-row'
+	}
+}
+
+
+// get Elastic Compute Resource list
+const getECRList = () => {
+	sendGetReq({
+		params: {
+			page_index: currentPageIndex.value,
+			page_size: pageSize.value
+		},
+		uri: "api/waf/init"
+	}).then((res) => {
+			pageTotal.value = parseInt(res.data.total)
+			WAFResourceList.value = res.data.data
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Get ecr list error');
+	});
+}
+
+const initlist = () => {
+	sendGetReq({
+		params: {
+		},
+		uri: "/waf/init"
+	}).then((res) => {
+			pageTotal.value = parseInt(res.data.total)
+			WAFResourceList.value = res.data.data
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Get ecr list error');
+	});
+}
+initlist(); // init ECR list
+
+// search ECR by cloud_platform and project_name
+const searchProjects = () => {
+	sendGetReq({
+		uri: "/ecs/search", params: {
+			region: queryConditions.region,
+			project_name: queryConditions.project_name,
+			page_index: currentPageIndex.value,
+			page_size: pageSize.value
+		}
+	}).then((res) => {
+			pageTotal.value = parseInt(res.data.total)
+			WAFResourceList.value = res.data.data
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Search project error');
+	});
+}
+
+
+const handlePageChange = (val: number) => {
+	currentPageIndex.value = val;
+	getECRList();
 };
-const saveEdit = () => {
-	editVisible.value = false;
-	ElMessage.success(`修改第 ${idx + 1} 行成功`);
-	tableData.value[idx].instanceid = form.name;
-};
+
+const handleSizeChange = (val: number) => {
+	pageSize.value = val;
+	getECRList();
+}
 </script>
 
-<style scoped>
+<style>
 .handle-box {
 	margin-bottom: 20px;
 }
 
 .handle-select {
-	width: 120px;
+	width: 150px;
 }
 
 .handle-input {
 	width: 300px;
 }
+
 .table {
+	display: flex;
 	width: 100%;
 	font-size: 14px;
 }
-.red {
-	color: #F56C6C;
-}
+
 .mr10 {
 	margin-right: 10px;
-}
-.table-td-thumb {
-	display: block;
-	margin: auto;
-	width: 40px;
-	height: 40px;
 }
 
 .product_container {
@@ -213,4 +235,17 @@ const saveEdit = () => {
 	border: 1px solid #ddd;
 	border-radius: 5px;
 }
+
+.el-scrollbar__bar.is-horizontal {
+	height: 15px !important;
+}
+
+.el-table .warning-row {
+	--el-table-tr-bg-color: var(--el-color-warning-light-9);
+}
+
+.el-table .success-row {
+	--el-table-tr-bg-color: var(--el-color-success-light-9);
+}
+
 </style>
