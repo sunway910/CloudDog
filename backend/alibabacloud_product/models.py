@@ -106,7 +106,7 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
         (0, '表示已过期'),
         (1, '表示未过期'),
     )
-    Version = (
+    Edition = (
         ('version_3', '表示中国内地高级版'),
         ('version_4', '表示中国内地企业版'),
         ('version_5', '表示中国内地旗舰版'),
@@ -151,14 +151,12 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
     """ WAF Instance Property """
     product_type = models.CharField(default=ProductType.WAF.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例是否过期', choices=Status)
-    end_date = models.IntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
-    version = models.CharField(default='', max_length=40, verbose_name='Version', db_comment='WAF实例的版本', choices=Version)
-    remain_day = models.IntegerField(default=None, verbose_name='RemainDay', db_comment='试用版WAF实例的剩余可用天数')
+    end_time = models.BigIntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
+    edition = models.CharField(default='', max_length=40, verbose_name='Edition', db_comment='WAF实例的版本', choices=Edition)
     region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
     pay_type = models.IntegerField(default=None, verbose_name='PayType', db_comment='WAF实例的开通状态', choices=PayType)
     in_debt = models.IntegerField(default=None, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
-    subscription_type = models.CharField(default='', max_length=30, verbose_name='SubscriptionType', db_comment='WAF实例的计费方式', choices=SubscriptionType)
-    trial = models.IntegerField(default=None, verbose_name='Trial', db_comment='当前阿里云账号是否开通了试用版WAF实例', choices=Trial)
+    start_time = models.BigIntegerField(verbose_name='StartTime', db_comment='购买时间')
 
     def get_basic_info(self):
         to_string = 'WAF LOG: {} \'s instance {} in {} status is {}'.format(self.project_name, self.instance_id, self.region, self.waf_status)

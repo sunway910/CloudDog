@@ -6,8 +6,8 @@ from alibabacloud_tea_util.client import Client as UtilClient
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from alibabacloud_waf_openapi20190910.client import Client as WAFApiClient
-from alibabacloud_waf_openapi20190910 import models as waf_openapi_20190910_models
+from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
+from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 
 from alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer
 from handler import APIResponse
@@ -57,7 +57,7 @@ def create_waf_client(access_key_id: str, access_key_secret: str, ) -> WAFApiCli
         access_key_secret=access_key_secret
     )
     # Endpoint 请参考 https://api.aliyun.com/product/waf-openapi
-    config.endpoint = f'wafopenapi.cn-hangzhou.aliyuncs.com'
+    config.endpoint = f'wafopenapi.ap-southeast-1.aliyuncs.com'
     return WAFApiClient(config)
 
 
@@ -117,16 +117,31 @@ def get_waf_api_response() -> None:
     print("project_list", project_list)
     runtime = util_models.RuntimeOptions()
     for project in project_list:
-        print("project['project_access_key']", project['project_access_key'])
-        print("project['project_secret_key']", project['project_secret_key'])
         client = create_waf_client(project['project_access_key'], project['project_secret_key'])
-        describe_instance_info_request = waf_openapi_20190910_models.DescribeInstanceInfoRequest()
+        describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest(
+            region_id='ap-southeast-1'
+        )
         try:
             # 复制代码运行请自行打印 API 的返回值
-            res = client.describe_instance_info_with_options(describe_instance_info_request, runtime)
-            DescribeInstanceAutoRenewAttributeResponseToStr = UtilClient.to_jsonstring(res)
-            DescribeInstanceAutoRenewAttributeResponseJsonObject = json.loads(DescribeInstanceAutoRenewAttributeResponseToStr)
-            print("DescribeInstanceAutoRenewAttributeResponseJsonObject==", DescribeInstanceAutoRenewAttributeResponseJsonObject)
+            res = client.describe_instance_with_options(describe_instance_info_request, runtime)
+            DescribeWAFAttributeResponseToStr = UtilClient.to_jsonstring(res)
+            DescribeWAFAttributeResponseJsonObject = json.loads(DescribeWAFAttributeResponseToStr)
+            print("WAF INFO==", DescribeWAFAttributeResponseJsonObject['body'])
+            wafInfo = DescribeWAFAttributeResponseJsonObject['body']
+            waf = AlibabacloudWafApiResponse(api_request_id=wafInfo['RequestId'],
+                                             instance_id=wafInfo['InstanceId'],
+                                             project_name=project['project_name'],
+                                             project_id=project['id'],
+                                             waf_status=wafInfo['Status'],
+                                             end_time=wafInfo['EndTime'],
+                                             version=wafInfo['Edition'],
+                                             region=wafInfo['RegionId'],
+                                             pay_type=wafInfo['PayType'],
+                                             in_debt=wafInfo['InDebt'],
+                                             start_time=wafInfo['StartTime'],
+                                             )
+            logger.info(waf.get_basic_info())
+            waf.save()
         except Exception as error:
             # 如有需要，请打印 error
             UtilClient.assert_as_string(error.message)
