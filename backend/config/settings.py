@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+import time
 from datetime import timedelta
 from pathlib import Path
 
@@ -190,4 +191,84 @@ PAGINATOR = {
     'max_page_size': 50,
     'page_index': 'page_index',
     'page_size': 'page_size'
+}
+
+cur_path = os.path.dirname(os.path.realpath(__file__))  # log_path是存放日志的路径
+log_path = os.path.join(os.path.dirname(cur_path), 'log')
+if not os.path.exists(log_path):  # 如果不存在这个logs文件夹，就自动创建一个
+    os.mkdir(log_path)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,  # 表示是否禁用所有的已经存在的日志配置
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s] [%(levelname)s] %(message)s', "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+        "verbose": {  # 时间 哪个文件 哪一行 进程 线程 模块 方法 日志级别 日志
+            "format": '%(asctime)s %(pathname)s:%(lineno)d %(process)d %(thread)d %(module)s:%(funcName)s '
+                      '%(levelname)s: %(message)s', "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'console': {  # 控制台输出
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',  # 可以向类似与sys.stdout或者sys.stderr的任何文件对象(file object)输出信息
+            'stream': 'ext://sys.stdout',  # 文件重定向的配置，将打印到控制台的信息都重定向出去 python manage.py runserver >> /all.log
+            'formatter': 'verbose'
+        },
+        'default': {  # 默认记录所有日志
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(log_path, 'all-{}.log'.format(time.strftime('%Y-%m-%d'))),
+            'maxBytes': 1024 * 1024 * 5,  # 文件大小
+            'backupCount': 2,  # 备份数
+            'formatter': 'verbose',  # 输出格式
+            'encoding': 'utf-8',  # 设置默认编码，否则打印出来汉字乱码
+        },
+        'info': {  # 输出info日志
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',  # 将日志消息写入文件filename
+            'filename': os.path.join(log_path, 'info-{}.log'.format(time.strftime('%Y-%m-%d'))),
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 5,  # 文件大小
+            'backupCount': 2,  # 备份份数
+            'encoding': 'utf-8',  # 设置默认编码
+        },
+        'error': {  # 输出error日志
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(log_path, 'error-{}.log'.format(time.strftime('%Y-%m-%d'))),
+            'maxBytes': 1024 * 1024 * 5,  # 文件大小
+            'backupCount': 2,  # 备份数
+            'formatter': 'verbose',  # 输出格式
+            'encoding': 'utf-8',  # 设置默认编码
+        },
+    },
+    'loggers': {
+        'cpm': {  # 自定义logger # 上线之后可以把 'console' 移除
+            'level': 'INFO',
+            'handlers': ['error', 'info', 'console', 'default'],  # 控制台输出，同时往 info-{}.log error-{}.log all-{}.log 写入日志（如果level符合）
+            'propagate': True,  # 是否向上一级logger实例传递日志信息
+        },
+        'django': {  # 在Django层次结构中的所有消息记录器
+            'handlers': ['default', 'info'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request ': {  # 与请求处理相关的日志消息。5xx响应被提升为错误消息；4xx响应被提升为警告消息。
+            'handlers': ['default', 'info'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        "django.server": {  # 由RunServer命令调用的服务器所接收的请求的处理相关的日志消息。HTTP 5XX响应被记录为错误消息，4XX响应被记录为警告消息，其他一切都被记录为INFO
+            "level": "INFO",
+            "handlers": ['default', 'info'],
+            'propagate': False,
+        },
+        'django.db.backends': {  # 记录代码与数据库交互相关的日志，主要是执行的sql语句、查询参数及sql执行时间，但是不包括ORM框架初始化
+            'handlers': ['default', 'info'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
 }

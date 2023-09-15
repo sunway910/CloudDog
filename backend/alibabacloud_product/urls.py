@@ -8,4 +8,6 @@ urlpatterns = [
     path('api/ecs/search', views.search_ecr),
     path('api/ecs/init', views.init_ecr_list),
     path('api/waf/init', views.init_waf_list),
+    path('api/waf/list', views.get_waf_list),
+    path('api/waf/search', views.search_waf),
 ]

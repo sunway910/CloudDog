@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 
-from alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer
+from alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer, AlibabacloudWafApiResponseSerializer
 from handler import APIResponse
 from paginator import CustomPaginator
 from project.models import Project
@@ -20,7 +20,7 @@ import logging
 import asyncio
 import json
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cpm')
 
 
 def create_ecs_client(access_key_id: str, access_key_secret: str, ) -> EcsApiClient:
@@ -126,15 +126,15 @@ def get_waf_api_response() -> None:
             res = client.describe_instance_with_options(describe_instance_info_request, runtime)
             DescribeWAFAttributeResponseToStr = UtilClient.to_jsonstring(res)
             DescribeWAFAttributeResponseJsonObject = json.loads(DescribeWAFAttributeResponseToStr)
-            print("WAF INFO==", DescribeWAFAttributeResponseJsonObject['body'])
             wafInfo = DescribeWAFAttributeResponseJsonObject['body']
+            print("WAF INFO==", wafInfo)
             waf = AlibabacloudWafApiResponse(api_request_id=wafInfo['RequestId'],
                                              instance_id=wafInfo['InstanceId'],
                                              project_name=project['project_name'],
                                              project_id=project['id'],
                                              waf_status=wafInfo['Status'],
                                              end_time=wafInfo['EndTime'],
-                                             version=wafInfo['Edition'],
+                                             edition=wafInfo['Edition'],
                                              region=wafInfo['RegionId'],
                                              pay_type=wafInfo['PayType'],
                                              in_debt=wafInfo['InDebt'],
@@ -143,8 +143,7 @@ def get_waf_api_response() -> None:
             logger.info(waf.get_basic_info())
             waf.save()
         except Exception as error:
-            # 如有需要，请打印 error
-            UtilClient.assert_as_string(error.message)
+            UtilClient.assert_as_string(error)
 
 
 @api_view(['GET'])
@@ -167,11 +166,12 @@ def init_waf_list(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_ecr_list(request):
-    alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all()
+    alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
     paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
     total = paginator.count
     data = paginator.get_page()
     serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
+    logger.info("{} call get_ecr_list api".format(request.user.username))
     return APIResponse(code=0, msg='success', total=total, data=serializer.data)
 
 
@@ -182,7 +182,7 @@ def search_ecr(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
-        alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all()
+        alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
         if cloud_platform and cloud_platform != "All":
             alibabacloudEcsApiResponse = alibabacloudEcsApiResponse.filter(cloud_platform=cloud_platform)
         if project_name:
@@ -193,4 +193,40 @@ def search_ecr(request):
     except AlibabacloudEcsApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
+    logger.info("{} call search_ecr api with conditions-cloud_platform: {}, project_name: {}".format(request.user.username, cloud_platform, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_waf_list(request):
+    alibabacloudWafApiResponse = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
+    paginator = CustomPaginator(request, alibabacloudWafApiResponse)
+    total = paginator.count
+    data = paginator.get_page()
+    serializer = AlibabacloudWafApiResponseSerializer(data, many=True)
+    logger.info("{} call get_waf_list api".format(request.user.username))
+    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def search_waf(request):
+    try:
+        cloud_platform = request.GET.get('cloud_platform', None)
+        project_name = request.GET.get('project_name', None)
+        alibabacloudWafApiResponse = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
+        if cloud_platform and cloud_platform != "All":
+            alibabacloudWafApiResponse = alibabacloudWafApiResponse.filter(cloud_platform=cloud_platform)
+        if project_name:
+            alibabacloudWafApiResponse = alibabacloudWafApiResponse.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloudWafApiResponse)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudWafApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudWafApiResponseSerializer(data, many=True)
+    logger.info("{} call search_waf api with conditions-cloud_platform: {}, project_name: {}".format(request.user.username, cloud_platform, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

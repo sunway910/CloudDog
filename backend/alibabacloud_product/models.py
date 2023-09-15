@@ -4,7 +4,7 @@ from project.models import Project
 from abc import abstractmethod
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cpm')
 
 
 class ProductType(models.TextChoices):
@@ -17,7 +17,7 @@ class ProductType(models.TextChoices):
 
 class ProductBaseModel(models.Model):
     api_request_id = models.CharField(primary_key=True, default='', max_length=100, db_comment='API Request Id')
-    instance_id = models.CharField(default='', max_length=30, verbose_name='InstanceId', db_comment='实例ID')
+    instance_id = models.CharField(default='', max_length=50, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
     product_type = models.CharField(default=ProductType.ECS.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     project_name = models.CharField(default='', max_length=30, verbose_name='Project Name', db_comment='项目名称')
@@ -103,43 +103,27 @@ class AlibabacloudEcsApiResponse(ProductBaseModel):
 
 class AlibabacloudWafApiResponse(ProductBaseModel):
     Status = (
-        (0, '表示已过期'),
-        (1, '表示未过期'),
+        (1, '表示正常'),
+        (2, '表示到期'),
+        (3, '表示释放'),
     )
     Edition = (
-        ('version_3', '表示中国内地高级版'),
-        ('version_4', '表示中国内地企业版'),
-        ('version_5', '表示中国内地旗舰版'),
-        ('version_exclusive_cluster', '表示中国内地虚拟独享集群版'),
-        ('version_hybrid_cloud_standard', '表示中国内地混合云WAF版'),
-        ('version_pro_asia', '表示非中国内地高级版'),
-        ('version_business_asia', '表示非中国内地企业版'),
-        ('version_enterprise_asia', '表示非中国内地旗舰版'),
-        ('version_exclusive_cluster_asia', '表示非中国内地虚拟独享集群版'),
-        ('version_hybrid_cloud_standard_asia', '表示非中国内地混合云WAF版'),
-        ('version_elastic_bill', '表示按量计费版'),
-        ('version_elastic_bill_new', '表示按量计费2.0版'),
+        ('Basic', '基础版'),
+        ('Pro', '高级版'),
+        ('Business', '企业版'),
+        ('Enterprise', '旗舰版'),
     )
     Region = (
-        ('cn', '表示中国内地'),
-        ('cn-hongkong', '表示非中国内地'),
+        ('cn-hangzhou', '表示中国内地'),
+        ('ap-southeast-1', '表示非中国内地'),
     )
     PayType = (
-        (0, '表示当前阿里云账号未开通WAF实例'),
-        (1, '表示当前阿里云账号已开通WAF包年包月实例'),
-        (2, '表示当前阿里云账号已开通WAF按量计费实例'),
+        ('POSTPAY', '已开通按量付费WAF实例'),
+        ('PREPAY', '表示已开通包年包月WAF实例'),
     )
     InDebt = (
         (0, '表示已欠费'),
-        (1, '表示未欠费'),
-    )
-    SubscriptionType = (
-        ('Subscription', '表示包年包月'),
-        ('PayAsYouGo', '表示按量计费'),
-    )
-    Trial = (
-        (0, '表示否'),
-        (1, '表示是'),
+        (1, '表示正常'),
     )
     project = models.ForeignKey(
         to="project.Project",
@@ -150,12 +134,12 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
 
     """ WAF Instance Property """
     product_type = models.CharField(default=ProductType.WAF.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
-    waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例是否过期', choices=Status)
+    waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例的当前状态', choices=Status)
     end_time = models.BigIntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
     edition = models.CharField(default='', max_length=40, verbose_name='Edition', db_comment='WAF实例的版本', choices=Edition)
     region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
-    pay_type = models.IntegerField(default=None, verbose_name='PayType', db_comment='WAF实例的开通状态', choices=PayType)
-    in_debt = models.IntegerField(default=None, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
+    pay_type = models.CharField(default=None, verbose_name='PayType', db_comment='WAF实例的付费类型', choices=PayType)
+    in_debt = models.IntegerField(default=1, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
     start_time = models.BigIntegerField(verbose_name='StartTime', db_comment='购买时间')
 
     def get_basic_info(self):

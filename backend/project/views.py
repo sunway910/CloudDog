@@ -1,6 +1,5 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.core.paginator import Paginator
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
 from handler import APIResponse
@@ -12,7 +11,7 @@ from .permissions import IsAdminUserOrReadOnly
 import logging
 import time
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cpm')
 
 PROJECT_SERIALIZER_FIELDS = ['id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle']
 
@@ -39,6 +38,7 @@ def get_list(request):
         total = paginator.count
 
         serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
+        logger.info("{} call project list api".format(request.user.username))
         return APIResponse(code=0, msg='success', total=total, data=serializer.data)
 
 
@@ -72,6 +72,7 @@ def search(request):
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
+    logger.info("{} call project search api with conditions-cloud_platform: {}, project_name: {}".format(request.user.username, cloud_platform, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
@@ -89,6 +90,7 @@ def create_or_update(request):
             'project_secret_key': request.data['project_secret_key'],
             'create_time': request.data['create_time']
         })
+        logger.info("{} call project create_or_update api, request data: {}".format(request.user.username, request.data))
         return APIResponse(code=0, msg='operate project successfully', data=project)
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist error')
@@ -104,4 +106,5 @@ def delete(request):
         Project.objects.filter(id=project_id).delete()
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist error')
+    logger.info("{} call project delete api, request data: {}".format(request.user.username, request.data))
     return APIResponse(code=0, msg='delete successfully')
