@@ -29,15 +29,15 @@
 					<el-table-column align="center" label="Region" show-overflow-tooltip width="150px" font-weight: bold>
 						<template #default="scope" style="font-weight: bold">
 							<div style="font-weight: bold">
-								{{ scope.row.region}}
+								{{ scope.row.region == 'ap-southeast-1' ? 'Oversea' : 'Mainland' }}
 							</div>
 						</template>
 					</el-table-column>
 
-					<el-table-column label="Status" align="center" width="100px">
+					<el-table-column label="Status" align="center" width="130px">
 						<template #default="scope">
-							<el-tag :type="scope.row.waf_status === 'Running' ? 'success' : 'danger'">
-								{{ scope.row.ecs_status }}
+							<el-tag :type="scope.row.waf_status === 1 ? 'success' : 'danger'">
+								{{ scope.row.waf_status === 1 ? 'Running' : 'Expired/Released' }}
 							</el-tag>
 						</template>
 					</el-table-column>
@@ -45,22 +45,43 @@
 					<el-table-column align="center" label="End Date" show-overflow-tooltip width="150px">
 						<template #default="scope">
 							<el-tag>
-								{{ scope.row.end_date }}
+								{{ (timestampToTime(scope.row.end_time)) }}
 							</el-tag>
 						</template>
 					</el-table-column>
 
-					<el-table-column prop="api_request_id" align="center" label="Instance Charge Type" show-overflow-tooltip width="180px"></el-table-column>
-					<el-table-column prop="instance_id" align="center" label="Renewal Time" show-overflow-tooltip width="120px"></el-table-column>
-					<el-table-column prop="request_time" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="product_type" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="project" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="version" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="remain_day" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="pay_type" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="in_debt" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="subscription_type" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="trial" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column align="center" label="Project" show-overflow-tooltip width="130px">
+						<template #default="scope">
+							<div style="font-weight: bold">
+								{{ scope.row.project_name }}
+							</div>
+						</template>
+					</el-table-column>
+					<el-table-column prop="product_type" align="center" label="Product Type" show-overflow-tooltip width="130px">
+						<template #default="scope">
+							<div style="font-weight: bold">
+								{{ scope.row.product_type.toString().toUpperCase() }}
+							</div>
+						</template>
+					</el-table-column>
+					<el-table-column align="center" label="Edition" show-overflow-tooltip width="130px">
+						<template #default="scope">
+							<div style="font-weight: bold">
+								{{ scope.row.edition }}
+							</div>
+						</template>
+					</el-table-column>
+					<el-table-column align="center" label="Pay Type" show-overflow-tooltip width="130px">
+						<template #default="scope">
+							<div style="font-weight: bold">
+								{{ scope.row.pay_type }}
+							</div>
+						</template>
+					</el-table-column>
+					<el-table-column prop="in_debt" align="center" label="In Debt" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="api_request_id" align="center" label="API Request ID" show-overflow-tooltip width="180px"></el-table-column>
+					<el-table-column prop="instance_id" align="center" label="Instance ID" show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="request_time" align="center" label="Request Time" show-overflow-tooltip width="130px"></el-table-column>
 
 				</el-table>
 			</el-scrollbar>
@@ -89,6 +110,7 @@ import {ref, reactive} from 'vue';
 import {ElMessage} from 'element-plus';
 import {Search, Refresh} from '@element-plus/icons-vue';
 import router from "@/plugins/router";
+import date from "async-validator/dist-types/validator/date";
 
 const auth = ['admin', 'user']
 const small = ref(false)
@@ -113,8 +135,8 @@ interface WAFResource {
 	product_type: string,
 	project: string,
 	waf_status: number,
-	end_date: bigint,
-	version: string,
+	end_time: bigint,
+	edition: string,
 	remain_day: number,
 	region: string,
 	pay_type: number,
@@ -151,7 +173,7 @@ const getECRList = () => {
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		},
-		uri: "api/waf/init"
+		uri: "/waf/list"
 	}).then((res) => {
 			pageTotal.value = parseInt(res.data.total)
 			WAFResourceList.value = res.data.data
@@ -160,11 +182,10 @@ const getECRList = () => {
 		ElMessage.error(err || 'Get ecr list error');
 	});
 }
-
+getECRList()
 const initlist = () => {
 	sendGetReq({
-		params: {
-		},
+		params: {},
 		uri: "/waf/init"
 	}).then((res) => {
 			pageTotal.value = parseInt(res.data.total)
@@ -174,12 +195,12 @@ const initlist = () => {
 		ElMessage.error(err || 'Get ecr list error');
 	});
 }
-initlist(); // init ECR list
+// initlist()
 
 // search ECR by cloud_platform and project_name
 const searchProjects = () => {
 	sendGetReq({
-		uri: "/ecs/search", params: {
+		uri: "/waf/search", params: {
 			region: queryConditions.region,
 			project_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
@@ -194,6 +215,19 @@ const searchProjects = () => {
 	});
 }
 
+
+function timestampToTime(timestamp) {
+	// 时间戳为10位需*1000，时间戳为13位不需乘1000
+	let date = new Date(timestamp);
+	let Y = date.getFullYear() + "-";
+	console.log("year", Y)
+	let M =
+		(date.getMonth() + 1 < 10
+			? "0" + (date.getMonth() + 1)
+			: date.getMonth() + 1) + "-";
+	let D = (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()) + " ";
+	return Y + M + D;
+}
 
 const handlePageChange = (val: number) => {
 	currentPageIndex.value = val;
@@ -241,11 +275,11 @@ const handleSizeChange = (val: number) => {
 }
 
 .el-table .warning-row {
-	--el-table-tr-bg-color: var(--el-color-warning-light-9);
+	--el-table-tr-bg-color: let(--el-color-warning-light-9);
 }
 
 .el-table .success-row {
-	--el-table-tr-bg-color: var(--el-color-success-light-9);
+	--el-table-tr-bg-color: let(--el-color-success-light-9);
 }
 
 </style>
