@@ -140,7 +140,11 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
     region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
     pay_type = models.CharField(default=None, verbose_name='PayType', db_comment='WAF实例的付费类型', choices=PayType)
     in_debt = models.IntegerField(default=1, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
-    start_time = models.BigIntegerField(verbose_name='StartTime', db_comment='购买时间')
+    start_time = models.BigIntegerField(default=None, verbose_name='StartTime', db_comment='购买时间')
+
+    def save(self, *args, **kwargs):
+        self.in_debt = 1 if self.in_debt is None else self.in_debt
+        super().save(*args, **kwargs)
 
     def get_basic_info(self):
         to_string = 'WAF LOG: {} \'s instance {} in {} status is {}'.format(self.project_name, self.instance_id, self.region, self.waf_status)
