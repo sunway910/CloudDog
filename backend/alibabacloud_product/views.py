@@ -137,7 +137,7 @@ def get_waf_api_response() -> None:
                                              edition=wafInfo['Edition'],
                                              region=wafInfo['RegionId'],
                                              pay_type=wafInfo['PayType'],
-                                             in_debt=wafInfo['InDebt'] if 'InDebt' in wafInfo else None,
+                                             in_debt=wafInfo['InDebt'],
                                              start_time=wafInfo['StartTime'],
                                              )
             logger.info(waf.get_basic_info())

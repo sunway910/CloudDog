@@ -122,8 +122,8 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
         ('PREPAY', '表示已开通包年包月WAF实例'),
     )
     InDebt = (
-        (0, '表示已欠费'),
-        (1, '表示正常'),
+        (1, '表示已欠费'),
+        (0, '表示正常'),
     )
     project = models.ForeignKey(
         to="project.Project",
@@ -139,11 +139,10 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
     edition = models.CharField(default='', max_length=40, verbose_name='Edition', db_comment='WAF实例的版本', choices=Edition)
     region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
     pay_type = models.CharField(default=None, verbose_name='PayType', db_comment='WAF实例的付费类型', choices=PayType)
-    in_debt = models.IntegerField(default=1, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
+    in_debt = models.IntegerField(default=0, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
     start_time = models.BigIntegerField(default=None, verbose_name='StartTime', db_comment='购买时间')
 
     def save(self, *args, **kwargs):
-        self.in_debt = 1 if self.in_debt is None else self.in_debt
         super().save(*args, **kwargs)
 
     def get_basic_info(self):
