@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'product.alibabacloud_product',
     'project',
     'django_apscheduler',
-    'cron.alibabacloud_cron'
+    'cron.alibabacloud_cron',
+    'message'
 ]
 
 TEMPLATES = [
