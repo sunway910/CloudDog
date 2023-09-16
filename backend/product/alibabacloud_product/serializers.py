@@ -1,5 +1,5 @@
 from dynamicFieldsModelSerializer import DynamicFieldsModelSerializer
-from alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
+from product.alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
 
 
 class AlibabacloudEcsApiResponseSerializer(DynamicFieldsModelSerializer):

@@ -77,7 +77,7 @@ class AlibabacloudEcsApiResponse(ProductBaseModel):
     )
 
     """ ECS Instance Property """
-    product_type = models.CharField(default=ProductType.ECS.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    product_type = models.CharField(default=ProductType.ECS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     auto_renew_enabled = models.BooleanField(default=True, verbose_name='AutoRenewEnabled', db_comment='是否已开启自动续费功能')
     instance_name = models.CharField(default='', max_length=30, verbose_name='InstanceName', db_comment='实例的自定义名称')
     renewal_status = models.CharField(default='', max_length=30, verbose_name='RenewalStatus', db_comment='实例的自动续费状态')
@@ -133,7 +133,7 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
     )
 
     """ WAF Instance Property """
-    product_type = models.CharField(default=ProductType.WAF.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    product_type = models.CharField(default=ProductType.WAF.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例的当前状态', choices=Status)
     end_time = models.BigIntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
     edition = models.CharField(default='', max_length=40, verbose_name='Edition', db_comment='WAF实例的版本', choices=Edition)
