@@ -15,6 +15,7 @@ import time
 from datetime import timedelta
 from pathlib import Path
 
+from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from django.template.context_processors import media
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -46,19 +47,26 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'user',
-    'alibabacloud_product',
+    'product.alibabacloud_product',
     'project',
-    'django_apscheduler'
+    'django_apscheduler',
+    'cron.alibabacloud_cron'
 ]
 
-# python manage.py migrate
-# django_apscheduler_django job——用于存储任务的表格
-# django_apscheduler_django job execution——用于存储任务执行状态的表格
-# django_apscheduler_django job execution——用于存储任务执行状态的表格
-
-# 分钟(0-59) 小时(0-23) 每个月的哪一天(1-31) 月份(1-12) 周几(0-6)
-CRONJOBS = [
-    ('* * * * 6', 'cron.ecs_cron.ecs_scheduled_job', ['arg1', 'arg2'], {'verbose': 0})
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 MIDDLEWARE = [
@@ -113,23 +121,8 @@ SIMPLE_JWT = {
 
 ROOT_URLCONF = 'config.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -271,4 +264,31 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# https://apscheduler.readthedocs.io/en/3.x/modules/schedulers/background.html
+# https://github.com/agronholm/apscheduler
+# https://apscheduler.readthedocs.io/en/3.x/modules/job.html
+EXECUTORS = {
+    "process_pool": ProcessPoolExecutor(max_workers=5),
+    "thread_pool": ThreadPoolExecutor(max_workers=5),
+}
+JOB_DEFAULTS = {
+    "coalesce": False,  # whether to only run the job once when several run times are due
+    "misfire_grace_time": None,  # the time (in seconds) how much this job’s execution is allowed to be late (None means “allow the job to run no matter how late it is”)
+    "max_instances": 1,  # the maximum number of concurrently executing instances allowed for this job
+    "replace_existing": True,
+}
+JOB_TIMEZONE = 'Asia/Hong_Kong'
+SCHEDULER_AUTOSTART = True
+
+ENDPOINT = {
+    "ECS_ENDPOINT": {
+        "mainland": 'ecs-cn-hangzhou.aliyuncs.com',
+        "oversea": 'ecs.cn-hongkong.aliyuncs.com'
+    },
+    "WAF_ENDPOINT": {
+        "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',
+        "oversea": 'wafopenapi.ap-southeast-1.aliyuncs.com'
+    }
 }
