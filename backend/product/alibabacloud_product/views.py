@@ -9,12 +9,13 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 
-from alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer, AlibabacloudWafApiResponseSerializer
+from product.alibabacloud_product.serializers import AlibabacloudEcsApiResponseSerializer, AlibabacloudWafApiResponseSerializer
 from handler import APIResponse
 from paginator import CustomPaginator
 from project.models import Project
-from alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
+from product.alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
 from asgiref.sync import sync_to_async
+from config.settings import ENDPOINT
 
 import logging
 import asyncio
@@ -23,42 +24,21 @@ import json
 logger = logging.getLogger('cpm')
 
 
-def create_ecs_client(access_key_id: str, access_key_secret: str, ) -> EcsApiClient:
+def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str) -> open_api_models.Config:
     """
     use AK&SK to init Client
     @param access_key_id: LTAI5sQAwvrwHZQx7PuG2ur4
     @param access_key_secret: ijWtg8hCaptL3U73U7PsFqNCLQwEG2
-    @return: Ecs20140526Client
+    @param endpoint: ecs-cn-hangzhou.aliyuncs.com
+    @return: OpenApiClient
     @throws Exception
     """
     config = open_api_models.Config(
-        # your AccessKey ID,
         access_key_id=access_key_id,
-        # your AccessKey Secret,
         access_key_secret=access_key_secret
     )
-    # Endpoint Ref: https://api.aliyun.com/product/Ecs
-    config.endpoint = f'ecs-cn-hangzhou.aliyuncs.com'
-    return EcsApiClient(config)
-
-
-def create_waf_client(access_key_id: str, access_key_secret: str, ) -> WAFApiClient:
-    """
-    使用AK&SK初始化账号Client
-    @param access_key_id:
-    @param access_key_secret:
-    @return: Client
-    @throws Exception
-    """
-    config = open_api_models.Config(
-        # 必填，您的 AccessKey ID,
-        access_key_id=access_key_id,
-        # 必填，您的 AccessKey Secret,
-        access_key_secret=access_key_secret
-    )
-    # Endpoint 请参考 https://api.aliyun.com/product/waf-openapi
-    config.endpoint = f'wafopenapi.ap-southeast-1.aliyuncs.com'
-    return WAFApiClient(config)
+    config.endpoint = endpoint  # Endpoint Ref: https://api.aliyun.com/product/Ecs
+    return config
 
 
 @sync_to_async
@@ -67,25 +47,29 @@ def get_ecr_api_response() -> None:
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     runtime = util_models.RuntimeOptions()
     for project in project_list:
-        client = create_ecs_client(project['project_access_key'], project['project_secret_key'])
+        client = EcsApiClient(set_client_config(
+            project['project_access_key'],
+            project['project_secret_key'],
+            ENDPOINT['WAF_ENDPOINT']['oversea'])
+        )
         for region in project['region']:
             describe_instances_request = ecs_20140526_models.DescribeInstancesRequest(region_id=region)
             try:
                 # API Ref: https://next.api.aliyun.com/document/Ecs/2014-05-26/DescribeInstances
-                DescribeInstanceResponse = client.describe_instances_with_options(describe_instances_request, runtime)
-                DescribeInstanceResponseToStr = UtilClient.to_jsonstring(DescribeInstanceResponse)
-                DescribeInstanceResponseJsonObject = json.loads(DescribeInstanceResponseToStr)
-                instance_list = DescribeInstanceResponseJsonObject['body']['Instances']['Instance']
+                describe_instance_response = client.describe_instances_with_options(describe_instances_request, runtime)
+                describe_instance_response_to_str = UtilClient.to_jsonstring(describe_instance_response)
+                describe_instance_response_json_obj = json.loads(describe_instance_response_to_str)
+                instance_list = describe_instance_response_json_obj['body']['Instances']['Instance']
                 for instance in instance_list:
                     describe_instance_auto_renew_attribute_request = ecs_20140526_models.DescribeInstanceAutoRenewAttributeRequest(region_id=region, instance_id=instance['InstanceId'])
                     # API Ref: https://next.api.aliyun.com/document/Ecs/2014-05-26/DescribeInstanceAutoRenewAttribute
-                    DescribeInstanceAutoRenewAttributeResponse = client.describe_instance_auto_renew_attribute_with_options(describe_instance_auto_renew_attribute_request, runtime)
-                    DescribeInstanceAutoRenewAttributeResponseToStr = UtilClient.to_jsonstring(DescribeInstanceAutoRenewAttributeResponse)
-                    DescribeInstanceAutoRenewAttributeResponseJsonObject = json.loads(DescribeInstanceAutoRenewAttributeResponseToStr)
-                    InstanceAutoRenewInfo = DescribeInstanceAutoRenewAttributeResponseJsonObject['body']['InstanceRenewAttributes']['InstanceRenewAttribute'][0]
+                    describe_instance_auto_renew_attribute_response = client.describe_instance_auto_renew_attribute_with_options(describe_instance_auto_renew_attribute_request, runtime)
+                    describe_instance_auto_renew_attribute_response_to_str = UtilClient.to_jsonstring(describe_instance_auto_renew_attribute_response)
+                    describe_instance_auto_renew_attribute_response_json_obj = json.loads(describe_instance_auto_renew_attribute_response_to_str)
+                    instance_auto_renew_info = describe_instance_auto_renew_attribute_response_json_obj['body']['InstanceRenewAttributes']['InstanceRenewAttribute'][0]
                     # request 2 API and get two request id, so the new request id is formed by combining two request id
-                    requestId = DescribeInstanceResponseJsonObject['body']['RequestId'] + " " + DescribeInstanceAutoRenewAttributeResponseJsonObject['body']['RequestId']
-                    ecs = AlibabacloudEcsApiResponse(api_request_id=requestId,
+                    request_id = describe_instance_response_json_obj['body']['RequestId'] + " " + describe_instance_auto_renew_attribute_response_json_obj['body']['RequestId']
+                    ecs = AlibabacloudEcsApiResponse(api_request_id=request_id,
                                                      instance_id=instance['InstanceId'],
                                                      project_name=project['project_name'],
                                                      instance_name=instance['InstanceName'],
@@ -99,10 +83,10 @@ def get_ecr_api_response() -> None:
                                                      start_time=instance['StartTime'],
                                                      auto_release_time=instance['AutoReleaseTime'],
                                                      lock_reason=instance['OperationLocks']['LockReason'],
-                                                     auto_renew_enabled=InstanceAutoRenewInfo['AutoRenewEnabled'],
-                                                     renewal_status=InstanceAutoRenewInfo['RenewalStatus'],
-                                                     period_init=InstanceAutoRenewInfo['PeriodUnit'],
-                                                     duration=InstanceAutoRenewInfo['Duration'],
+                                                     auto_renew_enabled=instance_auto_renew_info['AutoRenewEnabled'],
+                                                     renewal_status=instance_auto_renew_info['RenewalStatus'],
+                                                     period_init=instance_auto_renew_info['PeriodUnit'],
+                                                     duration=instance_auto_renew_info['Duration'],
                                                      )
                     logger.info(ecs.get_basic_info())
                     ecs.save()
@@ -116,29 +100,32 @@ def get_waf_api_response() -> None:
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     print("project_list", project_list)
     runtime = util_models.RuntimeOptions()
+
     for project in project_list:
-        client = create_waf_client(project['project_access_key'], project['project_secret_key'])
-        describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest(
-            region_id='ap-southeast-1'
+        client = WAFApiClient(set_client_config(
+            project['project_access_key'],
+            project['project_secret_key'],
+            ENDPOINT['WAF_ENDPOINT']['oversea'])
         )
+        describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
         try:
             # 复制代码运行请自行打印 API 的返回值
             res = client.describe_instance_with_options(describe_instance_info_request, runtime)
-            DescribeWAFAttributeResponseToStr = UtilClient.to_jsonstring(res)
-            DescribeWAFAttributeResponseJsonObject = json.loads(DescribeWAFAttributeResponseToStr)
-            wafInfo = DescribeWAFAttributeResponseJsonObject['body']
-            print("WAF INFO==", wafInfo)
-            waf = AlibabacloudWafApiResponse(api_request_id=wafInfo['RequestId'],
-                                             instance_id=wafInfo['InstanceId'],
+            describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
+            describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
+            waf_info = describe_waf_attribute_response_json_obj['body']
+            print("WAF INFO==", waf_info)
+            waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
+                                             instance_id=waf_info['InstanceId'],
                                              project_name=project['project_name'],
                                              project_id=project['id'],
-                                             waf_status=wafInfo['Status'],
-                                             end_time=wafInfo['EndTime'],
-                                             edition=wafInfo['Edition'],
-                                             region=wafInfo['RegionId'],
-                                             pay_type=wafInfo['PayType'],
-                                             in_debt=wafInfo['InDebt'],
-                                             start_time=wafInfo['StartTime'],
+                                             waf_status=waf_info['Status'],
+                                             end_time=waf_info['EndTime'],
+                                             edition=waf_info['Edition'],
+                                             region=waf_info['RegionId'],
+                                             pay_type=waf_info['PayType'],
+                                             in_debt=waf_info['InDebt'],
+                                             start_time=waf_info['StartTime'],
                                              )
             logger.info(waf.get_basic_info())
             waf.save()
@@ -166,8 +153,8 @@ def init_waf_list(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_ecr_list(request):
-    alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
+    alibabacloud_ecs_api_response = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
+    paginator = CustomPaginator(request, alibabacloud_ecs_api_response)
     total = paginator.count
     data = paginator.get_page()
     serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
@@ -182,12 +169,12 @@ def search_ecr(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
-        alibabacloudEcsApiResponse = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
+        alibabacloud_ecs_api_response = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
         if cloud_platform and cloud_platform != "All":
-            alibabacloudEcsApiResponse = alibabacloudEcsApiResponse.filter(cloud_platform=cloud_platform)
+            alibabacloud_ecs_api_response = alibabacloud_ecs_api_response.filter(cloud_platform=cloud_platform)
         if project_name:
-            alibabacloudEcsApiResponse = alibabacloudEcsApiResponse.filter(project_name__icontains=project_name)
-        paginator = CustomPaginator(request, alibabacloudEcsApiResponse)
+            alibabacloud_ecs_api_response = alibabacloud_ecs_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_ecs_api_response)
         total = paginator.count
         data = paginator.get_page()
     except AlibabacloudEcsApiResponse.DoesNotExist:
@@ -201,8 +188,8 @@ def search_ecr(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_waf_list(request):
-    alibabacloudWafApiResponse = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloudWafApiResponse)
+    alibabacloud_waf_api_response = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
+    paginator = CustomPaginator(request, alibabacloud_waf_api_response)
     total = paginator.count
     data = paginator.get_page()
     serializer = AlibabacloudWafApiResponseSerializer(data, many=True)
@@ -217,12 +204,12 @@ def search_waf(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
-        alibabacloudWafApiResponse = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
+        alibabacloud_waf_api_response = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
         if cloud_platform and cloud_platform != "All":
-            alibabacloudWafApiResponse = alibabacloudWafApiResponse.filter(cloud_platform=cloud_platform)
+            alibabacloud_waf_api_response = alibabacloud_waf_api_response.filter(cloud_platform=cloud_platform)
         if project_name:
-            alibabacloudWafApiResponse = alibabacloudWafApiResponse.filter(project_name__icontains=project_name)
-        paginator = CustomPaginator(request, alibabacloudWafApiResponse)
+            alibabacloud_waf_api_response = alibabacloud_waf_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_waf_api_response)
         total = paginator.count
         data = paginator.get_page()
     except AlibabacloudWafApiResponse.DoesNotExist:
