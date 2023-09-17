@@ -50,7 +50,11 @@ INSTALLED_APPS = [
     'product.alibabacloud_product',
     'project',
     'django_apscheduler',
+    'cron.base_cron',
     'cron.alibabacloud_cron',
+    'cron.aws_cron',
+    'cron.gcp_cron',
+    'cron.azure_cron',
     'message'
 ]
 
@@ -205,13 +209,13 @@ LOGGING = {
     },
     'handlers': {
         'console': {  # 控制台输出
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',  # 可以向类似与sys.stdout或者sys.stderr的任何文件对象(file object)输出信息
             'stream': 'ext://sys.stdout',  # 文件重定向的配置，将打印到控制台的信息都重定向出去 python manage.py runserver >> /all.log
             'formatter': 'verbose'
         },
         'default': {  # 默认记录所有日志
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(log_path, 'all-{}.log'.format(time.strftime('%Y-%m-%d'))),
             'maxBytes': 1024 * 1024 * 5,  # 文件大小
@@ -220,7 +224,7 @@ LOGGING = {
             'encoding': 'utf-8',  # 设置默认编码，否则打印出来汉字乱码
         },
         'info': {  # 输出info日志
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',  # 将日志消息写入文件filename
             'filename': os.path.join(log_path, 'info-{}.log'.format(time.strftime('%Y-%m-%d'))),
             'formatter': 'verbose',
@@ -229,7 +233,7 @@ LOGGING = {
             'encoding': 'utf-8',  # 设置默认编码
         },
         'error': {  # 输出error日志
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(log_path, 'error-{}.log'.format(time.strftime('%Y-%m-%d'))),
             'maxBytes': 1024 * 1024 * 5,  # 文件大小
@@ -240,28 +244,28 @@ LOGGING = {
     },
     'loggers': {
         'cpm': {  # 自定义logger # 上线之后可以把 'console' 移除
-            'level': 'INFO',
+            'level': 'DEBUG',
             'handlers': ['error', 'info', 'console', 'default'],  # 控制台输出，同时往 info-{}.log error-{}.log all-{}.log 写入日志（如果level符合）
             'propagate': True,  # 是否向上一级logger实例传递日志信息
         },
         'django': {  # 在Django层次结构中的所有消息记录器
             'handlers': ['default', 'info'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django.request ': {  # 与请求处理相关的日志消息。5xx响应被提升为错误消息；4xx响应被提升为警告消息。
             'handlers': ['default', 'info'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': False,
         },
         "django.server": {  # 由RunServer命令调用的服务器所接收的请求的处理相关的日志消息。HTTP 5XX响应被记录为错误消息，4XX响应被记录为警告消息，其他一切都被记录为INFO
-            "level": "INFO",
+            "level": "DEBUG",
             "handlers": ['default', 'info'],
             'propagate': False,
         },
         'django.db.backends': {  # 记录代码与数据库交互相关的日志，主要是执行的sql语句、查询参数及sql执行时间，但是不包括ORM框架初始化
             'handlers': ['default', 'info'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': False,
         },
     },
