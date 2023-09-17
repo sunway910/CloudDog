@@ -98,7 +98,6 @@ def get_ecr_api_response() -> None:
 def get_waf_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
-    print("project_list", project_list)
     runtime = util_models.RuntimeOptions()
 
     for project in project_list:
@@ -114,7 +113,6 @@ def get_waf_api_response() -> None:
             describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
             describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
             waf_info = describe_waf_attribute_response_json_obj['body']
-            print("WAF INFO==", waf_info)
             waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
                                              instance_id=waf_info['InstanceId'],
                                              project_name=project['project_name'],
