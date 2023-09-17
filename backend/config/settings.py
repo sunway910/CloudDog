@@ -224,7 +224,7 @@ LOGGING = {
             'encoding': 'utf-8',  # 设置默认编码，否则打印出来汉字乱码
         },
         'info': {  # 输出info日志
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',  # 将日志消息写入文件filename
             'filename': os.path.join(log_path, 'info-{}.log'.format(time.strftime('%Y-%m-%d'))),
             'formatter': 'verbose',
@@ -233,7 +233,7 @@ LOGGING = {
             'encoding': 'utf-8',  # 设置默认编码
         },
         'error': {  # 输出error日志
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(log_path, 'error-{}.log'.format(time.strftime('%Y-%m-%d'))),
             'maxBytes': 1024 * 1024 * 5,  # 文件大小
@@ -250,22 +250,22 @@ LOGGING = {
         },
         'django': {  # 在Django层次结构中的所有消息记录器
             'handlers': ['default', 'info'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         'django.request ': {  # 与请求处理相关的日志消息。5xx响应被提升为错误消息；4xx响应被提升为警告消息。
             'handlers': ['default', 'info'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         "django.server": {  # 由RunServer命令调用的服务器所接收的请求的处理相关的日志消息。HTTP 5XX响应被记录为错误消息，4XX响应被记录为警告消息，其他一切都被记录为INFO
-            "level": "DEBUG",
+            "level": "INFO",
             "handlers": ['default', 'info'],
             'propagate': False,
         },
         'django.db.backends': {  # 记录代码与数据库交互相关的日志，主要是执行的sql语句、查询参数及sql执行时间，但是不包括ORM框架初始化
             'handlers': ['default', 'info'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
     },
