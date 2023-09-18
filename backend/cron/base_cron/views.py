@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore
-from django_apscheduler.models import DjangoJob
+from django_apscheduler.models import DjangoJob, DjangoJobExecution
 from rest_framework.serializers import ModelSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
@@ -35,12 +35,22 @@ class DjangoJobBaseViewSet(ModelViewSet):
     serializer_class = DjangoJobSerializer
 
     @action(methods=['GET'], detail=True)
-    def get_list(self, request):
-        queryset = DjangoJob.objects.select_related()
-        paginator = CustomPaginator(request, queryset)
+    def get_job_exec_list(self, request):
+        job_exec_list = DjangoJobExecution.objects.all().select_related("job_id")
+        paginator = CustomPaginator(request, job_exec_list)
         data = paginator.get_page()
         total = paginator.count
         serializer = ModelSerializer(data)
+        logger.info("{} call job exec list api".format(request.user.username))
+        return APIResponse(code=0, msg='success', total=total, data=serializer.data)
+
+    @action(methods=['GET'], detail=True)
+    def get_job_list(self, request):
+        job_list = DjangoJob.objects.all()
+        paginator = CustomPaginator(request, job_list)
+        data = paginator.get_page()
+        total = paginator.count
+        serializer = DjangoJobSerializer(data, fields=JOB_SERIALIZER_FIELDS, many=True)
         logger.info("{} call job list api".format(request.user.username))
         return APIResponse(code=0, msg='success', total=total, data=serializer.data)
 
