@@ -4,7 +4,7 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="queryConditions.region" placeholder="Region" class="handle-select mr10">
+				<el-select v-model="queryConditions.platform" placeholder="Region" class="handle-select mr10">
 					<el-option
 						v-for="item in regionOptions"
 						:key="item.value"
@@ -12,7 +12,7 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.job_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
@@ -24,9 +24,20 @@
 									:row-class-name="tableRowClassName"
 									scrollbar-always-on
 									style="width: 100%">
-					<el-table-column prop="api_request_id" align="center" label="Request ID" width="100px" show-overflow-tooltip></el-table-column>
 
-					<el-table-column align="center" label="Region" show-overflow-tooltip width="150px" font-weight: bold>
+					<el-table-column type="expand">
+						<template #default="props">
+							<div m="4">
+								<p m="t-0 b-2" style="font-weight: bold">Request ID: {{ props.row.api_request_id }}</p><br>
+								<p m="t-0 b-2" style="font-weight: bold">Request Time: {{ props.row.request_time }}</p><br>
+								<p m="t-0 b-2" style="font-weight: bold">Product Type: {{ props.row.product_type }}</p><br>
+								<p m="t-0 b-2" style="font-weight: bold">Instance Start Time: {{ props.row.start_time }}</p><br>
+								<p m="t-0 b-2" style="font-weight: bold">Instance ID: {{ props.row.instance_id }}</p><br>
+							</div>
+						</template>
+					</el-table-column>
+
+					<el-table-column align="center" label="Region" show-overflow-tooltip width="150px" font-weight: bold :render-header="renderHeader">
 						<template #default="scope" style="font-weight: bold">
 							<div style="font-weight: bold">
 								{{ scope.row.region == 'ap-southeast-1' ? 'Oversea' : 'Mainland' }}
@@ -34,7 +45,7 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column label="Status" align="center" width="130px">
+					<el-table-column label="Status" align="center" width="130px" :render-header="renderHeader">
 						<template #default="scope">
 							<el-tag :type="scope.row.waf_status === 1 ? 'success' : 'danger'">
 								{{ scope.row.waf_status === 1 ? 'Running' : 'Expired/Released' }}
@@ -64,25 +75,26 @@
 							</div>
 						</template>
 					</el-table-column>
-					<el-table-column align="center" label="Edition" show-overflow-tooltip width="130px">
+					<el-table-column align="center" label="Edition" show-overflow-tooltip width="130px" :render-header="renderHeader">
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.edition }}
 							</div>
 						</template>
 					</el-table-column>
-					<el-table-column align="center" label="Pay Type" show-overflow-tooltip width="130px">
+					<el-table-column align="center" label="Pay Type" show-overflow-tooltip width="130px" :render-header="renderHeader">
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.pay_type }}
 							</div>
 						</template>
 					</el-table-column>
-					<el-table-column prop="in_debt" align="center" label="In Debt" show-overflow-tooltip width="130px"></el-table-column>
-					<el-table-column prop="api_request_id" align="center" label="API Request ID" show-overflow-tooltip width="180px"></el-table-column>
-					<el-table-column prop="instance_id" align="center" label="Instance ID" show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="in_debt" align="center" label="In Debt" show-overflow-tooltip width="130px" :render-header="renderHeader"></el-table-column>
+					<el-table-column prop="api_request_id" align="center" label="Request ID" show-overflow-tooltip width="130px"></el-table-column>
 					<el-table-column prop="request_time" align="center" label="Request Time" show-overflow-tooltip width="130px"></el-table-column>
-
+					<el-table-column prop="product_type" align="center" label="Product Type" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="start_time" align="center" label="Instance Start Time" show-overflow-tooltip width="130px"></el-table-column>
+					<el-table-column prop="instance_id" align="center" label="Instance ID" show-overflow-tooltip width="200px"></el-table-column>
 				</el-table>
 			</el-scrollbar>
 
@@ -106,8 +118,8 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive} from 'vue';
-import {ElMessage} from 'element-plus';
+import {ref, reactive, h} from 'vue';
+import {ElMessage, ElTooltip} from 'element-plus';
 import {Search, Refresh} from '@element-plus/icons-vue';
 import router from "@/plugins/router";
 import date from "async-validator/dist-types/validator/date";
@@ -126,6 +138,58 @@ const regionOptions = [
 		label: 'Mainland',
 	},
 ]
+
+const StatusDescription = ref("" +
+	"(Running, 正常)--" +
+	"(Expired/Released, 到期/释放)")
+
+const EditionDescription = ref("" +
+	"(Basic, 基础版)--" +
+	"(Pro, 高级版)--" +
+	"(Business, 企业版)--" +
+	"(Enterprise, 旗舰版)")
+
+const RegionDescription = ref("" +
+	"(Mainland, 中国内地)--" +
+	"(Oversea, 非中国内地)")
+
+const PayTypeDescription = ref("" +
+	"(POSTPAY, 已开通按量付费WAF实例)--" +
+	"(PREPAY, 表示已开通包年包月WAF实例)")
+
+const InDebt = ref("" +
+	"(1, 表示已欠费)--" +
+	"(0, 表示正常)"
+)
+
+const getDescription = (label: string) => {
+	switch (label) {
+		case "Status":
+			return StatusDescription.value;
+		case "Edition":
+			return EditionDescription.value;
+		case "Region":
+			return RegionDescription.value;
+		case "Pay Type":
+			return PayTypeDescription.value;
+		case "In Debt":
+			return InDebt.value;
+		default:
+			return "-";
+	}
+}
+
+const renderHeader = ({column}) => {
+	return h('span', {}, [
+		h(ElTooltip, {
+				effect: 'dark',
+				content: getDescription(column.label),
+				placement: 'top'
+			},
+			{default: () => column.label}
+		)
+	])
+}
 
 // The pattern of Project
 interface WAFResource {
@@ -150,8 +214,8 @@ const pageTotal = ref(0);
 
 // The conditions of search api
 const queryConditions = reactive({
-	region: "",
-	project_name: "",
+	platform: "",
+	job_name: "",
 });
 
 let currentPageIndex = ref(1);
@@ -201,8 +265,8 @@ const initlist = () => {
 const searchProjects = () => {
 	sendGetReq({
 		uri: "/waf/search", params: {
-			region: queryConditions.region,
-			project_name: queryConditions.project_name,
+			platform: queryConditions.platform,
+			job_name: queryConditions.job_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		}
@@ -253,11 +317,6 @@ const handleSizeChange = (val: number) => {
 	width: 300px;
 }
 
-.table {
-	display: flex;
-	width: 100%;
-	font-size: 14px;
-}
 
 .mr10 {
 	margin-right: 10px;

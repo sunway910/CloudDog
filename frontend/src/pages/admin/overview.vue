@@ -2,7 +2,7 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="queryConditions.region" placeholder="Cloud Platform" class="handle-select mr10">
+				<el-select v-model="queryConditions.platform" placeholder="Cloud Platform" class="handle-select mr10">
 					<el-option
 						v-for="item in platformOptions"
 						:key="item.value"
@@ -10,19 +10,35 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.job_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
 				<el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">New</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
 			</div>
 			<el-scrollbar>
-				<el-table :data="projectList" border class="table"
-									header-cell-class-name="table-header">
+				<el-table :data="projectList"
+									class="table"
+									header-cell-class-name="table-header"
+									:border="parentBorder">
+					<el-table-column type="expand">
+						<template #default="props">
+							<div m="4">
+								<p m="t-0 b-2" style="font-weight: bold">Project ID: {{ props.row.id }}</p>
+								<p m="t-0 b-2" style="font-weight: bold">Cron Expression: {{ props.row.cron_expression }}</p>
+								<p m="t-0 b-2" style="font-weight: bold">RAM Account: {{ props.row.account }}</p>
+							</div>
+						</template>
+					</el-table-column>
 					<!--					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>-->
 					<el-table-column align="center" label="Cloud Platform">
 						<template #default="scope">
 							<div style="font-weight: bold;color: red">
-								{{ scope.row.cloud_platform }}
+								<a class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
+									 @click="getLoginUrl(scope.row.cloud_platform)"
+									 :href="platform_ram_login_url"
+									 target="_blank">
+									{{ scope.row.cloud_platform }}
+								</a>
 							</div>
 						</template>
 					</el-table-column>
@@ -33,15 +49,7 @@
 							</div>
 						</template>
 					</el-table-column>
-					<el-table-column prop="account" align="center" label="Account" show-overflow-tooltip></el-table-column>
-					<el-table-column align="center" label="Region">
-						<template #default="scope" style="font-weight: bold">
-							<div style="font-weight: bold">
-								{{ scope.row.region.toString().split('-')[1].substring(0, 1).toUpperCase() + scope.row.region.toString().split('-')[1].substring(1).toLowerCase() }}
-							</div>
-						</template>
-					</el-table-column>
-					<el-table-column prop="cron_expression" align="center" label="Cron Expression"></el-table-column>
+					<el-table-column align="center" label="Region" :formatter="regionFormatter"></el-table-column>
 					<el-table-column align="center" label="Toggle">
 						<template #default="scope">
 							<el-tag :type="scope.row.cron_toggle  ? 'success' : 'danger'">
@@ -56,7 +64,7 @@
 							</el-tag>
 						</template>
 					</el-table-column>
-					<el-table-column prop="create_time" label="Create Time" align="center"></el-table-column>
+					<el-table-column prop="create_time" label="Create Time" align="center" sortable></el-table-column>
 
 					<el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))">
 						<template #default="scope">
@@ -93,7 +101,7 @@
 		<el-dialog title="Edit" v-model="DialogVisible" width="40%">
 			<el-form label-width="150px" v-model="createOrUpdateData">
 				<el-form-item label="Cloud Platform">
-					<el-select v-model="createOrUpdateData.region" placeholder="Cloud Platform" class="handle-select mr10" :disabled="createOrUpdateRequest">
+					<el-select v-model="createOrUpdateData.platform" placeholder="Cloud Platform" class="handle-select mr10" :disabled="createOrUpdateRequest">
 						<el-option
 							v-for="item in platformOptions"
 							:key="item.value"
@@ -109,11 +117,11 @@
 				</el-tooltip>
 				<el-tooltip content="multi region must split with blank" placement="top">
 					<el-form-item label="Region" required>
-						<el-input v-model="createOrUpdateData.region" placeholder="multi region must split with blank"></el-input>
+						<el-input v-model="createOrUpdateData.platform" placeholder="multi region must split with blank"></el-input>
 					</el-form-item>
 				</el-tooltip>
 				<el-form-item label="Project Name" required>
-					<el-input v-model="createOrUpdateData.project_name" placeholder="Please input project name"></el-input>
+					<el-input v-model="createOrUpdateData.job_name" placeholder="Please input project name"></el-input>
 				</el-form-item>
 				<el-form-item label="Access Key" required v-show="!createOrUpdateRequest">
 					<el-input v-model="createOrUpdateData.project_access_key" placeholder="Please input AK"></el-input>
@@ -169,6 +177,12 @@ import {ElMessage, ElMessageBox} from 'element-plus';
 import {Delete, Edit, Search, Plus, Refresh} from '@element-plus/icons-vue';
 import router from "@/plugins/router";
 import {useAuthStore} from "~/stores/auth";
+import * as https from "https";
+import User from "~/pages/admin/auth/user.vue";
+import type {TableColumnCtx} from 'element-plus'
+
+const platform_ram_login_url = ref("")
+const parentBorder = ref(true)
 const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
@@ -214,7 +228,6 @@ const platformOptions = [
 // The pattern of Project
 interface ProjectItem {
 	id: any;
-	region: string;
 	region: any;
 	account: any;
 	project_access_key: any,
@@ -229,10 +242,14 @@ interface ProjectItem {
 const projectList = ref<ProjectItem[]>([]);
 const pageTotal = ref(0);
 
+const regionFormatter = (row: ProjectItem, column: TableColumnCtx<ProjectItem>) => {
+	return row.platform.toString().split('-')[1].substring(0, 1).toUpperCase() + row.platform.toString().split('-')[1].substring(1).toLowerCase()
+}
+
 // The conditions of search api
 const queryConditions = reactive({
-	region: "",
-	project_name: "",
+	platform: "",
+	job_name: "",
 });
 let currentPageIndex = ref(1);
 let pageSize = ref(10);
@@ -243,13 +260,12 @@ let idx: number = -1;
 // create or update project
 let createOrUpdateData = reactive<ProjectItem>({
 	id: -1,
-	region: "",
-	project_name: "",
+	platform: "",
+	job_name: "",
 	project_access_key: null,
 	project_secret_key: null,
 	cron_expression: "",
 	cron_toggle: true,
-	region: "",
 	account: "",
 	status: "",
 	create_time: "",
@@ -291,8 +307,8 @@ const searchProjects = () => {
 		params: {
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value,
-			region: queryConditions.region,
-			project_name: queryConditions.project_name
+			platform: queryConditions.platform,
+			job_name: queryConditions.job_name
 		}
 	}).then((res) => {
 			pageTotal.value = parseInt(res.data.data.length)
@@ -311,14 +327,14 @@ const createOrUpdateProject = () => {
 	}
 
 	createOrUpdateData.account = createOrUpdateData.account.toString().split(' ')
-	createOrUpdateData.region = createOrUpdateData.region.toString().split(' ')
+	createOrUpdateData.region = createOrUpdateData.platform.toString().split(' ')
 
 	sendPostReq({uri: "/project/create_or_update", payload: createOrUpdateData, config_obj: null}).then(() => {
 		getProjectList() // create operation need to requery project list from db
 	})
 
 	if (createOrUpdateRequest.value) { // update operation, do not need to requery project list from db
-		projectList.value[idx].project_name = createOrUpdateData.project_name;
+		projectList.value[idx].project_name = createOrUpdateData.job_name;
 		projectList.value[idx].account = createOrUpdateData.account;
 		ElMessage.success(`${createOrUpdateRequest.value ? "Edit" : "Create"} project successfully`);
 	}
@@ -371,6 +387,20 @@ const clearCreateOrUpdateData = () => {
 		obj[item] = "";
 	});
 	Object.assign(createOrUpdateData, obj);
+};
+
+const getLoginUrl = (platform: string) => {
+	if (platform === 'Aliyun') {
+		platform_ram_login_url.value = "https://signin.aliyun.com/login.htm#/main"
+	} else if (platform === 'AlibabaCloud') {
+		platform_ram_login_url.value = "https://signin.alibabacloud.com/login.htm#/main"
+	} else if (platform === 'GCP') {
+		platform_ram_login_url.value = "https://console.cloud.google.com/"
+	} else if (platform === 'Azure') {
+		platform_ram_login_url.value = "https://portal.azure.com/#home"
+	} else if (platform === 'AWS') {
+		platform_ram_login_url.value = "https://signin.aws.amazon.com/"
+	}
 };
 
 </script>

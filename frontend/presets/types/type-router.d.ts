@@ -45,8 +45,11 @@ declare module 'vue-router/auto/routes' {
     '/admin/auth/user': RouteRecordInfo<'/admin/auth/user', '/admin/auth/user', Record<never, never>, Record<never, never>>,
     '/admin/overview': RouteRecordInfo<'/admin/overview', '/admin/overview', Record<never, never>, Record<never, never>>,
     '/admin/product/ecs': RouteRecordInfo<'/admin/product/ecs', '/admin/product/ecs', Record<never, never>, Record<never, never>>,
+    '/admin/product/export': RouteRecordInfo<'/admin/product/export', '/admin/product/export', Record<never, never>, Record<never, never>>,
+    '/admin/product/import': RouteRecordInfo<'/admin/product/import', '/admin/product/import', Record<never, never>, Record<never, never>>,
+    '/admin/product/upload': RouteRecordInfo<'/admin/product/upload', '/admin/product/upload', Record<never, never>, Record<never, never>>,
     '/admin/product/waf': RouteRecordInfo<'/admin/product/waf', '/admin/product/waf', Record<never, never>, Record<never, never>>,
-    '/admin/system/cron': RouteRecordInfo<'/admin/system/cron', '/admin/system/cron', Record<never, never>, Record<never, never>>,
+    '/admin/system/job': RouteRecordInfo<'/admin/system/job', '/admin/system/job', Record<never, never>, Record<never, never>>,
     '/admin/system/messages': RouteRecordInfo<'/admin/system/messages', '/admin/system/messages', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
   }

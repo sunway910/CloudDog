@@ -78,7 +78,7 @@ const items = [
 		auth: 'admin',
 		subs: [
 			{
-				index: '/admin/system/cron',
+				index: '/admin/system/job',
 				title: '定时任务',
 				auth: 'admin',
 			},
