@@ -37,6 +37,7 @@ urlpatterns = [
     re_path(r'', include('project.urls'), name='project'),
     re_path(r'', include('product.alibabacloud_product.urls'), name='alibaba_product'),
     re_path(r'', include('cron.alibabacloud_cron.urls'), name='ali_cron'),
+    re_path(r'', include('cron.base_cron.urls'), name='base_cron'),
 ]
 
 if settings.DEBUG:
