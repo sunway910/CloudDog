@@ -120,6 +120,7 @@ interface DjangoAPSchedulerJob {
 let JobInstance = reactive<DjangoAPSchedulerJob>({
 	id: "",
 	next_run_time: "",
+	job_state: "",
 });
 
 const DjangoAPSchedulerJobList = ref<DjangoAPSchedulerJob[]>([]);

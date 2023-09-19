@@ -7,9 +7,15 @@ from product.alibabacloud_product.models import ProductType
 
 class Event(models.Model):
     EventType = (
-        ('expired', '已过期'),
-        ('expiring', '即将过期'),
-        ('exception', '状态异常'),
+        ('expired', '资源已过期'),
+        ('expiring', '资源即将过期'),
+        ('exception', '资源状态异常'),
+    )
+
+    MessageStatus = (
+        ('unread', '未读'),
+        ('read', '已读'),
+        ('trash', '垃圾箱'),
     )
 
     id = models.AutoField(primary_key=True, db_comment='主键ID')
@@ -19,6 +25,7 @@ class Event(models.Model):
     event_message = models.TextField(default="", verbose_name="MessageInfo", db_comment="事件内容")
     event_type = models.CharField(default="", max_length=100, verbose_name='EventType', db_comment='事件类型', choices=EventType)
     product_type = models.CharField(default=ProductType.ECS.value, max_length=100, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    status = models.CharField(default="unread", max_length=100, verbose_name='MessageStatus', db_comment='消息状态', choices=MessageStatus)
 
     def __str__(self):
         return self.project_name

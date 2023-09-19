@@ -21,7 +21,7 @@ PROJECT_SERIALIZER_FIELDS = ['id', 'cloud_platform', 'region', 'account', 'proje
 @permission_classes([IsAuthenticated])
 def get_list(request):
     if request.method == 'GET':
-        projectList = Project.objects.values(
+        project_list = Project.objects.values(
             'id',
             'cloud_platform',
             'region',
@@ -33,7 +33,7 @@ def get_list(request):
             'cron_toggle'
         ).order_by('-id')
 
-        paginator = CustomPaginator(request, projectList)
+        paginator = CustomPaginator(request, project_list)
         data = paginator.get_page()
         total = paginator.count
 
@@ -51,7 +51,7 @@ def search(request):
     try:
         cloud_platform = request.GET.get('cloud_platform', None)
         project_name = request.GET.get('project_name', None)
-        projectList = Project.objects.values(
+        project_list = Project.objects.values(
             'id',
             'cloud_platform',
             'region',
@@ -63,16 +63,16 @@ def search(request):
             'cron_toggle'
         ).order_by('-id')
         if cloud_platform and cloud_platform != "All":
-            projectList = projectList.filter(cloud_platform=cloud_platform)
+            project_list = project_list.filter(cloud_platform=cloud_platform)
         if project_name:
-            projectList = projectList.filter(project_name__icontains=project_name)
-        paginator = CustomPaginator(request, projectList)
+            project_list = project_list.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, project_list)
         data = paginator.get_page()
         total = paginator.count
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = ProjectSerializer(data, many=True, fields=PROJECT_SERIALIZER_FIELDS)
-    logger.info("{} call project search api with conditions-cloud_platform: {}, project_name: {}".format(request.user.username, cloud_platform, project_name))
+    logger.info("{} call project search api with conditions cloud_platform: {}, project_name: {}".format(request.user.username, cloud_platform, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
