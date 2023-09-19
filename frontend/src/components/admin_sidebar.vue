@@ -83,6 +83,11 @@ const items = [
 				auth: 'admin',
 			},
 			{
+				index: '/admin/system/job_history',
+				title: '任务历史',
+				auth: 'admin',
+			},
+			{
 				index: '/admin/system/messages',
 				title: '系统消息',
 				auth: 'admin',

@@ -12,7 +12,7 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.job_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
@@ -234,7 +234,7 @@ const pageTotal = ref(0);
 // The conditions of search api
 const queryConditions = reactive({
 	platform: "",
-	job_name: "",
+	project_name: "",
 });
 
 let currentPageIndex = ref(1);
@@ -272,7 +272,7 @@ const searchProjects = () => {
 	sendGetReq({
 		uri: "/ecs/search", params: {
 			platform: queryConditions.platform,
-			job_name: queryConditions.job_name,
+			job_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		}

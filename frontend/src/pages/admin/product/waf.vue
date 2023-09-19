@@ -12,7 +12,7 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.job_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
@@ -215,7 +215,7 @@ const pageTotal = ref(0);
 // The conditions of search api
 const queryConditions = reactive({
 	platform: "",
-	job_name: "",
+	project_name: "",
 });
 
 let currentPageIndex = ref(1);
@@ -266,7 +266,7 @@ const searchProjects = () => {
 	sendGetReq({
 		uri: "/waf/search", params: {
 			platform: queryConditions.platform,
-			job_name: queryConditions.job_name,
+			job_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		}
@@ -284,7 +284,6 @@ function timestampToTime(timestamp) {
 	// 时间戳为10位需*1000，时间戳为13位不需乘1000
 	let date = new Date(timestamp);
 	let Y = date.getFullYear() + "-";
-	console.log("year", Y)
 	let M =
 		(date.getMonth() + 1 < 10
 			? "0" + (date.getMonth() + 1)

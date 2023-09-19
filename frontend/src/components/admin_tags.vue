@@ -29,8 +29,9 @@
 
 <script setup lang="ts">
 import {useTagsStore} from '@/stores/tags';
-import {onBeforeRouteLeave,onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
+import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter} from 'vue-router';
 import {Close} from "@element-plus/icons-vue";
+
 const route = useRoute();
 const router = useRouter();
 const isActive = (path: string) => {
@@ -66,12 +67,10 @@ const setTags = (route: any) => {
 };
 setTags(route);
 onBeforeRouteUpdate((to, from) => {
-	console.log("to===", to)
-	console.log("from===", from)
 	setTags(to);
 });
-onBeforeRouteLeave( (to, from) => {
-		setTags(to);
+onBeforeRouteLeave((to, from) => {
+	setTags(to);
 })
 // 关闭全部标签
 const closeAll = () => {

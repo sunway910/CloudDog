@@ -10,7 +10,7 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.job_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
 				<el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">New</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
@@ -66,7 +66,7 @@
 					</el-table-column>
 					<el-table-column prop="create_time" label="Create Time" align="center" sortable></el-table-column>
 
-					<el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))">
+					<el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))" fixed="right">
 						<template #default="scope">
 							<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)">
 								Edit
@@ -121,7 +121,7 @@
 					</el-form-item>
 				</el-tooltip>
 				<el-form-item label="Project Name" required>
-					<el-input v-model="createOrUpdateData.job_name" placeholder="Please input project name"></el-input>
+					<el-input v-model="createOrUpdateData.project_name" placeholder="Please input project name"></el-input>
 				</el-form-item>
 				<el-form-item label="Access Key" required v-show="!createOrUpdateRequest">
 					<el-input v-model="createOrUpdateData.project_access_key" placeholder="Please input AK"></el-input>
@@ -230,6 +230,7 @@ interface ProjectItem {
 	id: any;
 	region: any;
 	account: any;
+	platform: string,
 	project_access_key: any,
 	project_secret_key: any,
 	project_name: string;
@@ -243,13 +244,13 @@ const projectList = ref<ProjectItem[]>([]);
 const pageTotal = ref(0);
 
 const regionFormatter = (row: ProjectItem, column: TableColumnCtx<ProjectItem>) => {
-	return row.platform.toString().split('-')[1].substring(0, 1).toUpperCase() + row.platform.toString().split('-')[1].substring(1).toLowerCase()
+	return row.region.toString().split('-')[1].substring(0, 1).toUpperCase() + row.region.toString().split('-')[1].substring(1).toLowerCase()
 }
 
 // The conditions of search api
 const queryConditions = reactive({
 	platform: "",
-	job_name: "",
+	project_name: "",
 });
 let currentPageIndex = ref(1);
 let pageSize = ref(10);
@@ -261,7 +262,7 @@ let idx: number = -1;
 let createOrUpdateData = reactive<ProjectItem>({
 	id: -1,
 	platform: "",
-	job_name: "",
+	project_name: "",
 	project_access_key: null,
 	project_secret_key: null,
 	cron_expression: "",
@@ -308,7 +309,7 @@ const searchProjects = () => {
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value,
 			platform: queryConditions.platform,
-			job_name: queryConditions.job_name
+			job_name: queryConditions.project_name
 		}
 	}).then((res) => {
 			pageTotal.value = parseInt(res.data.data.length)
@@ -327,14 +328,14 @@ const createOrUpdateProject = () => {
 	}
 
 	createOrUpdateData.account = createOrUpdateData.account.toString().split(' ')
-	createOrUpdateData.region = createOrUpdateData.platform.toString().split(' ')
+	createOrUpdateData.region = createOrUpdateData.region.toString().split(' ')
 
 	sendPostReq({uri: "/project/create_or_update", payload: createOrUpdateData, config_obj: null}).then(() => {
 		getProjectList() // create operation need to requery project list from db
 	})
 
 	if (createOrUpdateRequest.value) { // update operation, do not need to requery project list from db
-		projectList.value[idx].project_name = createOrUpdateData.job_name;
+		projectList.value[idx].project_name = createOrUpdateData.project_name;
 		projectList.value[idx].account = createOrUpdateData.account;
 		ElMessage.success(`${createOrUpdateRequest.value ? "Edit" : "Create"} project successfully`);
 	}

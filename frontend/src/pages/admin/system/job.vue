@@ -1,10 +1,10 @@
-<!--Job service Service-->
+<!--Advanced Python Scheduler: Job Service-->
 <template>
 
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-input v-model="queryConditions.job_name" placeholder="Job Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.project_name" placeholder="Job Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchJobs">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getJobList" style="float: right">Refresh</el-button>
 			</div>
@@ -13,11 +13,10 @@
 				<el-table :data="DjangoAPSchedulerJobList"
 									:border="parentBorder"
 									header-cell-class-name="table-header"
-									:row-class-name="tableRowClassName"
 									scrollbar-always-on
 									style="width: 100%">
 
-					<el-table-column align="center" label="Job Name" show-overflow-tooltip width="100px">
+					<el-table-column align="center" label="Job Name" show-overflow-tooltip width="300px">
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.id }}
@@ -25,7 +24,7 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column align="center" label="Next Run Time" show-overflow-tooltip width="200px" color:red>
+					<el-table-column align="center" label="Next Run Time" show-overflow-tooltip width="500px" color:red>
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.next_run_time }}
@@ -33,7 +32,7 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column prop="job_state" label="Job State" align="center" width="180px">
+					<el-table-column prop="job_state" label="Job State" align="center" width="800px" show-overflow-tooltip>
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.job_state }}
@@ -41,47 +40,17 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column align="center" label="Execution ID" show-overflow-tooltip width="200px">
+					<el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))" fixed="right">
 						<template #default="scope">
-							<div style="font-weight: bold">
-								{{ scope.row.execution_id }}
-							</div>
+							<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)">
+								Edit
+							</el-button>
+							<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)">
+								Delete
+							</el-button>
 						</template>
 					</el-table-column>
 
-					<el-table-column prop="status" label="Job Status" align="center" width="180px">
-						<template #default="scope">
-							<div style="font-weight: bold">
-								{{ scope.row.status }}
-							</div>
-						</template>
-					</el-table-column>
-
-					<el-table-column label="Runtime" align="center" width="100px">
-						<template #default="scope">
-							{{ scope.row.runtime }}
-						</template>
-					</el-table-column>
-
-					<el-table-column align="center" label="Duration" show-overflow-tooltip width="150px" font-weight: bold>
-						<template #default="scope" style="font-weight: bold">
-							<div style="font-weight: bold">
-								{{ scope.row.duration }}
-							</div>
-						</template>
-					</el-table-column>
-
-					<el-table-column prop="finished" align="center" label="Finished" show-overflow-tooltip width="150px">
-						<template #default="scope">
-							<el-tag>
-								{{ scope.row.finished }}
-							</el-tag>
-						</template>
-					</el-table-column>
-
-
-					<el-table-column prop="exception" align="center" label="Exception" show-overflow-tooltip width="180px"></el-table-column>
-					<el-table-column prop="traceback" align="center" label="Traceback" show-overflow-tooltip width="180px"></el-table-column>
 
 				</el-table>
 			</el-scrollbar>
@@ -101,55 +70,68 @@
 				/>
 			</div>
 		</div>
+		<!-- operate job -->
+		<el-dialog title="Edit" v-model="DialogVisible" width="40%">
+			<el-form label-width="150px" v-model="JobInstance">
+				<el-tooltip content="Input Job Name" placement="top">
+					<el-form-item label="Job Name" required>
+						<el-input v-model="JobInstance.id" placeholder="Input Job Name"></el-input>
+					</el-form-item>
+				</el-tooltip>
+				<el-tooltip content="Input Job Next Run Time" placement="top">
+					<el-form-item label="Job Next Run Time" required>
+						<el-input v-model="JobInstance.next_run_time" placeholder="Input Job Next Run Time"></el-input>
+					</el-form-item>
+				</el-tooltip>
 
+			</el-form>
+			<template #footer>
+				<span class="dialog-footer">
+					<el-button @click="DialogVisible = false">Cancel</el-button>
+					<el-button type="primary" @click="operateJob">Confirm</el-button>
+				</span>
+			</template>
+		</el-dialog>
 	</div>
 </template>
 
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
-import {Refresh, Search} from '@element-plus/icons-vue';
-import {ElMessage} from 'element-plus';
+import {Delete, Edit, Refresh, Search} from '@element-plus/icons-vue';
+import {ElMessage, ElMessageBox} from 'element-plus';
+import {useAuthStore} from "~/stores/auth";
 
-
+const auth = useAuthStore();
 const parentBorder = ref(true)
-const auth = ['admin', 'user']
+const role = ['admin', 'user']
 const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
-
-
+const DialogVisible = ref(false); // el-dialog
+let idx: number = -1;
+const createOrUpdateRequest = ref(true);  // false means create request, true means update request
 // The pattern of Project
 interface DjangoAPSchedulerJob {
 	id: any,
 	next_run_time: string,
 	job_state: string,
-	execution_id: string,
-	status: string,
-	runtime: string,
-	duration: string,
-	finished: string,
-	exception: string,
-	traceback: string,
 }
+
+let JobInstance = reactive<DjangoAPSchedulerJob>({
+	id: "",
+	next_run_time: "",
+});
 
 const DjangoAPSchedulerJobList = ref<DjangoAPSchedulerJob[]>([]);
 const pageTotal = ref(0);
 
 // The conditions of search api
 const queryConditions = reactive({
-	job_name: "",
+	project_name: "",
 });
 
 let currentPageIndex = ref(1);
 let pageSize = ref(10);
-
-const tableRowClassName = ({row}: { row: DjangoAPSchedulerJob }) => {
-	if (row.status === 'Running') {
-		return 'success-row'
-	} else {
-		return 'warning-row'
-	}
-}
 
 
 // get Elastic Compute Resource list
@@ -159,10 +141,10 @@ const getJobList = () => {
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		},
-		uri: "/job/list"
+		uri: "/apsjob"
 	}).then((res) => {
-			pageTotal.value = parseInt(res.data.total)
-			DjangoAPSchedulerJobList.value = res.data.data
+			pageTotal.value = parseInt(res.data.count)
+			DjangoAPSchedulerJobList.value = res.data.results
 		}
 	).catch((err) => {
 		ElMessage.error(err || 'Get job list error');
@@ -173,8 +155,8 @@ getJobList(); // init ECR list
 // search ECR by cloud_platform and project_name
 const searchJobs = () => {
 	sendGetReq({
-		uri: "/job/search", params: {
-			job_name: queryConditions.job_name,
+		uri: "/apsjob", params: {
+			job_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		}
@@ -197,7 +179,34 @@ const handleSizeChange = (val: number) => {
 	getJobList();
 }
 
+const handleUpdate = (index: number, row: any) => {
+	idx = index;
+	JobInstance = row; // init data which should be updated
+	DialogVisible.value = true; // open dialog page
+	createOrUpdateRequest.value = true // set dialog mode to 'update'
+};
 
+const deleteProject = (row: any) => {
+	ElMessageBox.confirm('Are you sure you want to delete it', 'Message', {
+		type: 'warning'
+	})
+		.then(() => {
+			sendDeleteReq({uri: "/project/delete", params: {id: row.id}})
+			ElMessage.success('delete successfully');
+		})
+		.catch(() => {
+			ElMessage.error('delete failed');
+		});
+	getJobList();
+};
+
+
+const operateJob = () => {
+	sendPostReq({uri: "/apsjob/", payload: JobInstance, config_obj: null}).then(() => {
+		getJobList() // create operation need to requery project list from db
+	})
+	DialogVisible.value = false // close dialog page
+}
 </script>
 
 <style>
@@ -205,9 +214,6 @@ const handleSizeChange = (val: number) => {
 	margin-bottom: 20px;
 }
 
-.handle-select {
-	width: 150px;
-}
 
 .handle-input {
 	width: 300px;
