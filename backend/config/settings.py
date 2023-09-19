@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'cron.aws_cron',
     'cron.gcp_cron',
     'cron.azure_cron',
-    'message'
+    'message',
 ]
 
 TEMPLATES = [
@@ -296,4 +296,18 @@ ENDPOINT = {
         "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',
         "oversea": 'wafopenapi.ap-southeast-1.aliyuncs.com'
     }
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST') or ''
+EMAIL_PORT = os.environ.get('EMAIL_PORT') or 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') or ''
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') or ''
+EMAIL_FROM = 'Service'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+RECIPIENT_ADDRESS = {
+    "",
 }

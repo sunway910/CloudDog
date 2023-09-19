@@ -18,12 +18,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
+from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView, TokenVerifyView)
+
+from cron.base_cron.views import DjangoJobViewSet, DjangoJobExecutionViewSet
 from user.views import UserViewSet
-from rest_framework.documentation import include_docs_urls
 
 router = DefaultRouter()
+router.register(r'apsjob', DjangoJobViewSet)
+router.register(r'apsexecjob', DjangoJobExecutionViewSet)
 router.register(r'user', UserViewSet)
 
 urlpatterns = [
@@ -34,10 +38,11 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    re_path(r'', include('project.urls'), name='project'),
-    re_path(r'', include('product.alibabacloud_product.urls'), name='alibaba_product'),
-    re_path(r'', include('cron.alibabacloud_cron.urls'), name='ali_cron'),
-    re_path(r'', include('cron.base_cron.urls'), name='base_cron'),
+    path(r'', include('project.urls'), name='project'),
+    path(r'', include('product.alibabacloud_product.urls'), name='alibaba_product'),
+    path(r'', include('cron.alibabacloud_cron.urls'), name='ali_cron'),
+    path(r'', include('cron.base_cron.urls'), name='base_cron'),
+    path('', include('message.urls'), name='message')
 ]
 
 if settings.DEBUG:

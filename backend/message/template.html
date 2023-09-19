@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sunway Service</title>
+</head>
+<body>
+<style>
+    .panel {
+        width: 600px;
+        height: 300px;
+        margin: 0 auto;
+        background: cornflowerblue;
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 5%;
+    }
+</style>
+<div class="panel">
+    <div style="text-align: center;padding-top: 5%;">
+        <div style="font-size: 20px;font-weight: bold;color: red">Sunway Warning</div>
+    </div>
+    <div style="text-indent: 2em;padding-top: 5%;">Project: &nbsp;<span style="color: #0066FF;">{{ project_name }}</span>
+        <div style="padding-top: 5%;">Resource Type: &nbsp;
+            <span style="color: #0066FF;">{{ type }}</span>
+        </div>
+        <div style="padding-top: 5%;">
+            An exception occurred on Resource:&nbsp;<span style="color: #0066FF;">{{ instance_id }}</span>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+</script>
+</html>
+
+

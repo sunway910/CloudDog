@@ -19,7 +19,7 @@ class ProductBaseModel(models.Model):
     api_request_id = models.CharField(primary_key=True, default='', max_length=100, db_comment='API Request Id')
     instance_id = models.CharField(default='', max_length=50, verbose_name='InstanceId', db_comment='实例ID')
     request_time = models.DateTimeField(default=timezone.now, max_length=30, verbose_name='RequestTime', db_comment='API请求时间')
-    product_type = models.CharField(default=ProductType.ECS.value, max_length=60, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    product_type = models.CharField(default=ProductType.ECS.value, max_length=100, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     project_name = models.CharField(default='', max_length=30, verbose_name='Project Name', db_comment='项目名称')
     project = models.ForeignKey(
         to="project.Project",  # which table

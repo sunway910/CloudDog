@@ -8,8 +8,9 @@ from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 from django_apscheduler.jobstores import register_job
 
-from cron.base_cron.views import DjangoJobBaseViewSet
+from cron.base_cron.views import DjangoJobViewSet
 from config import settings
+from message.models import Event
 from project.models import Project
 from cron.base_cron.views import scheduler
 from product.alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
@@ -85,6 +86,16 @@ def get_ecr_api_response() -> None:
                                                      duration=instance_auto_renew_info['Duration'],
                                                      )
                     logger.info(ecs.get_basic_info())
+                    if ecs.ecs_status != "Running":
+                        message = "project {} ecs {} status is no Running".format(project['project_name'], instance['InstanceId'])
+                        event = Event(
+                            project_name=project['project_name'],
+                            event_type="exception",
+                            instance_id=instance['InstanceId'],
+                            product_type='ecs',
+                            event_message=message)
+                        event.save()
+                        logger.info("project {} ecs {} status is no Running".format(project['project_name'], instance['InstanceId']))
                     ecs.save()
             except Exception as error:
                 UtilClient.assert_as_string(error)
@@ -127,11 +138,11 @@ def get_waf_api_response() -> None:
             UtilClient.assert_as_string(error)
 
 
-class AliECSDjangoJobViewSet(DjangoJobBaseViewSet, ABC):
+class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_ecr_api_response()
 
 
-class AliWAFDjangoJobViewSet(DjangoJobBaseViewSet, ABC):
+class AliWAFDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_waf_api_response()

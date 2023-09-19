@@ -1,17 +1,17 @@
+import logging
 from abc import abstractmethod
+
+import rest_framework.request
 from apscheduler.schedulers.background import BackgroundScheduler
+from django.http import HttpRequest
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJob, DjangoJobExecution
-from rest_framework.serializers import ModelSerializer
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
+from rest_framework.viewsets import ModelViewSet
 
-from handler import APIResponse
-from cron.serializers import DjangoJobSerializer
 from config import settings
-
-import logging
-
+from cron.serializers import DjangoJobSerializer, DjangoJobExecutionSerializer
+from handler import APIResponse
 from paginator import CustomPaginator
 
 logger = logging.getLogger('cpm')
@@ -24,7 +24,7 @@ scheduler.add_jobstore(DjangoJobStore(), "default")
 scheduler.start()
 
 
-class DjangoJobBaseViewSet(ModelViewSet):
+class DjangoJobViewSet(ModelViewSet):
     @abstractmethod
     def custom_job(self):
         pass
@@ -34,28 +34,8 @@ class DjangoJobBaseViewSet(ModelViewSet):
     queryset = DjangoJob.objects.all()
     serializer_class = DjangoJobSerializer
 
-    @action(methods=['GET'], detail=True)
-    def get_job_exec_list(self, request):
-        job_exec_list = DjangoJobExecution.objects.all().select_related("job_id")
-        paginator = CustomPaginator(request, job_exec_list)
-        data = paginator.get_page()
-        total = paginator.count
-        serializer = ModelSerializer(data)
-        logger.info("{} call job exec list api".format(request.user.username))
-        return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-    @action(methods=['GET'], detail=True)
-    def get_job_list(self, request):
-        job_list = DjangoJob.objects.all()
-        paginator = CustomPaginator(request, job_list)
-        data = paginator.get_page()
-        total = paginator.count
-        serializer = DjangoJobSerializer(data, fields=JOB_SERIALIZER_FIELDS, many=True)
+    def list(self, request, *args, **kwargs):
         logger.info("{} call job list api".format(request.user.username))
-        return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-    @action(methods=['GET'], detail=True)
-    def search(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -146,3 +126,14 @@ class DjangoJobBaseViewSet(ModelViewSet):
         except Exception as e:
             logger.info("Update task failed: {}".format(e))
             return APIResponse(code=1, msg='fail')
+
+
+class DjangoJobExecutionViewSet(ModelViewSet):
+    permission_classes = []
+    authentication_classes = []
+    queryset = DjangoJobExecution.objects.all()
+    serializer_class = DjangoJobExecutionSerializer
+
+    def list(self, request, *args, **kwargs):
+        logger.info("{} call job exec list api".format(request.user.username))
+        return super().list(request, *args, **kwargs)

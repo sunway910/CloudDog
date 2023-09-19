@@ -163,6 +163,6 @@ def get_ecr_api_response() -> None:
         UtilClient.assert_as_string(error)
 
 
-get_ecr_api_response()
+# get_ecr_api_response()
 # test_endpoint()
 # test_json_exist()
