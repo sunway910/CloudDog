@@ -4,4 +4,14 @@ login: Login
 about: About
 admin: Admin
 not-found: Notfound
+Overview: Overview
+Monitor: Monitor
+ECR: ECR
+WAF: WAF
+Manager: Manager
+Job: Job
+History: History
+Message: Message
+Auth: Auth
+User: User
 

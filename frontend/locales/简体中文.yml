@@ -4,4 +4,13 @@ login: 登录
 about: 关于
 admin: 后台
 not-found: 未找到页面
-
+Overview: 项目总览
+Monitor: 实例监控
+ECR: 弹性计算资源
+WAF: Web应用防火墙
+Manager: 管理中心
+Job: 定时任务
+History: 任务历史
+Message: 消息中心
+Auth: 权限管理
+User: 用户中心

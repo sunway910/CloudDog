@@ -17,11 +17,11 @@
               <el-icon>
                 <component :is="item.icon"></component>
               </el-icon>
-              <span>{{ item.title }}</span>
+              <span>{{ t(item.title) }}</span>
             </template>
             <template v-for="subItem in item.subs">
               <el-menu-item :index="subItem.index" v-auth="item.auth">
-                {{ subItem.title }}
+                {{ t(subItem.title) }}
               </el-menu-item>
             </template>
           </el-sub-menu>
@@ -31,7 +31,7 @@
             <el-icon>
               <component :is="item.icon"></component>
             </el-icon>
-            <template #title>{{ item.title }}</template>
+            <template #title>{{ t(item.title) }}</template>
           </el-menu-item>
         </template>
       </template>
@@ -44,65 +44,71 @@ import {computed} from 'vue';
 import {useSidebarStore} from '@/stores/sidebar';
 import {useRoute} from 'vue-router';
 
+const {t, locale} = useI18n()
+
+const toggleLocale = () => {
+  // locale.value 用来表示当前所属语言，可修改进行语言切换
+  locale.value = locale.value === 'zh-CN' ? 'en' : 'zh-CN'
+}
 const items = [
   {
     // icon : https://element-plus.org/en-US/component/icon.html
     icon: 'Odometer',
     index: '/admin/overview',
-    title: '系统首页',
+    title: 'Overview',
     auth: 'user',
     subs: null,
   },
   {
     icon: 'Monitor',
     index: '2',
-    title: '实例监控',
+    title: 'Monitor',
     auth: 'user',
     subs: [
       {
         index: '/admin/product/ecs',
-        title: 'ECS监控',
+        title: 'ECR',
         auth: 'user',
       },
       {
         index: '/admin/product/waf',
-        title: 'WAF监控',
+        title: 'WAF',
         auth: 'user',
       },
     ],
   },
   {
     icon: 'DocumentCopy',
-    title: '系统管理员',
+    title: 'Manager',
     index: '3',
     auth: 'user',
     subs: [
       {
         index: '/admin/system/job',
-        title: '定时任务',
+        title: 'Job',
         auth: 'admin',
       },
       {
         index: '/admin/system/job_history',
-        title: '任务历史',
+        title: 'History',
         auth: 'admin',
       },
       {
         index: '/admin/system/messages',
-        title: '系统消息',
+        title: 'Message',
         auth: 'user',
       },
     ],
   },
   {
     icon: 'Warning',
-    title: '权限管理',
+    title: 'Auth',
     index: '4',
     auth: 'admin',
     subs: [
       {
         index: '/admin/auth/user',
-        title: '用户中心',
+        title: 'User',
         auth: 'admin',
       },
     ],
