@@ -11,6 +11,7 @@ from django_apscheduler.jobstores import register_job
 from cron.base_cron.views import DjangoJobViewSet
 from config import settings
 from message.models import Event
+from message.views import send_message
 from project.models import Project
 from cron.base_cron.views import scheduler
 from product.alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
@@ -86,6 +87,7 @@ def get_ecr_api_response() -> None:
                                                      duration=instance_auto_renew_info['Duration'],
                                                      )
                     logger.info(ecs.get_basic_info())
+                    ecs.save()
                     if ecs.ecs_status != "Running":
                         message = "project {} ecs {} status is no Running".format(project['project_name'], instance['InstanceId'])
                         event = Event(
@@ -95,8 +97,8 @@ def get_ecr_api_response() -> None:
                             product_type='ecs',
                             event_message=message)
                         event.save()
-                        logger.info("project {} ecs {} status is no Running".format(project['project_name'], instance['InstanceId']))
-                    ecs.save()
+                        send_message(event)
+                        logger.info(message)
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
@@ -134,6 +136,17 @@ def get_waf_api_response() -> None:
                                              )
             logger.info(waf.get_basic_info())
             waf.save()
+            if waf.waf_status != 1:
+                message = "project {} waf {} status is no Running".format(project['project_name'], waf_info['Status'])
+                event = Event(
+                    project_name=project['project_name'],
+                    event_type="exception",
+                    instance_id=waf_info['InstanceId'],
+                    product_type='waf',
+                    event_message=message)
+                event.save()
+                send_message(event)
+                logger.info(message)
         except Exception as error:
             UtilClient.assert_as_string(error)
 

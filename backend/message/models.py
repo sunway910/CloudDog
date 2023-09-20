@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
@@ -24,7 +23,7 @@ class Event(models.Model):
     create_time = models.DateField(default=timezone.now, verbose_name='CreateTime', db_comment='事件创建时间')
     event_message = models.TextField(default="", verbose_name="MessageInfo", db_comment="事件内容")
     event_type = models.CharField(default="", max_length=100, verbose_name='EventType', db_comment='事件类型', choices=EventType)
-    product_type = models.CharField(default=ProductType.ECS.value, max_length=100, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    product_type = models.CharField(default="", max_length=100, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     status = models.CharField(default="unread", max_length=100, verbose_name='MessageStatus', db_comment='消息状态', choices=MessageStatus)
 
     def __str__(self):

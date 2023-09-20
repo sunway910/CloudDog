@@ -102,9 +102,10 @@ def create_or_update(request):
 def delete(request):
     try:
         project_id = request.GET.get('id', None)
-        logger.info("{}, delete projects {}".format(time.strftime('%X'), Project.objects.get(id=project_id)))
+        delete_instance = Project.objects.get(id=project_id)
+        logger.info("{}, delete projects {}".format(time.strftime('%X'), delete_instance))
         Project.objects.filter(id=project_id).delete()
     except Project.DoesNotExist:
         return APIResponse(code=1, msg='no exist error')
-    logger.info("{} call project delete api, request data: {}".format(request.user.username, request.data))
+    logger.info("{} call project delete api, request data: {}".format(request.user.username, delete_instance))
     return APIResponse(code=0, msg='delete successfully')

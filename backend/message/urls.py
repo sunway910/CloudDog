@@ -7,4 +7,5 @@ urlpatterns = [
     path('api/message/list', views.get_list),
     path('api/message/search', views.search),
     path('api/message/update', views.update),
+    path('api/message/delete', views.delete),
 ]

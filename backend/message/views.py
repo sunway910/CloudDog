@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.core.mail import send_mail
 from django.template.loader import get_template
@@ -7,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from config import settings
+from cron.permissions import IsAdminUserOrReadOnly
 from handler import APIResponse
 from message.models import Event
 from message.serializers import EventSerializer
@@ -22,13 +24,12 @@ def send_message(event_info) -> bool:
         # [project_name type instance_id account] in email template
         html_content = template.render(
             {'project_name': event_info['project_name'],
-             'type': event_info['type'],
+             'product_type': event_info['product_type'],
              'instance_id': event_info['instance_id'],
+             'event_message': event_info['event_message'],
              }
         )
-
         from_send = settings.EMAIL_HOST_USER
-        # sbj:就是人家收到你的邮件时，显示的标题，，
         sbj = 'Sunway Service'
         send_mail(subject=sbj, message=None, html_message=html_content, from_email=from_send, recipient_list=[settings.RECIPIENT_ADDRESS])
         return True
@@ -83,3 +84,18 @@ def update(request):
         return APIResponse(code=0, msg='operate message successfully', data=project)
     except Event.DoesNotExist:
         return APIResponse(code=1, msg='no exist error')
+
+
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAdminUserOrReadOnly])
+def delete(request):
+    try:
+        project_id = request.GET.get('id', None)
+        delete_instance = Event.objects.get(id=project_id)
+        logger.info("{}, delete message {}".format(time.strftime('%X'), delete_instance))
+        Event.objects.filter(id=project_id).delete()
+    except Event.DoesNotExist:
+        return APIResponse(code=1, msg='no exist error')
+    logger.info("{} call message delete api, request data: {}".format(request.user.username, delete_instance))
+    return APIResponse(code=0, msg='delete successfully')
