@@ -15,6 +15,7 @@
 				<el-input v-model="queryConditions.project_name" @keydown.enter="searchWaf" placeholder="Project Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchWaf">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
+        <el-button type="primary" @click="exportXlsx" style="float: right">Export</el-button>
 			</div>
 
 			<el-scrollbar>
@@ -122,7 +123,8 @@ import {ref, reactive, h} from 'vue';
 import {ElMessage, ElTooltip} from 'element-plus';
 import {Search, Refresh} from '@element-plus/icons-vue';
 import router from "@/plugins/router";
-import date from "async-validator/dist-types/validator/date";
+import * as XLSX from "xlsx";
+
 
 const auth = ['admin', 'user']
 const small = ref(false)
@@ -208,13 +210,28 @@ interface WAFResource {
 	subscription_type: string,
 	trial: number,
 }
-
+const excelList = [[
+  'api_request_id',
+  'instance_id',
+  'request_time',
+  'product_type',
+  'project',
+  'waf_status',
+  'end_time',
+  'edition',
+  'remain_day',
+  'region',
+  'pay_type',
+  'in_debt',
+  'subscription_type',
+  'trial',
+]];
 const WAFResourceList = ref<WAFResource[]>([]);
 const pageTotal = ref(0);
 
 // The conditions of search api
 const queryConditions = reactive({
-	platform: "",
+	cloud_platform: "",
 	project_name: "",
 });
 
@@ -265,7 +282,7 @@ const initlist = () => {
 const searchWaf = () => {
 	sendGetReq({
 		uri: "/waf/search", params: {
-			platform: queryConditions.platform,
+			cloud_platform: queryConditions.platform,
 			project_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
@@ -278,7 +295,21 @@ const searchWaf = () => {
 		ElMessage.error(err || 'Search project error');
 	});
 }
-
+const exportXlsx = () => {
+  WAFResourceList.value.map((item: any) => {
+    let arr = [];
+    arr.push(item.api_request_id, item.instance_id, item.request_time,
+      item.product_type, item.project_name, item.waf_status, item.end_time,
+      item.edition, item.remain_day, item.region, item.pay_type,
+      item.in_debt, item.subscription_type, item.trial
+    );
+    excelList.push(arr);
+  });
+  let WorkSheet = XLSX.utils.aoa_to_sheet(excelList);
+  let new_workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(new_workbook, WorkSheet, 'waf');
+  XLSX.writeFile(new_workbook, `waf_summary.xlsx`);
+};
 
 function timestampToTime(timestamp) {
 	// 时间戳为10位需*1000，时间戳为13位不需乘1000

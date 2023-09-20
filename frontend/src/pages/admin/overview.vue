@@ -14,6 +14,7 @@
         <el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
         <el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">New</el-button>
         <el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
+        <el-button type="primary" @click="exportXlsx" style="float: right">Export</el-button>
       </div>
       <el-scrollbar>
         <el-table :data="projectList"
@@ -180,6 +181,7 @@ import {useAuthStore} from "~/stores/auth";
 import * as https from "https";
 import User from "~/pages/admin/auth/user.vue";
 import type {TableColumnCtx} from 'element-plus'
+import * as XLSX from "xlsx";
 
 const platform_ram_login_url = ref("")
 const parentBorder = ref(true)
@@ -230,7 +232,7 @@ interface ProjectItem {
   id: any;
   region: any;
   account: any;
-  platform: string,
+  cloud_platform: string,
   project_access_key: any,
   project_secret_key: any,
   project_name: string;
@@ -249,7 +251,7 @@ const regionFormatter = (row: ProjectItem, column: TableColumnCtx<ProjectItem>) 
 
 // The conditions of search api
 const queryConditions = reactive({
-  platform: "",
+  cloud_platform: "",
   project_name: "",
 });
 let currentPageIndex = ref(1);
@@ -262,7 +264,7 @@ let idx: number = -1;
 let createOrUpdateData = reactive<ProjectItem>({
   id: -1,
   region: "",
-  platform: "",
+  cloud_platform: "",
   project_name: "",
   project_access_key: null,
   project_secret_key: null,
@@ -272,7 +274,17 @@ let createOrUpdateData = reactive<ProjectItem>({
   status: "",
   create_time: ""
 });
-
+const excelList = [[
+  'id',
+  'region',
+  'platform',
+  'project_name',
+  'cron_expression',
+  'cron_toggle',
+  'account',
+  'status',
+  'create_time',
+]];
 // get project list
 const getProjectList = () => {
   sendGetReq({
@@ -309,7 +321,7 @@ const searchProjects = () => {
     params: {
       page_index: currentPageIndex.value,
       page_size: pageSize.value,
-      platform: queryConditions.platform,
+      cloud_platform: queryConditions.cloud_platform,
       project_name: queryConditions.project_name
     }
   }).then((res) => {
@@ -390,7 +402,20 @@ const clearCreateOrUpdateData = () => {
   });
   Object.assign(createOrUpdateData, obj);
 };
-
+const exportXlsx = () => {
+  projectList.value.map((item: any) => {
+    let arr = [];
+    arr.push(item.id, item.region, item.cloud_platform,
+        item.project_name, item.cron_expression, item.cron_toggle,
+        item.account, item.status, item.create_time
+    );
+    excelList.push(arr);
+  });
+  let WorkSheet = XLSX.utils.aoa_to_sheet(excelList);
+  let new_workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(new_workbook, WorkSheet, 'project');
+  XLSX.writeFile(new_workbook, `project_summary.xlsx`);
+};
 const getLoginUrl = (platform: string) => {
   if (platform === 'Aliyun') {
     platform_ram_login_url.value = "https://signin.aliyun.com/login.htm#/main"
