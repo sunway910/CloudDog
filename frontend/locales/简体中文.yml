@@ -1,9 +1,7 @@
 # 中文
 
-home: 主页
+login: 登录
 about: 关于
-echarts: 图表
-edit: 编辑
-to test HMR: 测试热更新
-check out: 查看
-The total number of views is: 总浏览数
+admin: 后台
+not-found: 未找到页面
+

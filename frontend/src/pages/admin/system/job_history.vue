@@ -4,7 +4,7 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-input v-model="queryConditions.project_name" placeholder="Job Name" class="handle-input mr10"></el-input>
+				<el-input v-model="queryConditions.project_name" @keydown.enter="searchJobExecutionHistory" placeholder="Job Name" class="handle-input mr10"></el-input>
 				<el-button :icon="Search" type="primary" @click="searchJobExecutionHistory">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getJobExecutionList" style="float: right">Refresh</el-button>
 			</div>

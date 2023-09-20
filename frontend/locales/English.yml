@@ -1,8 +1,7 @@
 # English
 
-home: home
-about: about
-edit: Edit
-to test HMR: to test HMR
-check out: Check out
-The total number of views is: The total number of pages is
+login: Login
+about: About
+admin: Admin
+not-found: Notfound
+

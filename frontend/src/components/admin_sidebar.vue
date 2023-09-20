@@ -75,7 +75,7 @@ const items = [
 		icon: 'DocumentCopy',
 		title: '系统管理员',
 		index: '3',
-		auth: 'admin',
+		auth: 'user',
 		subs: [
 			{
 				index: '/admin/system/job',
@@ -90,7 +90,7 @@ const items = [
 			{
 				index: '/admin/system/messages',
 				title: '系统消息',
-				auth: 'admin',
+				auth: 'user',
 			},
 		],
 	},

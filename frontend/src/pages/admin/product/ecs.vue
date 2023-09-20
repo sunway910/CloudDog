@@ -12,8 +12,9 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
-				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
+				<el-input v-model="queryConditions.project_name" @keydown.enter="searchEcr" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-button :icon="Search" type="primary" @click="searchEcr">Search</el-button>
+				<el-button type="primary" @click="exportXlsx" style="float: right">导出Excel</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
 
@@ -131,7 +132,7 @@
 import {h, reactive, ref} from 'vue';
 import {Refresh, Search} from '@element-plus/icons-vue';
 import {ElTooltip, ElMessage} from 'element-plus';
-
+import * as XLSX from 'xlsx';
 
 const parentBorder = ref(true)
 const auth = ['admin', 'user']
@@ -227,7 +228,28 @@ interface ElasticComputeResource {
 	auto_release_time: string,
 	lock_reason: string,
 }
-
+const list = [[
+	'api_request_id',
+	'instance_id',
+	'request_time',
+	'product_type',
+	'project',
+	'instance_name',
+	'auto_renew_enabled',
+	'renewal_status',
+	'period_init',
+	'duration',
+	'region_id',
+	'ecs_status',
+	'instance_charge_type',
+	'internet_charge_type',
+	'expired_time',
+	'stopped_mode',
+	'start_time',
+	'auto_release_time',
+	'lock_reason',
+]
+];
 const elasticComputeResourceList = ref<ElasticComputeResource[]>([]);
 const pageTotal = ref(0);
 
@@ -268,11 +290,11 @@ const getECRList = () => {
 getECRList(); // init ECR list
 
 // search ECR by cloud_platform and project_name
-const searchProjects = () => {
+const searchEcr = () => {
 	sendGetReq({
 		uri: "/ecs/search", params: {
 			platform: queryConditions.platform,
-			job_name: queryConditions.project_name,
+			project_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		}
@@ -294,6 +316,19 @@ const handleSizeChange = (val: number) => {
 	pageSize.value = val;
 	getECRList();
 }
+
+const exportXlsx = () => {
+    elasticComputeResourceList.value.map((item: any, i: number) => {
+        const arr: any[] = [i + 1];
+        arr.push(...[item.name, item.sno, item.class, item.age, item.sex]);
+        list.push(arr);
+    });
+    let WorkSheet = XLSX.utils.aoa_to_sheet(list);
+    let new_workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(new_workbook, WorkSheet, 'ecs');
+    XLSX.writeFile(new_workbook, `ecs_summary.xlsx`);
+};
+
 
 const getDescription = (label: string) => {
 	switch (label) {

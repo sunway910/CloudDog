@@ -16,6 +16,7 @@ export default defineConfig({
 		preset(),
 	],
 	server: {
+		host: "0.0.0.0",
 		port: 8080,
 	},
 	resolve: {

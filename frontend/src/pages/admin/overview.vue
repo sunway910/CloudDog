@@ -10,7 +10,7 @@
               :value="item.value"
           />
         </el-select>
-        <el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="searchProjects" placeholder="Project Name" class="handle-input mr10"></el-input>
         <el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
         <el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">New</el-button>
         <el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>

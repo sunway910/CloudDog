@@ -1,29 +1,20 @@
-<script setup lang="ts">
-
-import {SwitchIcon} from 'vue-dark-switch'
-
-const {t} = useI18n();
-
-</script>
-
 <template>
 	<nav v-show="true" aria-label="Site Nav" class="mx-auto h-80px max-w-4xl flex items-center justify-between p-4">
 		<a href="/" target="_blank" class="logo">
 			<img src="/favicon.ico" alt=" logo" height="512" width="512" style="text-align: left">
 		</a>
 		<ul class="flex items-center gap-2 text-sm font-medium">
-
 			<li>
 				<a class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
-					 href="https://blog.sunway.run"
+					 href="https://www.sunthycloud.com/"
 					 target="_blank">
-					About
+					<span @click="toggleLocale()">{{ t('about') }}</span>
 				</a>
-        <RouterLink class="rounded-lg px-3" to="/admin/overview">
-					Admin
+				<RouterLink class="rounded-lg px-3" to="/admin/overview">
+					<span @click="toggleLocale()">{{ t('admin') }}</span>
 				</RouterLink>
 				<RouterLink class="rounded-lg px-3" to="/login">
-					Login
+					<span @click="toggleLocale()">{{ t('login') }}</span>
 				</RouterLink>
 				<a
 					class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
@@ -109,6 +100,18 @@ const {t} = useI18n();
 		</ul>
 	</nav>
 </template>
+
+<script setup lang="ts">
+import {SwitchIcon} from 'vue-dark-switch'
+
+const {t, locale} = useI18n()
+
+const toggleLocale = () => {
+	// locale.value 用来表示当前所属语言，可修改进行语言切换
+	locale.value = locale.value === 'zh-CN' ? 'en' : 'zh-CN'
+}
+</script>
+
 <style>
 .logo {
 	width: 10em;

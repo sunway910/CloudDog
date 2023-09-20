@@ -12,11 +12,11 @@
 		<div class="admin_logo">Cloud Platform Monitor</div>
 		<div class="header-right">
 			<div class="header-user-con">
-				<!-- 消息中心 -->
+
 				<div class="btn-bell" @click="router.push('/admin/system/messages')">
 					<el-tooltip
 						effect="dark"
-						:content="message_num ? `have ${message_num} messages unread` : `message center`"
+						:content="message_num ? `Have ${message_num} messages unread` : `Message Center`"
 						placement="bottom">
 						<el-icon>
 							<Message/>
@@ -24,9 +24,9 @@
 					</el-tooltip>
 					<span class="btn-bell-badge" v-if="message_num"></span>
 				</div>
-				<!-- 用户头像 -->
+
 				<el-avatar class="user-avator" :size="30" :src="imgurl"/>
-				<!-- 用户名下拉菜单 -->
+
 				<el-dropdown class="user-name" trigger="click" @command="handleCommand">
 					<span class="el-dropdown-link">
 						{{ username }}
@@ -50,15 +50,17 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted} from 'vue';
+import {onMounted, ref} from 'vue';
 import {useSidebarStore} from '@/stores/sidebar';
 import {useRouter} from 'vue-router';
 import imgurl from '/public/favicon.ico';
 
 import {Expand, Fold, Message} from "@element-plus/icons-vue";
+import {ElMessage} from "element-plus";
 
 const username: string | null = localStorage.getItem('username');
-const message_num: number = 99;
+const message_num = ref(99);
+const message_status = ref("unread");
 
 const sidebar = useSidebarStore();
 // 侧边栏折叠
@@ -87,6 +89,22 @@ const handleCommand = (command: string) => {
 		router.push('/admin/auth/user');
 	}
 };
+
+const getMessageWithStatus = (status: string) => {
+	console.log("status",status)
+	sendGetReq({
+		uri: "/message/list",
+		params: {
+			status: status,
+		}
+	}).then((res) => {
+			message_num.value = parseInt(res.data.data.length)
+		}
+	).catch((err) => {
+		ElMessage.error(err || 'Get message list error');
+	});
+}
+getMessageWithStatus(message_status.value)
 
 </script>
 

@@ -12,8 +12,8 @@
 						:value="item.value"
 					/>
 				</el-select>
-				<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10"></el-input>
-				<el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
+				<el-input v-model="queryConditions.project_name" @keydown.enter="searchWaf" placeholder="Project Name" class="handle-input mr10"></el-input>
+				<el-button :icon="Search" type="primary" @click="searchWaf">Search</el-button>
 				<el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
 			</div>
 
@@ -262,11 +262,11 @@ const initlist = () => {
 // initlist()
 
 // search ECR by cloud_platform and project_name
-const searchProjects = () => {
+const searchWaf = () => {
 	sendGetReq({
 		uri: "/waf/search", params: {
 			platform: queryConditions.platform,
-			job_name: queryConditions.project_name,
+			project_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value
 		}
