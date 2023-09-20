@@ -54,7 +54,6 @@ const custom_layout_route_list = fileRoutes.map((route) => {
 	return recursiveLayouts(route)
 })
 
-// console.log('custom_layout_route_list=', custom_layout_route_list)
 
 export const router = createRouter({
 	history: createWebHistory(),

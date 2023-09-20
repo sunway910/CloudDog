@@ -5,7 +5,7 @@
 				<el-card shadow="hover">
 					<template #header>
 						<div class="clearfix">
-							<span>基础信息</span>
+							<span>Basic Info</span>
 						</div>
 					</template>
 					<div class="info">
@@ -16,7 +16,7 @@
 							</span>
 						</div>
 						<div class="info-name">{{ name }}</div>
-						<div class="info-desc">不可能！我的代码怎么可能会有bug！</div>
+						<div class="info-desc">superficial software develop engineer</div>
 					</div>
 				</el-card>
 			</el-col>
@@ -24,28 +24,28 @@
 				<el-card shadow="hover">
 					<template #header>
 						<div class="clearfix">
-							<span>账户编辑</span>
+							<span>Edit</span>
 						</div>
 					</template>
 					<el-form label-width="90px">
-						<el-form-item label="用户名："> {{ name }} </el-form-item>
-						<el-form-item label="旧密码：">
-							<el-input type="password" v-model="form.old"></el-input>
+						<el-form-item label="username: "> {{ name }} </el-form-item>
+						<el-form-item label="password: ">
+							<el-input type="pwd" v-model="form.old"></el-input>
 						</el-form-item>
-						<el-form-item label="新密码：">
+						<el-form-item label="new pwd:">
 							<el-input type="password" v-model="form.new"></el-input>
 						</el-form-item>
-						<el-form-item label="个人简介：">
+						<el-form-item label="Intro">
 							<el-input v-model="form.desc"></el-input>
 						</el-form-item>
 						<el-form-item>
-							<el-button type="primary" @click="onSubmit">保存</el-button>
+							<el-button type="primary" @click="onSubmit">Save</el-button>
 						</el-form-item>
 					</el-form>
 				</el-card>
 			</el-col>
 		</el-row>
-		<el-dialog title="裁剪图片" v-model="dialogVisible" width="600px">
+		<el-dialog title="Crop" v-model="dialogVisible" width="600px">
 			<vue-cropper
 				ref="cropper"
 				:src="imgSrc"
@@ -58,10 +58,10 @@
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button class="crop-demo-btn" type="primary"
-						>选择图片
+						>select
 						<input class="crop-input" type="file" name="image" accept="image/*" @change="setImage" />
 					</el-button>
-					<el-button type="primary" @click="saveAvatar">上传并保存</el-button>
+					<el-button type="primary" @click="saveAvatar">upload and save</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -76,7 +76,7 @@ const name = localStorage.getItem('username');
 const form = reactive({
 	old: '',
 	new: '',
-	desc: '不可能！我的代码怎么可能会有bug！'
+	desc: 'Superficial Software Develop Engineer'
 });
 const onSubmit = () => {};
 

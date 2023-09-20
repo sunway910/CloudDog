@@ -91,7 +91,6 @@ const handleCommand = (command: string) => {
 };
 
 const getMessageWithStatus = (status: string) => {
-	console.log("status",status)
 	sendGetReq({
 		uri: "/message/list",
 		params: {
