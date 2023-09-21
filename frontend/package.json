@@ -1,7 +1,7 @@
 {
-  "name": "Cloud Platform Monitor",
-  "version": "1.17.2",
-  "description": "vite + vue3 + ts 开箱即用现代开发模板",
+  "name": "cpm",
+  "version": "1.0.0",
+  "description": "Cloud Platform Monitor",
   "private": true,
   "type": "module",
   "scripts": {

@@ -261,7 +261,7 @@ const createOrUpdateRequest = ref(true);  // false means create request, true me
 let idx: number = -1;
 
 // create or update project
-const createOrUpdateData = reactive<ProjectItem>({
+let createOrUpdateData = reactive<ProjectItem>({
   id: -1,
   region: "",
   cloud_platform: "",
