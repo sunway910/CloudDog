@@ -1,8 +1,3 @@
-# docker build -t sunway/cpm:image20230921 -f Dockerfile .
-# docker run -d  -p 8000:8000 -e DJANGO_MYSQL_HOST=172.17.0.1 -e DJANGO_MYSQL_PASSWORD=mysql8 -e DJANGO_MYSQL_USER=root -e DJANGO_MYSQL_DATABASE=djangoblog --name djangoblog sunway/djangoblog:image20230710
-# when build a new image, copy the directory to container which is created by cronjob (/data/editor is the previous data in old container)
-# docker exec -it djangoblog mkdir /code/djangoblog/uploads
-# docker cp /data/editor djangoblog:/code/djangoblog/uploads/editor
 FROM python:3.11
 ENV PYTHONUNBUFFERED 1
 WORKDIR /code/cpm/
@@ -17,3 +12,8 @@ RUN pip install --upgrade pip  && \
 ADD . .
 RUN chmod +x /code/cpm/bin/docker_start.sh
 ENTRYPOINT ["/code/cpm/bin/docker_start.sh"]
+# docker build -t sunway/cpm:image20230921 -f Dockerfile .
+# docker run -d  --name postgres  -p 5432:5432 -e POSTGRES_PASSWORD=sunway  -v /data/postgres:/var/lib/postgresql/data  postgres:latest
+# docker run -d  -p 8000:8000 -e DJANGO_POSTGRES_HOST=172.17.0.2  --name cpm  -v /data/cpm/log:/code/cpm/log sunway/cpm:image20230921
+# docker exec -it postgres psql -U postgres
+# docker logs -f --tail=100 postgresql
