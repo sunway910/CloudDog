@@ -13,7 +13,6 @@ async function authorization() {
     // 初始 token 未过期
     if (expiredTime > current) {
         hasLogin = true;
-        console.log('authorization access')
     }
     // 初始 token 过期
     // 申请刷新 token

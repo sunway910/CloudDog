@@ -18,7 +18,7 @@ const typedRef = useTyped([' is not found!'])
 			</RouterLink>
 		</div>
 
-		<img src="/notFound/32.svg" class="cover" alt="page not found" />
+		<img src="/notFound/2.svg" class="cover" alt="page not found" />
 	</div>
 </template>
 

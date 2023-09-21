@@ -7,7 +7,8 @@ http.interceptors.request.use(
 		config.headers['Content-Type'] = 'application/json'
 		config.headers['Authorization'] = localStorage.getItem('access')
 		if (config.method === 'post') {
-			if (!config.data) { // 没有参数时，config.data为null，需要转下类型
+			if (!config.data) {
+				// 没有参数时，config.data为null，需要转下类型
 				config.data = {}
 			}
 			config.data = JSON.stringify(config.data) // qs序列化参数
@@ -33,7 +34,7 @@ http.interceptors.response.use(
 	},
 	function (error) {
 		const status = error.response?.status
-		let {msg, message} = error.response?.data ?? {}
+		let { msg, message } = error.response?.data ?? {}
 
 		if (!msg && message) {
 			msg = message
@@ -44,11 +45,14 @@ http.interceptors.response.use(
 				case 400:
 					msg = 'params error'
 					break
-				case 500:
-					msg = 'server error'
+				case 401:
+					msg = 'auth error'
 					break
 				case 404:
-					msg = 'route error'
+					msg = 'page not found error'
+					break
+				case 500:
+					msg = 'server error'
 					break
 				default:
 					msg = error.message ?? 'unknown response error'

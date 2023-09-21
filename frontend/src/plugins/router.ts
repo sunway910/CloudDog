@@ -1,37 +1,42 @@
-import {createGetRoutes, setupLayouts} from 'virtual:meta-layouts'
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
-import {routes as fileRoutes} from 'vue-router/auto/routes'
-import {useAuthStore} from '@/stores/auth';
+import { createGetRoutes, setupLayouts } from 'virtual:meta-layouts'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { routes as fileRoutes } from 'vue-router/auto/routes'
+import { useAuthStore } from '@/stores/auth'
+import { reactive } from 'vue'
 
 declare module 'vue-router' {
 	// 在这里定义你的 meta 类型
 	interface RouteMeta {
-		name? : string
+		name?: string
 		title?: string
 		layout?: string
 	}
 }
 
-
 function setLayoutsByCondition(route: RouteRecordRaw): RouteRecordRaw {
-
 	// @ts-ignore
 	if (route.name.includes('admin')) {
 		route = {
 			...route,
 			meta: {
-				name : route.name ? route.name.toString() : "undefined",
-				layout: 'admin_layout', ...route.meta,
-				title: route.name ? route.name.toString().split('/').pop()?.toUpperCase() : "No Title"
+				name: route.name ? route.name.toString() : 'undefined',
+				layout: 'admin_layout',
+				...route.meta,
+				title: route.name
+					? route.name.toString().split('/').pop()?.toUpperCase()
+					: 'No Title',
 			},
 		}
 	} else {
 		route = {
 			...route,
 			meta: {
-				name : route.name ? route.name.toString() : "undefined",
-				layout: 'index_default', ...route.meta,
-				title: route.name ? route.name.toString().split('/').pop()?.toUpperCase() : "No Title"
+				name: route.name ? route.name.toString() : 'undefined',
+				layout: 'index_default',
+				...route.meta,
+				title: route.name
+					? route.name.toString().split('/').pop()?.toUpperCase()
+					: 'No Title',
 			},
 		}
 	}
@@ -43,7 +48,7 @@ function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
 		for (let i = 0; i < route.children.length; i++) {
 			route.children[i] = recursiveLayouts(route.children[i])
 		}
-	}else {
+	} else {
 		route = setLayoutsByCondition(route)
 	}
 	return route
@@ -54,26 +59,42 @@ const custom_layout_route_list = fileRoutes.map((route) => {
 	return recursiveLayouts(route)
 })
 
-
 export const router = createRouter({
 	history: createWebHistory(),
 	routes: setupLayouts(custom_layout_route_list),
 })
+import { ref } from 'vue'
 
 export const getRoutes = createGetRoutes(router)
+// interface tokenVerify {
+//   token: any;
+// }
+const verify = reactive({ token: '' })
 
 router.beforeEach((to, from, next) => {
-	document.title = `${to.meta.title} | CloudPlatformMonitor`;
-	const role = localStorage.getItem('access');
-	const auth = useAuthStore();
-	if (!role && to.path !== '/login') {
-		next('/login');
-	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
-		// 如果没有权限，则进入403
-		next('/404');
-	} else {
-		next();
+	document.title = `${to.meta.title} | CloudPlatformMonitor`
+	let token = `${localStorage.getItem('access')} | 'Bearer null'`
+	token = token.split(' ')[1]
+	if (to.path !== '/login') {
+		sendPostReq({
+			uri: '/token/verify/',
+			payload: { token: token },
+			config_obj: null,
+		}).then((res) => {
+			if (res.data.code !== null) {
+				next('/login')
+			}
+		})
 	}
-});
+	const auth = useAuthStore()
+	if (!token && to.path !== '/login') {
+		next('/login')
+	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
+		// 如果没有权限，则进入404
+		next('/404')
+	} else {
+		next()
+	}
+})
 
 export default router
