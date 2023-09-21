@@ -10,10 +10,12 @@ RUN pip install --upgrade pip  && \
         pip cache purge
         
 ADD . .
-RUN chmod +x /code/cpm/bin/docker_start.sh
-ENTRYPOINT ["/code/cpm/bin/docker_start.sh"]
+RUN chmod +x /code/cpm/start.sh
+ENTRYPOINT ["/code/cpm/start.sh"]
 # docker build -t sunway/cpm:image20230921 -f Dockerfile .
 # docker run -d  --name postgres  -p 5432:5432 -e POSTGRES_PASSWORD=sunway  -v /data/postgres:/var/lib/postgresql/data  postgres:latest
-# docker run -d  -p 8000:8000 -e DJANGO_POSTGRES_HOST=172.17.0.2  --name cpm  -v /data/cpm/log:/code/cpm/log sunway/cpm:image20230921
 # docker exec -it postgres psql -U postgres
+# create database cpm;
 # docker logs -f --tail=100 postgresql
+# docker run -d  -p 8000:8000 -e DJANGO_POSTGRES_HOST=172.17.0.2  --name cpm  -v /data/cpm/log:/code/cpm/log   sunway/cpm:image20230921
+# docker logs -f --tail=100 cpm

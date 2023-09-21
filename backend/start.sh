@@ -16,7 +16,6 @@ export PYTHONPATH=$DJANGODIR:$PYTHONPATH
 python manage.py makemigrations && \
   python manage.py migrate && \
   python manage.py collectstatic --noinput  && \
-  python manage.py compress --force && \
   python manage.py build_index
 
 # Start your Django Unicorn

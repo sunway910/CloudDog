@@ -1,0 +1,15 @@
+FROM node:18-alpine AS builder
+LABEL authors="sunway"
+MAINTAINER "sunway"
+WORKDIR /app
+COPY . /app/
+
+RUN npm install pnpm -g
+RUN pnpm install
+RUN pnpm build
+# docker build -t sunway/node:image20230921 -f Dockerfile_Node .
+# mkdir -p /data/node/static && docker run -d --name node18 -v /data/node18/dist:/app/dist  sunway/node:image20230921
+# docker stop node18 && docker rm node18
+
+
+

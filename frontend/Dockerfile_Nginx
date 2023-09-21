@@ -1,0 +1,5 @@
+FROM nginx:latest
+LABEL authors="sunway"
+MAINTAINER "sunway"
+COPY /data/node18/dist /usr/share/nginx/html/
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf
