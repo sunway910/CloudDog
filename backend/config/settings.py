@@ -175,19 +175,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'dist/'
-
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist/"), ]
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+# STATIC_URL = 'dist/'
+#
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist/"), ]
+#
+# STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 PAGINATOR = {
     'max_page_size': 50,
@@ -310,7 +310,6 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') or ''
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') or ''
 EMAIL_FROM = 'Service'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
 
 RECIPIENT_ADDRESS = {
     "",
