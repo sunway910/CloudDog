@@ -6,7 +6,6 @@ GROUP=root # the group to run as
 NUM_WORKERS=1 # how many worker processes should Gunicorn spawn
 DJANGO_WSGI_MODULE=config.wsgi # WSGI module name
 
-
 echo "Starting $NAME as `whoami`"
 
 # Activate the virtual environment

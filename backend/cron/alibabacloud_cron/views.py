@@ -41,7 +41,7 @@ def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str)
 
 
 # cron: sunday 01:10AM exec the job
-# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ecr_api_response')
+@register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ecr_api_response')
 def get_ecr_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
@@ -104,7 +104,7 @@ def get_ecr_api_response() -> None:
 
 
 # cron: sunday 01:20AM exec the job
-# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='20', id='get_waf_api_response')
+@register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='20', id='get_waf_api_response')
 def get_waf_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
