@@ -1,7 +1,9 @@
-const serverUrl = "http://127.0.0.1:8000/api"
-import axios from "axios";
+import axios from 'axios'
 
-export const http = axios.create()
+export const http = axios.create({
+	baseURL: import.meta.env.VITE_API_BASE_URL,
+})
+
 http.interceptors.request.use(
 	function (config) {
 		config.headers['Content-Type'] = 'application/json'
@@ -66,22 +68,58 @@ http.interceptors.response.use(
 	},
 )
 
-export const sendGetReq = async ({uri, params}: { uri: string, params: any }) => {
-	return await http.get(serverUrl + uri, {params: params})
+export const sendGetReq = async ({
+	uri,
+	params,
+}: {
+	uri: string
+	params: any
+}) => {
+	return await http.get(uri, { params: params })
 }
 
-export const sendPostReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {
-	return await http.post(serverUrl + uri, payload, config_obj)
+export const sendPostReq = async ({
+	uri,
+	payload,
+	config_obj,
+}: {
+	uri: string
+	payload: any
+	config_obj: any
+}) => {
+	return await http.post(uri, payload, config_obj)
 }
 
-export const sendPutReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {
-	return await http.put(serverUrl + uri, payload, config_obj)
+export const sendPutReq = async ({
+	uri,
+	payload,
+	config_obj,
+}: {
+	uri: string
+	payload: any
+	config_obj: any
+}) => {
+	return await http.put(uri, payload, config_obj)
 }
 
-export const sendPatchReq = async ({uri, payload, config_obj}: { uri: string, payload: any, config_obj: any }) => {
-	return await http.patch(serverUrl + uri, payload, config_obj)
+export const sendPatchReq = async ({
+	uri,
+	payload,
+	config_obj,
+}: {
+	uri: string
+	payload: any
+	config_obj: any
+}) => {
+	return await http.patch(uri, payload, config_obj)
 }
 
-export const sendDeleteReq = async ({uri, params}: { uri: string, params: any }) => {
-	return await http.delete(serverUrl + uri, {params: params})
+export const sendDeleteReq = async ({
+	uri,
+	params,
+}: {
+	uri: string
+	params: any
+}) => {
+	return await http.delete(uri, { params: params })
 }

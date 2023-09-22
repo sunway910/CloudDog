@@ -1,5 +1,9 @@
 FROM nginx:latest
 LABEL authors="sunway"
 MAINTAINER "sunway"
-COPY /data/node18/dist /usr/share/nginx/html/
+ADD dist.tar.gz /usr/share/nginx/html/
+#COPY /data/node18/dist /usr/share/nginx/html/
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+# docker build -t sunway/nginx:image20230922 -f Dockerfile_Nginx .
+# docker run -d  -p 80:80 --name nginx sunway/nginx:image20230922
+# du -h -x --max-depth=1 ./root

@@ -1,22 +1,40 @@
 <!--Advanced Python Scheduler: Job Service-->
 <template>
-
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-input v-model="queryConditions.project_name" @keydown.enter="searchJobs" placeholder="Job Name" class="handle-input mr10"></el-input>
-				<el-button :icon="Search" type="primary" @click="searchJobs">Search</el-button>
-				<el-button :icon="Refresh" type="primary" @click="getJobList" style="float: right">Refresh</el-button>
+				<el-input
+					v-model="queryConditions.project_name"
+					@keydown.enter="searchJobs"
+					placeholder="Job Name"
+					class="handle-input mr10"
+				></el-input>
+				<el-button :icon="Search" type="primary" @click="searchJobs"
+					>Search</el-button
+				>
+				<el-button
+					:icon="Refresh"
+					type="primary"
+					@click="getJobList"
+					style="float: right"
+					>Refresh</el-button
+				>
 			</div>
 
 			<el-scrollbar>
-				<el-table :data="DjangoAPSchedulerJobList"
-									:border="parentBorder"
-									header-cell-class-name="table-header"
-									scrollbar-always-on
-									style="width: 100%">
-
-					<el-table-column align="center" label="Job Name" show-overflow-tooltip width="300px">
+				<el-table
+					:data="DjangoAPSchedulerJobList"
+					:border="parentBorder"
+					header-cell-class-name="table-header"
+					scrollbar-always-on
+					style="width: 100%"
+				>
+					<el-table-column
+						align="center"
+						label="Job Name"
+						show-overflow-tooltip
+						width="300px"
+					>
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.id }}
@@ -24,7 +42,13 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column align="center" label="Next Run Time" show-overflow-tooltip width="500px" color:red>
+					<el-table-column
+						align="center"
+						label="Next Run Time"
+						show-overflow-tooltip
+						width="500px"
+						color:red
+					>
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.next_run_time }}
@@ -32,7 +56,13 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column prop="job_state" label="Job State" align="center" width="800px" show-overflow-tooltip>
+					<el-table-column
+						prop="job_state"
+						label="Job State"
+						align="center"
+						width="800px"
+						show-overflow-tooltip
+					>
 						<template #default="scope">
 							<div style="font-weight: bold">
 								{{ scope.row.job_state }}
@@ -40,18 +70,31 @@
 						</template>
 					</el-table-column>
 
-					<el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))" fixed="right">
+					<el-table-column
+						label="Operation"
+						width="220"
+						align="center"
+						v-if="auth.key.includes(String(role[0]))"
+						fixed="right"
+					>
 						<template #default="scope">
-							<el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)">
+							<el-button
+								text
+								:icon="Edit"
+								@click="handleUpdate(scope.$index, scope.row)"
+							>
 								Edit
 							</el-button>
-							<el-button text :icon="Delete" class="red" @click="deleteProject(scope.row)">
+							<el-button
+								text
+								:icon="Delete"
+								class="red"
+								@click="deleteProject(scope.row)"
+							>
 								Delete
 							</el-button>
 						</template>
 					</el-table-column>
-
-
 				</el-table>
 			</el-scrollbar>
 
@@ -64,7 +107,7 @@
 					:disabled="disabled"
 					:background="background"
 					layout="total, sizes, prev, pager, next, jumper"
-					:total=pageTotal
+					:total="pageTotal"
 					@size-change="handleSizeChange"
 					@current-change="handlePageChange"
 				/>
@@ -75,15 +118,20 @@
 			<el-form label-width="150px" v-model="JobInstance">
 				<el-tooltip content="Input Job Name" placement="top">
 					<el-form-item label="Job Name" required>
-						<el-input v-model="JobInstance.id" placeholder="Input Job Name"></el-input>
+						<el-input
+							v-model="JobInstance.id"
+							placeholder="Input Job Name"
+						></el-input>
 					</el-form-item>
 				</el-tooltip>
 				<el-tooltip content="Input Job Next Run Time" placement="top">
 					<el-form-item label="Job Next Run Time" required>
-						<el-input v-model="JobInstance.next_run_time" placeholder="Input Job Next Run Time"></el-input>
+						<el-input
+							v-model="JobInstance.next_run_time"
+							placeholder="Input Job Next Run Time"
+						></el-input>
 					</el-form-item>
 				</el-tooltip>
-
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
@@ -96,116 +144,119 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from 'vue';
-import {Delete, Edit, Refresh, Search} from '@element-plus/icons-vue';
-import {ElMessage, ElMessageBox} from 'element-plus';
-import {useAuthStore} from "~/stores/auth";
+import { reactive, ref } from 'vue'
+import { Delete, Edit, Refresh, Search } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useAuthStore } from '~/stores/auth'
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 const parentBorder = ref(true)
 const role = ['admin', 'user']
 const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
-const DialogVisible = ref(false); // el-dialog
-let idx: number = -1;
-const createOrUpdateRequest = ref(true);  // false means create request, true means update request
+const DialogVisible = ref(false) // el-dialog
+let idx: number = -1
+const createOrUpdateRequest = ref(true) // false means create request, true means update request
 // The pattern of Project
 interface DjangoAPSchedulerJob {
-	id: any,
-	next_run_time: string,
-	job_state: string,
+	id: any
+	next_run_time: string
+	job_state: string
 }
 
 let JobInstance = reactive<DjangoAPSchedulerJob>({
-	id: "",
-	next_run_time: "",
-	job_state: "",
-});
+	id: '',
+	next_run_time: '',
+	job_state: '',
+})
 
-const DjangoAPSchedulerJobList = ref<DjangoAPSchedulerJob[]>([]);
-const pageTotal = ref(0);
+const DjangoAPSchedulerJobList = ref<DjangoAPSchedulerJob[]>([])
+const pageTotal = ref(0)
 
 // The conditions of search api
 const queryConditions = reactive({
-	project_name: "",
-});
+	project_name: '',
+})
 
-let currentPageIndex = ref(1);
-let pageSize = ref(10);
-
+let currentPageIndex = ref(1)
+let pageSize = ref(10)
 
 // get Elastic Compute Resource list
 const getJobList = () => {
 	sendGetReq({
 		params: {
 			page_index: currentPageIndex.value,
-			page_size: pageSize.value
+			page_size: pageSize.value,
 		},
-		uri: "/apsjob"
-	}).then((res) => {
+		uri: '/apsjob',
+	})
+		.then((res) => {
 			pageTotal.value = parseInt(res.data.count)
 			DjangoAPSchedulerJobList.value = res.data.results
-		}
-	).catch((err) => {
-		ElMessage.error(err || 'Get job list error');
-	});
+		})
+		.catch((err) => {
+			ElMessage.error(err || 'Get job list error')
+		})
 }
-getJobList(); // init ECR list
+getJobList() // init ECR list
 
 // search ECR by cloud_platform and project_name
 const searchJobs = () => {
 	sendGetReq({
-		uri: "/apsjob", params: {
+		uri: '/apsjob',
+		params: {
 			job_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
-			page_size: pageSize.value
-		}
-	}).then((res) => {
+			page_size: pageSize.value,
+		},
+	})
+		.then((res) => {
 			pageTotal.value = parseInt(res.data.total)
 			DjangoAPSchedulerJobList.value = res.data.data
-		}
-	).catch((err) => {
-		ElMessage.error(err || 'Search job error');
-	});
+		})
+		.catch((err) => {
+			ElMessage.error(err || 'Search job error')
+		})
 }
 
 const handlePageChange = (val: number) => {
-	currentPageIndex.value = val;
-	getJobList();
-};
+	currentPageIndex.value = val
+	getJobList()
+}
 
 const handleSizeChange = (val: number) => {
-	pageSize.value = val;
-	getJobList();
+	pageSize.value = val
+	getJobList()
 }
 
 const handleUpdate = (index: number, row: any) => {
-	idx = index;
-	JobInstance = row; // init data which should be updated
-	DialogVisible.value = true; // open dialog page
+	idx = index
+	JobInstance = row // init data which should be updated
+	DialogVisible.value = true // open dialog page
 	createOrUpdateRequest.value = true // set dialog mode to 'update'
-};
+}
 
 const deleteProject = (row: any) => {
 	ElMessageBox.confirm('Are you sure you want to delete it', 'Message', {
-		type: 'warning'
+		type: 'warning',
 	})
 		.then(() => {
-			sendDeleteReq({uri: "/project/delete", params: {id: row.id}})
-			ElMessage.success('delete successfully');
+			sendDeleteReq({ uri: '/project/delete', params: { id: row.id } })
+			ElMessage.success('delete successfully')
 		})
 		.catch(() => {
-			ElMessage.error('delete failed');
-		});
-	getJobList();
-};
-
+			ElMessage.error('delete failed')
+		})
+	getJobList()
+}
 
 const operateJob = () => {
-	sendPostReq({uri: "/apsjob/", payload: JobInstance, config_obj: null}).then(() => {
-		getJobList() // create operation need to requery project list from db
-	})
+	sendPostReq({ uri: '/apsjob/', payload: JobInstance, config_obj: null }).then(
+		() => {
+			getJobList() // create operation need to requery project list from db
+		},
+	)
 	DialogVisible.value = false // close dialog page
 }
 </script>
@@ -215,11 +266,9 @@ const operateJob = () => {
 	margin-bottom: 20px;
 }
 
-
 .handle-input {
 	width: 300px;
 }
-
 
 .mr10 {
 	margin-right: 10px;

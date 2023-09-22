@@ -104,7 +104,6 @@ const UpdateMessageData = reactive({
 	status: "",
 });
 
-
 const currentPageIndex = ref(1);
 const pageSize = ref(10);
 const unreadMessageList = ref<MessageItem[]>([]);
