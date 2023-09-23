@@ -2,13 +2,12 @@
 
 基于 Vue3 + Django4 + Postgres 的云平台管理工具。
 
-[测试地址](https://www.runsunway.com) sunway 123456
+[测试地址](https://www.runsunway.com)
 
 **Dependency**
  - Python 3.11
  - Django 4.2.5
  - Node 18.16.1
- - pnpm 8.6.12
  - Vue3
  - Typescript
  - Element Plus
