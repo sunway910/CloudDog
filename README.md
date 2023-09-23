@@ -1,6 +1,6 @@
 # Cloud Dog
 
-基于 Vue3 + Django4 + Postgres 的云平台管理工具。
+基于 Vue3 + Django4 + Postgres 的Finops工具
 
 [测试地址](https://www.runsunway.com)
 
@@ -58,6 +58,7 @@
    11. - [x] Toast
    12. - [x] vite 3
    13. - [x] axios
+   14. - [x] i18n
 
 
 ## 安装步骤 How To Start
