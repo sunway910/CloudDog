@@ -72,29 +72,26 @@ export const getRoutes = createGetRoutes(router)
 const verify = reactive({ token: '' })
 
 router.beforeEach((to, from, next) => {
-	document.title = `${to.meta.title} | CloudPlatformMonitor`
-	let token = `${localStorage.getItem('access')} | 'Bearer null'`
-	token = token.split(' ')[1]
-	if (to.path !== '/login') {
-		sendPostReq({
-			uri: '/token/verify/',
-			payload: { token: token },
-			config_obj: null,
-		}).then((res) => {
-			if (res.data.code !== null) {
-				next('/login')
-			}
-		})
-	}
-	const auth = useAuthStore()
-	if (!token && to.path !== '/login') {
-		next('/login')
-	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
-		// 如果没有权限，则进入404
-		next('/404')
-	} else {
-		next()
-	}
+    document.title = `${to.meta.title}` != null ? `${to.meta.title}` : 'CloudDog'
+    const auth = useAuthStore()
+    let now_time = new Date().getTime()
+    let expire_time: number
+    if (localStorage.getItem("access") != null) {
+        if (expiredTime != null) {
+            expire_time = parseInt(expiredTime)
+        } else {
+            expire_time = -1
+        }
+    } else {
+        expire_time = -1
+    }
+    if (now_time > expire_time && to.path !== '/login') {
+        next('/login')
+    } else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
+        next('/404')
+    } else {
+        next()
+    }
 })
 
 export default router
