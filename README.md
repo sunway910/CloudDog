@@ -1,68 +1,117 @@
 # Cloud Dog
 
+[English Document](https://github.com/0utsiderZhong/CloudDog/blob/main/README_EN.md)
+
 基于 Vue3 + Django4 + Postgres 的Finops工具
 
 [测试地址](https://www.runsunway.com)
 
 **Dependency**
- - Python 3.11
- - Django 4.2.5
- - Node 18.16.1
- - Vue3
- - Typescript
- - Element Plus
- - Postgres 16
 
-[English document](https://github.com/0utsiderZhong/CloudDog/blob/main/README_EN.md)
-
+- Python 3.11
+- Django 4.2.5
+- Node 18.16.1
+- Vue3
+- Typescript
+- Element Plus
+- Postgres
 
 ## 前言
 
 该系统用于实现常用云平台的Finops
 
 ## 功能
-1. - [ ] 阿里云/阿里云国际
-   1. - [x] ECS 监控
-   2. - [x] WAF 监控
-   3. - [ ] Load Balancer 监控
-      1. - [ ] ALB 监控
-      2. - [ ] SLB 监控
-      3. - [ ] NLB 监控
-   4. - [ ] RDS 监控
-   5. - [ ] Redis 监控
-   6. - [ ] Elastic Network Interface 监控
-   7. - [ ] Cloud Security Center 监控
-   8. - [ ] Cloud FireWall 监控
-   9. - [ ] SSL Certificate 监控
-   10. - [ ] Billing 监控
-2. - [ ] AWS
-   1. - [ ] EC2 监控
-   2. - [ ] Billing 监控
-3. - [ ] GCP
-   1. - [ ] Compute Engine 监控
-   2. - [ ] Billing 监控
-4. - [ ] Azure
-   1. - [ ] Virtual Machine 监控
-   2. - [ ] Billing 监控
-5. - [ ] Basic 基础
-   1. - [x] Login/Logout
-   2. - [x] Data Export
-   3. - [x] Email
-   4. - [x] Cron Job
-   5. - [x] Tab 选项卡
-   6. - [x] Auth 权限管理
-   7. - [x] Form 表单
-   8. - [x] Table 表格
-   9. - [ ] Echarts
-   10. - [x] pinia
-   11. - [x] Toast
-   12. - [x] vite 3
-   13. - [x] axios
-   14. - [x] i18n
 
+1.
+    - [ ] 阿里云/阿里云国际
+
+    1.
+        - [x] ECS 监控
+    2.
+        - [x] WAF 监控
+    3.
+        - [ ] Load Balancer 监控
+
+        1.
+            - [ ] ALB 监控
+        2.
+            - [ ] SLB 监控
+        3.
+            - [ ] NLB 监控
+    4.
+        - [ ] RDS 监控
+    5.
+        - [ ] Redis 监控
+    6.
+        - [ ] Elastic Network Interface 监控
+    7.
+        - [ ] Cloud Security Center 监控
+    8.
+        - [ ] Cloud FireWall 监控
+    9.
+        - [ ] SSL Certificate 监控
+    10.
+        - [ ] Billing 监控
+2.
+    - [ ] AWS
+
+    1.
+        - [ ] EC2 监控
+    2.
+        - [ ] Billing 监控
+3.
+    - [ ] GCP
+
+    1.
+        - [ ] Compute Engine 监控
+    2.
+        - [ ] Billing 监控
+4.
+    - [ ] Azure
+
+    1.
+        - [ ] Virtual Machine 监控
+    2.
+        - [ ] Billing 监控
+5.
+    - [ ] Basic 基础
+
+    1.
+        - [x] Login/Logout
+    2.
+        - [x] Data Export
+    3.
+        - [x] Email通知
+    4.
+        - [x] Cron Job
+    5.
+        - [x] Tab 选项卡
+    6.
+        - [x] Auth Django权限管理
+    7.
+        - [x] Auth Vue权限管理
+    8.
+        - [x] Table 表格
+    9.
+        - [x] Form 表单
+    10.
+        - [x] pinia
+    11.
+        - [x] Toast
+    12.
+        - [x] vite 3
+    13.
+        - [x] axios
+    14.
+        - [x] i18n
+    15.
+        - [ ] Localstorage脱敏
+    16.
+        - [ ] postgres加密
+    17.
+        - [ ] Echarts
 
 ## 安装步骤 How To Start
-
 
 ```
 git clone https://github.com/0utsiderZhong/CloudDog.git      
