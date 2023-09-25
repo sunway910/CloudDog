@@ -1,15 +1,23 @@
 FROM node:18-alpine AS builder
 LABEL authors="sunway"
 MAINTAINER "sunway"
-WORKDIR /app
+WORKDIR /app/
 COPY . /app/
 
 RUN npm install pnpm -g
 RUN pnpm install
-RUN pnpm build --out-dir /app/static/
+RUN pnpm build
+
 # docker build -t sunway/node:image20230922 -f Dockerfile_Node .
-# mkdir -p /data/node/static && docker run -d --name node18 -v /data/node18/dist:/app/static  sunway/node:image20230922
+
+# docker run -d --name node18 sunway/node:image20230922
+
+# when build up dist successfully, dist directory must copy from container to host
+
+# mkdir -p /data/node18 && docker cp node18:/app/dist /data/node18/
+
 # docker stop node18 && docker rm node18
+
 
 
 

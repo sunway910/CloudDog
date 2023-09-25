@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /code/clouddog/
 
 RUN  apt-get install  default-libmysqlclient-dev -y && \
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
 
 ADD requirements.txt requirements.txt
 
