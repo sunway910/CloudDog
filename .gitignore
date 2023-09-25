@@ -163,3 +163,4 @@ cython_debug/
 *.iml
 
 /frontend/node_modules
+/backend/*/migrations

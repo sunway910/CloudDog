@@ -6,9 +6,9 @@ COPY . /app/
 
 RUN npm install pnpm -g
 RUN pnpm install
-RUN pnpm build
+RUN pnpm build --out-dir /app/static/
 # docker build -t sunway/node:image20230922 -f Dockerfile_Node .
-# mkdir -p /data/node/static && docker run -d --name node18 -v /data/node18/dist:/app/dist  sunway/node:image20230922
+# mkdir -p /data/node/static && docker run -d --name node18 -v /data/node18/dist:/app/static  sunway/node:image20230922
 # docker stop node18 && docker rm node18
 
 
