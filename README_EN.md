@@ -1,10 +1,10 @@
 # Cloud Dog
 
-[English Document](https://github.com/0utsiderZhong/CloudDog/blob/main/README_EN.md)
+[English document](https://github.com/0utsiderZhong/CloudDog/blob/main/README_EN.md)
 
-基于 Vue3 + Django4 + Postgres 的Finops工具
+A Finops tool base on Vue3, Django4 and Postgres
 
-[测试地址](https://www.runsunway.com)
+[Demo](https://www.runsunway.com)
 
 **Dependency**
 
@@ -16,84 +16,84 @@
 - Element Plus
 - Postgres
 
-## 前言
+## Preface
 
-该系统用于实现常用云平台的Finops
+This system is used to implement Finops of the cloud platform
 
-## 功能
+## Features
 
 1.
-    - [ ] 阿里云/阿里云国际
+    - [ ] Aliyun/AlibabaCloud
 
     1.
-        - [x] ECS 监控
+        - [x] ECS monitor
     2.
-        - [x] WAF 监控
+        - [x] WAF monitor
     3.
-        - [ ] Load Balancer 监控
+        - [ ] Load Balancer monitor
 
         1.
-            - [ ] ALB 监控
+            - [ ] ALB monitor
         2.
-            - [ ] SLB 监控
+            - [ ] SLB monitor
         3.
-            - [ ] NLB 监控
+            - [ ] NLB monitor
     4.
-        - [ ] RDS 监控
+        - [ ] RDS monitor
     5.
-        - [ ] Redis 监控
+        - [ ] Redis monitor
     6.
-        - [ ] Elastic Network Interface 监控
+        - [ ] Elastic Network Interface monitor
     7.
-        - [ ] Cloud Security Center 监控
+        - [ ] Cloud Security Center monitor
     8.
-        - [ ] Cloud FireWall 监控
+        - [ ] Cloud FireWall monitor
     9.
-        - [ ] SSL Certificate 监控
+        - [ ] SSL Certificate monitor
     10.
-        - [ ] Billing 监控
+        - [ ] Billing monitor
 2.
     - [ ] AWS
 
     1.
-        - [ ] EC2 监控
+        - [ ] EC2 monitor
     2.
-        - [ ] Billing 监控
+        - [ ] Billing monitor
 3.
     - [ ] GCP
 
     1.
-        - [ ] Compute Engine 监控
+        - [ ] Compute Engine monitor
     2.
-        - [ ] Billing 监控
+        - [ ] Billing monitor
 4.
     - [ ] Azure
 
     1.
-        - [ ] Virtual Machine 监控
+        - [ ] Virtual Machine monitor
     2.
-        - [ ] Billing 监控
+        - [ ] Billing monitor
 5.
-    - [ ] Basic 基础
+    - [ ] Basic Features
 
     1.
         - [x] Login/Logout
     2.
         - [x] Data Export
     3.
-        - [x] Email通知
+        - [x] Email
     4.
         - [x] Cron Job
     5.
-        - [x] Tab 选项卡
+        - [x] Tab
     6.
-        - [x] Auth Django权限管理
+        - [x] Django permission management
     7.
-        - [x] Auth Vue权限管理
+        - [x] Vue permission management
     8.
-        - [x] Table 表格
+        - [x] Table
     9.
-        - [x] Form 表单
+        - [x] Form
     10.
         - [x] pinia
     11.
@@ -105,13 +105,13 @@
     14.
         - [x] i18n
     15.
-        - [ ] Localstorage脱敏
+        - [ ] Localstorage Desensitization
     16.
-        - [ ] postgres加密
+        - [ ] postgres data encrypt
     17.
         - [ ] Echarts
 
-## 安装步骤 How To Start
+## How To Start
 
 ```
 git clone https://github.com/0utsiderZhong/CloudDog.git      

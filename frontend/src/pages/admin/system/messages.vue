@@ -25,7 +25,7 @@
 					</el-table-column>
 				</el-table>
 			</el-tab-pane>
-			<el-tab-pane :label="`Unread(${readMessageList.length})`" name="second">
+			<el-tab-pane :label="`Read(${readMessageList.length})`" name="second">
 				<div class="handle-box">
 					<el-input v-model="queryConditions.project_name" placeholder="Project Name" class="handle-input mr10" style="width: 300px"></el-input>
 					<el-button :icon="Search" type="primary" @click="searchMessages(status_read)">Search</el-button>

@@ -1,11 +1,10 @@
-import { createGetRoutes, setupLayouts } from 'virtual:meta-layouts'
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { routes as fileRoutes } from 'vue-router/auto/routes'
-import { useAuthStore } from '@/stores/auth'
-import { reactive } from 'vue'
+import {createGetRoutes, setupLayouts} from 'virtual:meta-layouts'
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
+import {routes as fileRoutes} from 'vue-router/auto/routes'
+import {useAuthStore} from '@/stores/auth'
+import {reactive} from 'vue'
 
 declare module 'vue-router' {
-	// 在这里定义你的 meta 类型
 	interface RouteMeta {
 		name?: string
 		title?: string
@@ -63,38 +62,35 @@ export const router = createRouter({
 	history: createWebHistory(),
 	routes: setupLayouts(custom_layout_route_list),
 })
-import { ref } from 'vue'
+
 
 export const getRoutes = createGetRoutes(router)
-// interface tokenVerify {
-//   token: any;
-// }
-const verify = reactive({ token: '' })
+
+const expiredTime = localStorage.getItem('expiredTime')
 
 router.beforeEach((to, from, next) => {
-	document.title = `${to.meta.title} | CloudPlatformMonitor`
-	let token = `${localStorage.getItem('access')} | 'Bearer null'`
-	token = token.split(' ')[1]
-	if (to.path !== '/login') {
-		sendPostReq({
-			uri: '/token/verify/',
-			payload: { token: token },
-			config_obj: null,
-		}).then((res) => {
-			if (res.data.code !== null) {
-				next('/login')
-			}
-		})
-	}
+	document.title = `${to.meta.title}` != null ? `${to.meta.title}` : 'CloudDog'
 	const auth = useAuthStore()
-	if (!token && to.path !== '/login') {
-		next('/login')
-	} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
-		// 如果没有权限，则进入404
-		next('/404')
+	let token = localStorage.getItem("access")
+	let now_time = new Date().getTime()
+	let expire_time: number = -1
+	if (token != null) {
+		if (expiredTime != null) {
+			expire_time = parseInt(expiredTime)
+			if (now_time > expire_time && to.path !== '/login') {
+				next('/login')
+			} else if (to.meta.permiss && !auth.key.includes(to.meta.permiss)) {
+				next('/404')
+			} else {
+				next()
+			}
+		} else {
+			next('/login')
+		}
 	} else {
-		next()
+		next('/login')
 	}
+
 })
 
 export default router

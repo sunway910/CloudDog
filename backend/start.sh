@@ -13,9 +13,8 @@ cd $DJANGODIR
 
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
 python manage.py makemigrations && \
-  python manage.py migrate && \
-  python manage.py collectstatic --noinput  && \
-  python manage.py build_index
+python manage.py makemigrations alibabacloud_product project message \
+  python manage.py migrate
 
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
