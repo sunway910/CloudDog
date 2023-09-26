@@ -43,7 +43,7 @@ declare module 'vue-router/auto/routes' {
     '/[...notFound]': RouteRecordInfo<'/[...notFound]', '/:notFound(.*)', { notFound: ParamValue<true> }, { notFound: ParamValue<false> }>,
     '/admin/auth/auth': RouteRecordInfo<'/admin/auth/auth', '/admin/auth/auth', Record<never, never>, Record<never, never>>,
     '/admin/auth/user': RouteRecordInfo<'/admin/auth/user', '/admin/auth/user', Record<never, never>, Record<never, never>>,
-    '/admin/overview': RouteRecordInfo<'/admin/overview', '/admin/overview', Record<never, never>, Record<never, never>>,
+    '/admin/dashboard': RouteRecordInfo<'/admin/dashboard', '/admin/dashboard', Record<never, never>, Record<never, never>>,
     '/admin/product/ecs': RouteRecordInfo<'/admin/product/ecs', '/admin/product/ecs', Record<never, never>, Record<never, never>>,
     '/admin/product/waf': RouteRecordInfo<'/admin/product/waf', '/admin/product/waf', Record<never, never>, Record<never, never>>,
     '/admin/system/job': RouteRecordInfo<'/admin/system/job', '/admin/system/job', Record<never, never>, Record<never, never>>,

@@ -2,7 +2,7 @@
 	<admin_header/>
 	<admin_sidebar/>
 	<div class="tag_content-box" :class="{ 'content-collapse': sidebar.collapse }">
-		<admin_tags/>
+<!--		<admin_tags/>-->
 		<div class="admin_content">
 			<router-view v-slot="{ Component }">
 				<transition name="move" mode="out-in">

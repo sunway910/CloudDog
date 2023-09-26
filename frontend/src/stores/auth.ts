@@ -50,7 +50,7 @@ export const useAuthStore = defineStore('auth', {
                                 await router.push(decodeURIComponent(target as string));
                                 ElMessage.success('Sign in successfully');
                             } else {
-                                await router.push("/admin/overview");
+                                await router.push("/admin/dashboard");
                                 ElMessage.success('Sign in successfully');
                             }
                         });

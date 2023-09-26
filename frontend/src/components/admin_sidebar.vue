@@ -1,7 +1,7 @@
 <template>
   <div class="admin_sidebar">
     <el-menu
-        class="sidebar-el-menu"
+        class="sidebar-el-menu "
         :default-active="onRoutes"
         :collapse="sidebar.collapse"
         background-color="#324157"
@@ -17,21 +17,33 @@
               <el-icon>
                 <component :is="item.icon"></component>
               </el-icon>
-              <span>{{ t(item.title) }}</span>
+              <div class="items-center w-full px-8 py-2 mt-1 text-base transition duration-500 ease-in-out transform rounded-lg text-neutral-200 border-neutral-800 hover:border-neutral-800 focus:shadow-outline hover:bg-neutral-900">
+                <span>{{ t(item.title) }}</span>
+              </div>
             </template>
             <template v-for="subItem in item.subs">
-              <el-menu-item :index="subItem.index" v-auth="item.auth">
-                {{ t(subItem.title) }}
-              </el-menu-item>
+
+              <div class="items-center w-full px-8 mt-1 text-base transition duration-500 ease-in-out transform rounded-lg text-neutral-200 border-neutral-800 hover:border-neutral-800 focus:shadow-outline hover:bg-neutral-900">
+                <el-menu-item :index="subItem.index" v-auth="item.auth">
+                  <el-icon>
+                    <component :is="subItem.icon"></component>
+                  </el-icon>
+                  {{ t(subItem.title) }}
+                </el-menu-item>
+              </div>
             </template>
           </el-sub-menu>
         </template>
         <template v-else>
           <el-menu-item :index="item.index" :key="item.index" v-auth="item.auth">
-            <el-icon>
-              <component :is="item.icon"></component>
-            </el-icon>
-            <template #title>{{ t(item.title) }}</template>
+            <template #title>
+              <el-icon>
+                <component :is="item.icon"></component>
+              </el-icon>
+              <div class="items-center w-full px-8 py-2 mt-1 text-base transition duration-500 ease-in-out transform rounded-lg text-neutral-200 border-neutral-800 hover:border-neutral-800 focus:shadow-outline hover:bg-neutral-900">
+                {{ t(item.title) }}
+              </div>
+            </template>
           </el-menu-item>
         </template>
       </template>
@@ -54,10 +66,10 @@ const items = [
   {
     // icon : https://element-plus.org/en-US/component/icon.html
     icon: 'Odometer',
-    index: '/admin/overview',
-    title: 'Overview',
+    index: '/admin/dashboard',
+    title: 'Dashboard',
     auth: 'user',
-    subs: null,
+    subs: [],
   },
   {
     icon: 'Monitor',
@@ -66,11 +78,13 @@ const items = [
     auth: 'user',
     subs: [
       {
+        icon: 'Cpu',
         index: '/admin/product/ecs',
         title: 'ECR',
         auth: 'user',
       },
       {
+        icon: 'Suitcase',
         index: '/admin/product/waf',
         title: 'WAF',
         auth: 'user',
@@ -84,16 +98,19 @@ const items = [
     auth: 'user',
     subs: [
       {
+        icon: 'QuartzWatch',
         index: '/admin/system/job',
         title: 'Job',
         auth: 'admin',
       },
       {
+        icon: 'Notebook',
         index: '/admin/system/job_history',
         title: 'History',
         auth: 'admin',
       },
       {
+        icon: 'Message',
         index: '/admin/system/messages',
         title: 'Message',
         auth: 'user',

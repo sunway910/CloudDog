@@ -9,7 +9,7 @@
       </el-icon>
     </div>
 
-    <div class="admin_logo">Cloud Dog</div>
+    <div class="admin_logo">CloudDog</div>
     <div class="header-right">
       <div class="header-user-con">
         <ul class="flex items-center gap-2 text-sm font-medium">
@@ -122,7 +122,7 @@ getMessageWithStatus(message_status.value)
   height: 70px;
   font-size: 22px;
   color: #000000;
-  background-color: #34cdfe;
+  background-color: orange;
 }
 
 .admin_collapse-btn {

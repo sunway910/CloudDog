@@ -4,7 +4,7 @@ login: Login
 about: About
 admin: Admin
 not-found: Notfound
-Overview: Overview
+Dashboard: Dashboard
 Monitor: Monitor
 ECR: ECR
 WAF: WAF
@@ -14,4 +14,7 @@ History: History
 Message: Message
 Auth: Auth
 User: User
-
+username: Username
+password: Password
+remember: Remember
+signin: Sign in

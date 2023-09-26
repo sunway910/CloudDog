@@ -40,7 +40,6 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Footer: typeof import('./../../src/components/Footer.vue')['default']
     I18N: typeof import('./../../src/components/I18N.vue')['default']
-    Locale: typeof import('./../../src/components/Locale.vue')['default']
     Navigation: typeof import('./../../src/components/Navigation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
