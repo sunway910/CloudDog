@@ -9,12 +9,12 @@
       </el-icon>
     </div>
 
-    <div class="admin_logo">Cloud Platform Monitor</div>
+    <div class="admin_logo">Cloud Dog</div>
     <div class="header-right">
       <div class="header-user-con">
         <ul class="flex items-center gap-2 text-sm font-medium">
           <li class="hidden !block">
-            <Dropdown/>
+            <I18N/>
           </li>
         </ul>
 

@@ -1,29 +1,56 @@
 <template>
-	<el-form :rules="rules" :model="loginForm" class="loginContainer">
-		<h3 class="loginTitle">
-			Sign in
-		</h3>
+<!--	<el-form :rules="rules" :model="loginForm" class="loginContainer dark:bg-black">-->
+<!--		<h3 class="loginTitle  text-black  dark:text-white">-->
+<!--			Sign in-->
+<!--		</h3>-->
 
-		<el-form-item prop="username">
-			<el-input type="text" v-model="loginForm.username" placeholder="Please input your account"></el-input>
-		</el-form-item>
+<!--		<el-form-item prop="username">-->
+<!--			<el-input type="text" v-model="loginForm.username" placeholder="Please input your account"></el-input>-->
+<!--		</el-form-item>-->
 
-		<el-form-item prop="password">
-			<el-input type="password" v-model="loginForm.password" placeholder="password"></el-input>
-		</el-form-item>
+<!--		<el-form-item prop="password">-->
+<!--			<el-input type="password" v-model="loginForm.password" placeholder="Please input your password"></el-input>-->
+<!--		</el-form-item>-->
 
-		<el-checkbox v-model="checked" class="loginRemember">remember me</el-checkbox>
+<!--		<el-checkbox v-model="checked" class="loginRemember">Remember me</el-checkbox>-->
 
-		<el-button type="primary" style="width:100%" @click="login">Sign in</el-button>
+<!--		<el-button type="primary" style="width:100%" @click="login">Sign in</el-button>-->
 
-	</el-form>
+<!--	</el-form>-->
+
+<section class="py-26 bg-white w-1/3 dark:bg-black" >
+  <div class="container px-4 mx-auto">
+    <div class="max-w-lg mx-auto">
+			<div class="text-center mb-8">
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-2 dark:text-white">Sign in</h2>
+			</div>
+      <el-form action="" :rules="rules" :model="loginForm">
+        <div class="mb-6">
+          <label class="block mb-2 font-extrabold dark:text-white" for="">Username</label>
+          <input v-model="loginForm.username" class="dark:text-black inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded" type="text" placeholder="Please input your account">
+        </div>
+        <div class="mb-6">
+          <label class="block mb-2 font-extrabold dark:text-white" for="">Password</label>
+          <input v-model="loginForm.password" class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded" type="password" placeholder="Please input your password">
+        </div>
+        <div class="flex flex-wrap -mx-4 mb-6 items-center justify-between">
+					<div class="w-full lg:w-auto px-4 mb-4 lg:mb-0 dark:text-white text-black">
+						<el-checkbox v-model="checked" style="font-weight: bold; color: black;font-size:20px">Remember me</el-checkbox>
+					</div>
+					<div class="w-full lg:w-auto px-4 mb-4 lg:mb-0">
+          </div>
+<!--          <div class="w-full lg:w-auto px-4"><a class="inline-block font-extrabold hover:underline" href="#">Forgot your password?</a></div>-->
+        </div>
+        <button type="button" @click="login" class="inline-block w-full py-4 px-6 mb-6 text-center text-lg leading-6 text-white font-extrabold bg-indigo-800 hover:bg-indigo-900 border-3 border-indigo-900 shadow rounded transition duration-200">Sign in</button>
+<!--        <p class="text-center font-extrabold">Don&rsquo;t have an account? <a class="text-red-500 hover:underline" href="#">Sign up</a></p>-->
+      </el-form>
+    </div>
+  </div>
+</section>
 </template>
 
 <script setup>
 
-
-// ref() 和 reactive() 用于跟踪其参数的更改。当使用它们初始化变量时，是向 Vue 提供信息：“嘿，每次这些变量发生更改时，请重新构建或重新运行依赖于它们的所有内容”
-// ref() 函数可以接受原始类型（最常见的是布尔值、字符串和数字）以及对象作为参数，而 reactive() 函数只能接受对象作为参数。
 import {reactive} from 'vue'
 import {useAuthStore} from "@/stores/auth"
 import {useRouter} from "vue-router";
@@ -66,11 +93,9 @@ const login = async () => {
 .loginContainer {
 	border-radius: 15px;
 	background-clip: padding-box;
-	margin: 100px auto;
+	margin: 10% auto;
 	width: 350px;
 	padding: 15px 35px 15px 35px;
-	background: white;
-	border: 1px solid floralwhite;
 	box-shadow: 0 0 25px #2b669a;
 }
 

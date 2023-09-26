@@ -1,8 +1,8 @@
-import {createGetRoutes, setupLayouts} from 'virtual:meta-layouts'
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
-import {routes as fileRoutes} from 'vue-router/auto/routes'
-import {useAuthStore} from '@/stores/auth'
-import {reactive} from 'vue'
+import { createGetRoutes, setupLayouts } from 'virtual:meta-layouts'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { routes as fileRoutes } from 'vue-router/auto/routes'
+import { useAuthStore } from '@/stores/auth'
+import { reactive } from 'vue'
 
 declare module 'vue-router' {
 	interface RouteMeta {
@@ -63,7 +63,6 @@ export const router = createRouter({
 	routes: setupLayouts(custom_layout_route_list),
 })
 
-
 export const getRoutes = createGetRoutes(router)
 
 const expiredTime = localStorage.getItem('expiredTime')
@@ -71,11 +70,14 @@ const expiredTime = localStorage.getItem('expiredTime')
 router.beforeEach((to, from, next) => {
 	document.title = `${to.meta.title}` != null ? `${to.meta.title}` : 'CloudDog'
 	const auth = useAuthStore()
-	let token = localStorage.getItem("access")
+	let token = localStorage.getItem('access')
 	let now_time = new Date().getTime()
 	let expire_time: number = -1
-	if (token != null) {
-		if (expiredTime != null) {
+	if (!token && to.path !== '/login') {
+		next('/login')
+	}
+	if (token) {
+		if (expiredTime) {
 			expire_time = parseInt(expiredTime)
 			if (now_time > expire_time && to.path !== '/login') {
 				next('/login')
@@ -88,7 +90,7 @@ router.beforeEach((to, from, next) => {
 			next('/login')
 		}
 	} else {
-		next('/login')
+		next()
 	}
 
 })
