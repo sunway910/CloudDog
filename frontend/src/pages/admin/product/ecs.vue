@@ -4,7 +4,7 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-select v-model="queryConditions.platform" placeholder="Cloud Platform" class="handle-select mr10">
+        <el-select v-model="queryConditions.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
           <el-option
               v-for="item in platformOptions"
               :key="item.value"
@@ -293,7 +293,7 @@ getECRList(); // init ECR list
 const searchEcr = () => {
   sendGetReq({
     uri: "/ecs/search", params: {
-      cloud_platform: queryConditions.platform,
+      cloud_platform: queryConditions.cloud_platform,
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value

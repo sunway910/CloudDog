@@ -72,24 +72,5 @@ const login = async () => {
 </script>
 
 <style scoped>
-.loginContainer {
-  border-radius: 15px;
-  background-clip: padding-box;
-  margin: 10% auto;
-  width: 350px;
-  padding: 15px 35px 15px 35px;
-  box-shadow: 0 0 25px #2b669a;
-}
-
-.loginTitle {
-  margin: 0 auto 48px auto;
-  text-align: center;
-  font-size: 40px;
-}
-
-.loginRemember {
-  text-align: left;
-  margin: 0 0 15px 0;
-}
 
 </style>

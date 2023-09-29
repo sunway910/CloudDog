@@ -1,7 +1,7 @@
 {
   "name": "cpm",
   "version": "1.0.0",
-  "description": "Cloud Platform Monitor",
+  "description": "CloudDog",
   "private": true,
   "type": "module",
   "scripts": {
@@ -119,6 +119,6 @@
     "object.values": "npm:@nolyfill/object.values@latest"
   },
   "repository": {
-    "url": "https://github.com/0utsiderZhong/AlicloudMonitor.git"
+    "url": "https://github.com/0utsiderZhong/CloudDog.git"
   }
 }

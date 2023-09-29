@@ -4,7 +4,7 @@
 	<div>
 		<div class="product_container">
 			<div class="handle-box">
-				<el-select v-model="queryConditions.platform" placeholder="Region" class="handle-select mr10">
+				<el-select v-model="queryConditions.cloud_platform" placeholder="Region" class="handle-select mr10">
 					<el-option
 						v-for="item in regionOptions"
 						:key="item.value"
@@ -282,7 +282,7 @@ const initlist = () => {
 const searchWaf = () => {
 	sendGetReq({
 		uri: "/waf/search", params: {
-			cloud_platform: queryConditions.platform,
+			cloud_platform: queryConditions.cloud_platform,
 			project_name: queryConditions.project_name,
 			page_index: currentPageIndex.value,
 			page_size: pageSize.value

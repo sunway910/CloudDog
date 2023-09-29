@@ -156,7 +156,6 @@ const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
 const DialogVisible = ref(false) // el-dialog
-let idx: number = -1
 const createOrUpdateRequest = ref(true) // false means create request, true means update request
 // The pattern of Project
 interface DjangoAPSchedulerJob {
@@ -291,12 +290,6 @@ const operateJob = () => {
 
 .el-table .success-row {
 	--el-table-tr-bg-color: var(--el-color-success-light-9);
-}
-
-.el-popper.is-customized {
-	/* Set padding to ensure the height is 32px */
-	padding: 6px 12px;
-	background: linear-gradient(90deg, rgb(255, 255, 255), rgb(255, 255, 255));
 }
 
 .el-popper.is-customized .el-popper__arrow::before {
