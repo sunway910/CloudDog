@@ -14,6 +14,7 @@
 - Vue3
 - Typescript
 - Element Plus
+- Unocss (Tailwind Css)
 - Postgres
 
 ## 前言
@@ -105,7 +106,7 @@
     14.
         - [x] i18n
     15.
-        - [ ] Localstorage脱敏
+        - [x] Localstorage脱敏
     16.
         - [ ] postgres加密
     17.

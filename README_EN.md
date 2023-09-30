@@ -14,6 +14,7 @@ A Finops tool base on Vue3, Django4 and Postgres
 - Vue3
 - Typescript
 - Element Plus
+- Unocss (Tailwind Css)
 - Postgres
 
 ## Preface
@@ -105,7 +106,7 @@ This system is used to implement Finops of the cloud platform
     14.
         - [x] i18n
     15.
-        - [ ] Localstorage Desensitization
+        - [x] Localstorage Desensitization
     16.
         - [ ] postgres data encrypt
     17.

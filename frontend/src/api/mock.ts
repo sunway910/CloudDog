@@ -7,7 +7,7 @@ export const http = axios.create({
 http.interceptors.request.use(
 	function (config) {
 		config.headers['Content-Type'] = 'application/json'
-		config.headers['Authorization'] = localStorage.getItem('access')
+		config.headers['Authorization'] = atobDecode(localStorage.getItem('access'))
 		if (config.method === 'post') {
 			if (!config.data) {
 				// 没有参数时，config.data为null，需要转下类型
@@ -36,7 +36,7 @@ http.interceptors.response.use(
 	},
 	function (error) {
 		const status = error.response?.status
-		let { msg, message } = error.response?.data ?? {}
+		let {msg, message} = error.response?.data ?? {}
 
 		if (!msg && message) {
 			msg = message

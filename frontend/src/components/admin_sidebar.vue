@@ -23,7 +23,7 @@
             </template>
             <template v-for="subItem in item.subs">
 
-              <div class="items-center w-full px-8 mt-1 text-base transition duration-500 ease-in-out transform rounded-lg text-neutral-200 border-neutral-800 hover:border-neutral-800 focus:shadow-outline hover:bg-neutral-900">
+              <div class="items-center w-full px-8 mt-1 text-base transition duration-500 ease-in-out transform rounded-lg text-neutral-200 border-neutral-800 hover:border-neutral-800 focus:shadow-outline">
                 <el-menu-item :index="subItem.index" v-auth="item.auth">
                   <el-icon>
                     <component :is="subItem.icon"></component>
@@ -69,7 +69,7 @@ const items = [
     index: '/admin/dashboard',
     title: 'Dashboard',
     auth: 'user',
-    subs: [],
+    subs: null,
   },
   {
     icon: 'Monitor',
@@ -117,19 +117,20 @@ const items = [
       },
     ],
   },
-  {
-    icon: 'Warning',
-    title: 'Auth',
-    index: '4',
-    auth: 'admin',
-    subs: [
-      {
-        index: '/admin/auth/user',
-        title: 'User',
-        auth: 'admin',
-      },
-    ],
-  },
+  // {
+  //   icon: 'Warning',
+  //   title: 'Auth',
+  //   index: '4',
+  //   auth: 'admin',
+  //   subs: [
+  //     {
+  //       icon: 'Avatar',
+  //       index: '/admin/auth/user',
+  //       title: 'User',
+  //       auth: 'admin',
+  //     },
+  //   ],
+  // },
 ];
 
 const route = useRoute();

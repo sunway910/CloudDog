@@ -321,6 +321,8 @@
     "fetchData": true,
     "request": true,
     "usePermissStore": true,
-    "authorization": true
+    "authorization": true,
+    "btoaEncode": true,
+    "atobDecode": true
   }
 }

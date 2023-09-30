@@ -25,7 +25,7 @@ function changeFlag(availableLocale) {
 <template>
   <div class="relative">
 		<span
-        class="p-1 font-medium text-gray-900 dark:text-gray-100 dark:bg-black-500 sm:p-4 cursor-pointer border-0 rounded-lg"
+        class="p-1 font-medium text-white-900 dark:text-gray-100 dark:bg-black-500 sm:p-4 cursor-pointer border-0 rounded-lg"
         :class="visible? 'text-gray-900 bg-white-500 dark:text-black-900 dark:bg-black-500': ''"
         @click.stop="visible = !visible">
       {{ flag }}

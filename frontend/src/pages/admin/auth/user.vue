@@ -72,7 +72,7 @@
 import { reactive, ref } from 'vue';
 import avatar from '@/assets/vue.svg';
 
-const name = localStorage.getItem('username');
+const name = atobDecode(localStorage.getItem('username'))
 const form = reactive({
 	old: '',
 	new: '',

@@ -65,22 +65,19 @@ export const router = createRouter({
 
 export const getRoutes = createGetRoutes(router)
 
-const expiredTime = localStorage.getItem('expiredTime')
+const expiredTime = atobDecode(localStorage.getItem('expiredTime'))
 
 
 router.beforeEach((to, from, next) => {
     document.title = `${to.meta.title}` != null ? `${to.meta.title}` : 'CloudDog'
     const auth = useAuthStore()
-    let token = localStorage.getItem('access')
+    let token = atobDecode(localStorage.getItem('access'))
     let now_time = new Date().getTime()
     let expire_time: number = -1
     if (!token && to.path !== '/login') {
         next('/login')
     } else if (expiredTime !== null) {
         expire_time = parseInt(expiredTime)
-        console.log("now_time",now_time)
-        console.log("expire_time",expire_time)
-        console.log(now_time - expire_time)
         if (now_time >= expire_time) {
             localStorage.removeItem('access')
             localStorage.removeItem('expiredTime')

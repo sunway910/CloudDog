@@ -1,15 +1,14 @@
 <template>
-  <nav x-data="{ isOpen: false }" class="relative bg-white shadow dark:bg-gray-800">
-    <div class="container px-6 py-4 mx-auto">
+  <nav class="relative bg-white shadow dark:bg-gray-800">
+    <div class="container px-6 py-1 mx-auto">
       <div class="lg:flex lg:items-center lg:justify-between">
         <div class="flex items-center justify-between">
-          <a href="#">
-            <img class="w-auto h-6 sm:h-15 " src="/favicon.ico" alt=""/>
+          <a href="/">
+            <img class="h-6 sm:h-15" src="/favicon.ico" alt=""/>
           </a>
         </div>
 
-        <div x-cloak
-             class="translate-x-0 opacity-100 absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 lg:mt-0 lg:p-0 lg:top-0 lg:relative lg:bg-transparent lg:w-auto lg:opacity-100 lg:translate-x-0 lg:flex lg:items-center">
+        <div class="translate-x-0 opacity-100 inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 lg:mt-0 lg:p-0 lg:top-0 lg:relative lg:bg-transparent lg:w-auto lg:opacity-100 lg:translate-x-0 lg:flex lg:items-center">
           <div class="flex flex-col -mx-6 lg:flex-row lg:items-center lg:mx-8">
             <a href="https://www.sunthycloud.com/"
                class="px-3 py-2 mx-3 mt-2 text-gray-700 transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -54,10 +53,10 @@
               </svg>
             </a>
             <ul class="flex items-center gap-2 text-sm font-medium">
-              <li class="hidden !block px-1">
+              <li class="h-10 w-10 flex items-center justify-center px-3">
                 <I18N/>
               </li>
-              <li class="h-10 w-10 flex items-center justify-center px-1">
+              <li class="h-10 w-10 flex items-center justify-center px-3">
                 <SwitchIcon unmount-persets/>
               </li>
             </ul>

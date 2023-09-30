@@ -1,12 +1,13 @@
 import {defineStore} from "pinia";
 import router from "@/plugins/router";
 import {ElMessage} from 'element-plus';
+import {btoaEncode} from "~/stores/security";
 
 interface ObjectList {
     [key: string]: string[];
 }
 
-const keys = localStorage.getItem('permission')
+const keys = atobDecode(localStorage.getItem('permission'))
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -30,16 +31,16 @@ export const useAuthStore = defineStore('auth', {
                         // Date.parse(...) 返回1970年1月1日UTC以来的毫秒数
                         // Token 被设置为1h，因此这里加上60000 * 60毫秒
                         const expiredTime = Date.now() + 60000 * 60;
-                        localStorage.setItem("access", "Bearer " + res.data.access);
-                        localStorage.setItem("refresh", res.data.refresh);
-                        localStorage.setItem("expiredTime", expiredTime.toString());
-                        localStorage.setItem("username", data.username);
+                        localStorage.setItem("access", btoaEncode("Bearer " + res.data.access))
+                        localStorage.setItem("refresh", btoaEncode(res.data.refresh))
+                        localStorage.setItem("expiredTime", btoaEncode(expiredTime.toString()))
+                        localStorage.setItem("username", btoaEncode(data.username))
                         const get_user_auth_uri: string = '/user/' + this.data.username + '/';
                         sendGetReq({params: undefined, uri: get_user_auth_uri}).then(async (resp) => {
-                            localStorage.setItem("isSuperuser", resp.data.is_superuser);
+                            localStorage.setItem("isSuperuser", btoaEncode(resp.data.is_superuser))
                             const keys = this.defaultList[(data.username == 'admin' || data.username == 'sunway') ? 'admin' : 'user'];
                             this.handleSet(keys);
-                            localStorage.setItem('permission', JSON.stringify(keys));
+                            localStorage.setItem('permission', btoaEncode(JSON.stringify(keys)))
                             // 路由跳转，登录成功后跳转到
                             const {target} = router.currentRoute.value.query;
                             if (target) {

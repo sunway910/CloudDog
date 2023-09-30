@@ -1,15 +1,16 @@
 <template>
-  <div class="admin_header">
-    <div class="admin_collapse-btn" @click="collapseChange">
-      <el-icon v-if="sidebar.collapse">
+  <div class="admin_header bg-gray-800 text-white">
+    <div class="admin_collapse-btn" @click="collapseChange" v-if="sidebar.collapse">
+      <el-icon size="30">
         <Expand/>
       </el-icon>
-      <el-icon v-else>
+    </div>
+    <div class="admin_collapse-btn" v-else>
+      <el-icon size="30">
         <Fold/>
       </el-icon>
     </div>
-
-    <div class="admin_logo">CloudDog</div>
+    <div class="admin_logo font-bold text-xl tracking-tight">CloudDog</div>
     <div class="header-right">
       <div class="header-user-con">
         <ul class="flex items-center gap-2 text-sm font-medium">
@@ -24,7 +25,7 @@
               effect="dark"
               :content="message_num ? `Have ${message_num} messages unread` : `Message Center`"
               placement="bottom">
-            <el-icon>
+            <el-icon color="white">
               <Message/>
             </el-icon>
           </el-tooltip>
@@ -64,7 +65,7 @@ import imgurl from '/public/favicon.ico';
 import {Expand, Fold, Message} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 
-const username: string | null = localStorage.getItem('username');
+const username: string | null = atobDecode(localStorage.getItem('username'))
 const message_num = ref(99);
 const message_status = ref("unread");
 
@@ -120,9 +121,6 @@ getMessageWithStatus(message_status.value)
   box-sizing: border-box;
   width: 100%;
   height: 70px;
-  font-size: 22px;
-  color: #000000;
-  background-color: orange;
 }
 
 .admin_collapse-btn {
@@ -139,7 +137,7 @@ getMessageWithStatus(message_status.value)
   float: left;
   width: 300px;
   line-height: 70px;
-  color: #000000;
+  color: white;
 }
 
 .header-right {
@@ -151,12 +149,6 @@ getMessageWithStatus(message_status.value)
   display: flex;
   height: 70px;
   align-items: center;
-}
-
-.btn-fullscreen {
-  transform: rotate(45deg);
-  margin-right: 5px;
-  font-size: 24px;
 }
 
 .btn-bell,

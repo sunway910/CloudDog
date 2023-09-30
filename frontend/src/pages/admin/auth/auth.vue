@@ -27,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ElTree } from 'element-plus';
-import { useAuthStore } from '@/stores/auth';
+import { ref } from 'vue'
+import { ElTree } from 'element-plus'
+import { useAuthStore } from '@/stores/auth'
 
 const role = ref<string>('admin');
 
