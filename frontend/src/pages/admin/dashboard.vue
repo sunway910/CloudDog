@@ -2,7 +2,7 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-select v-model="queryConditions.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
+        <el-select v-model="queryConditions.cloud_platform" :placeholder=t(base_i18n.cloudPlatform) class="handle-select mr10">
           <el-option
               v-for="item in platformOptions"
               :key="item.value"
@@ -10,11 +10,11 @@
               :value="item.value"
           />
         </el-select>
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchProjects" placeholder="Project Name" class="handle-input mr10"></el-input>
-        <el-button :icon="Search" type="primary" @click="searchProjects">Search</el-button>
-        <el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">New</el-button>
-        <el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">Refresh</el-button>
-        <el-button type="primary" @click="exportXlsx" style="float: right">Export</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="searchProjects" :placeholder=t(base_i18n.projectName) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="searchProjects">{{ t(base_i18n.search) }}</el-button>
+        <el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">{{ t(base_i18n.new) }}</el-button>
+        <el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
+        <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
       <el-scrollbar>
         <el-table :data="projectList"
@@ -24,14 +24,14 @@
           <el-table-column type="expand">
             <template #default="props">
               <div m="4">
-                <p m="t-0 b-2" style="font-weight: bold">Project ID: {{ props.row.id }}</p>
-                <p m="t-0 b-2" style="font-weight: bold">Cron Expression: {{ props.row.cron_expression }}</p>
-                <p m="t-0 b-2" style="font-weight: bold">RAM Account: {{ props.row.account }}</p>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(dashboard_i18n.id) }}: {{ props.row.id }}</p>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(dashboard_i18n.cron_expression) }}: {{ props.row.cron_expression }}</p>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(dashboard_i18n.account) }}: {{ props.row.account }}</p>
               </div>
             </template>
           </el-table-column>
           <!--					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>-->
-          <el-table-column align="center" label="Cloud Platform">
+          <el-table-column align="center" :label=t(dashboard_i18n.cloud_platform)>
             <template #default="scope">
               <div style="font-weight: bold;color: red">
                 <a class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
@@ -43,31 +43,31 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="Project Name" show-overflow-tooltip>
+          <el-table-column align="center" :label=t(dashboard_i18n.project_name) show-overflow-tooltip>
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.project_name }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="Region" :formatter="regionFormatter"></el-table-column>
-          <el-table-column align="center" label="Toggle">
+          <el-table-column align="center" :label=t(dashboard_i18n.region) :formatter="regionFormatter"></el-table-column>
+          <el-table-column align="center" :label=t(dashboard_i18n.cron_toggle)>
             <template #default="scope">
               <el-tag :type="scope.row.cron_toggle  ? 'success' : 'danger'">
                 {{ scope.row.cron_toggle ? "On" : "Off" }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="Status" align="center">
+          <el-table-column :label=t(base_i18n.status) align="center">
             <template #default="scope">
               <el-tag :type="scope.row.status === 'Running' ? 'success' : scope.row.status === 'Stopped' ? 'danger' : ''">
                 {{ scope.row.status }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="create_time" label="Create Time" align="center" sortable></el-table-column>
+          <el-table-column prop="create_time" :label=t(base_i18n.create_time) align="center" sortable></el-table-column>
 
-          <el-table-column label="Operation" width="220" align="center" v-if="auth.key.includes(String(role[0]))" fixed="right">
+          <el-table-column :label=t(base_i18n.operation) width="220" align="center" v-if="auth.key.includes(String(role[0]))" fixed="right">
             <template #default="scope">
               <el-button text :icon="Edit" @click="handleUpdate(scope.$index,scope.row)">
                 Edit
@@ -180,7 +180,9 @@ import router from "@/plugins/router";
 import {useAuthStore} from "~/stores/auth";
 import type {TableColumnCtx} from 'element-plus'
 import * as XLSX from "xlsx";
+import {changeTimePattern, dashboard_i18n, base_i18n} from "~/stores/utils";
 
+const {t} = useI18n()
 const platform_ram_login_url = ref("")
 const parentBorder = ref(true)
 const small = ref(false)

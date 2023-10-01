@@ -6,18 +6,18 @@
 				<el-input
 					v-model="queryConditions.project_name"
 					@keydown.enter="searchJobs"
-					placeholder="Job Name"
+					:placeholder=t(job_i18n.job_name)
 					class="handle-input mr10"
 				></el-input>
 				<el-button :icon="Search" type="primary" @click="searchJobs"
-					>Search</el-button
+					>{{ t(base_i18n.search) }}</el-button
 				>
 				<el-button
 					:icon="Refresh"
 					type="primary"
 					@click="getJobList"
 					style="float: right"
-					>Refresh</el-button
+					>{{ t(base_i18n.refresh) }}</el-button
 				>
 			</div>
 
@@ -31,7 +31,7 @@
 				>
 					<el-table-column
 						align="center"
-						label="Job Name"
+						:label=t(job_i18n.job_name)
 						show-overflow-tooltip
 						width="300px"
 					>
@@ -44,21 +44,21 @@
 
 					<el-table-column
 						align="center"
-						label="Next Run Time"
+						:label=t(job_i18n.next_run_time)
 						show-overflow-tooltip
 						width="500px"
 						color:red
 					>
 						<template #default="scope">
 							<div style="font-weight: bold">
-								{{ scope.row.next_run_time }}
+								{{ changeTimePattern(scope.row.next_run_time) }}
 							</div>
 						</template>
 					</el-table-column>
 
 					<el-table-column
 						prop="job_state"
-						label="Job State"
+						:label=t(job_i18n.job_state)
 						align="center"
 						width="800px"
 						show-overflow-tooltip
@@ -71,7 +71,7 @@
 					</el-table-column>
 
 					<el-table-column
-						label="Operation"
+						:label=t(base_i18n.operation)
 						width="220"
 						align="center"
 						v-if="auth.key.includes(String(role[0]))"
@@ -148,7 +148,9 @@ import { reactive, ref } from 'vue'
 import { Delete, Edit, Refresh, Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '~/stores/auth'
+import {changeTimePattern, job_i18n, base_i18n} from "~/stores/utils";
 
+const {t} = useI18n()
 const auth = useAuthStore()
 const parentBorder = ref(true)
 const role = ['admin', 'user']

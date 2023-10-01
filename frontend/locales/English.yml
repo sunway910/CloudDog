@@ -18,3 +18,82 @@ username: Username
 password: Password
 remember: Remember
 signin: Sign in
+
+# base
+api_request_id: Request ID
+instance_id: Instance Id
+request_time: Request Time
+product_type: Product Type
+project: Project
+projectName: Project Name
+cloudPlatform: Cloud Platform
+search: Search
+export: Export
+refresh: Refresh
+new: New
+operation: "Operation"
+status: "Status"
+create_time: "Create Time"
+
+# dashboard
+
+id: "ID"
+project_region: "Region"
+cloud_platform: "Cloud Platform"
+project_name: "Project Name"
+project_access_key: "AK"
+project_secret_key: "SK"
+cron_expression: "Cron Expression"
+cron_toggle: "Toggle"
+account: "RAM Account"
+
+
+
+# ECR
+instance_name: Instance Name
+auto_renew_enabled: Auto Renew Enabled
+renewal_status: Renewal Status
+period_init: Period Init
+duration: Renewal Time
+region_id: Region
+ecs_status: Status
+instance_charge_type: Instance Charge Type
+internet_charge_type: Internet Charge Type
+expired_time: Expired Time
+stopped_mode: Stopped Mode
+start_time: Start Time
+auto_release_time: Auto Release Time
+lock_reason: Lock Reason
+
+# WAF
+waf_status: Status
+waf_start_time: Start Time
+end_time: End Time
+edition: Edition
+region: Region
+pay_type: Pay Type
+in_debt: In Debt
+
+# JOB
+job_name: Job Name
+next_run_time: Next Run Time
+job_state: Job State
+
+# JOB History
+job: Job Name
+job_id: Execution ID
+job_status: Job Status
+runtime: Runtime
+job_duration: Duration
+finished: Finished
+exception: Exception
+traceback: Traceback
+
+# message
+unread: Unread
+read: Read
+trash: Trash
+message_id: Message Id
+event_message: Event Message
+event_type: Event Type
+message_time: Message Time

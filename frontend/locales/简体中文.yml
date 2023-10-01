@@ -18,3 +18,79 @@ username: 用户名
 password: 密码
 remember: 记住密码
 signin: 登录
+
+# base
+project: 项目
+api_request_id: 请求ID
+instance_id: 实例ID
+request_time: 请求时间
+product_type: 产品类型
+projectName: 项目名称
+cloudPlatform: 云平台
+search: 搜索
+export: 导出
+refresh: 刷新
+new: 新建项目
+operation: 操作
+# dashboard
+id: ID
+project_region: 地域
+cloud_platform: 云平台
+project_name: 项目名称
+project_access_key: AK
+project_secret_key: SK
+cron_expression: 定时任务表达式
+cron_toggle: 定时任务开关
+account: 账号
+status: 项目状态
+create_time: 账号创建时间
+
+
+# ECR
+instance_name: 实例名称
+auto_renew_enabled: 是否已设置自动续费
+renewal_status: 实例的自动续费状态
+period_init: 自动续费时长的单位
+duration: 自动续费时长
+region_id: 所属地域
+ecs_status: 实例状态
+instance_charge_type: 实例的计费方式
+internet_charge_type: 公网带宽计费方式
+expired_time: 过期时间
+stopped_mode: 实例停机后是否继续收费
+start_time: 实例最近一次的启动时间
+auto_release_time: 按量付费实例的自动释放时间
+lock_reason: 资源被锁定的原因
+
+# WAF
+waf_status: 是否过期
+waf_start_time: 购买时间
+end_time: 到期时间
+edition: WAF版本
+region: 实例地域
+pay_type: 实例开通状态
+in_debt: 是否欠费
+
+# JOB
+job_name: 任务名称
+next_run_time: 下一次执行时间
+job_state: 任务状态
+
+# JOB History
+job: 任务名称
+job_id: 执行ID
+job_status: 执行状态
+runtime: 执行时间
+job_duration: 持续时间
+finished: 结束时间
+exception: 异常
+traceback: 调用栈
+
+# message
+unread: 未读
+read: 已读
+trash: 垃圾桶
+message_id: 消息ID
+event_message: 消息内容
+event_type: 消息类型
+message_time: 消息时间

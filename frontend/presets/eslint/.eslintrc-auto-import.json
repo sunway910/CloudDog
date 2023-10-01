@@ -323,6 +323,14 @@
     "usePermissStore": true,
     "authorization": true,
     "btoaEncode": true,
-    "atobDecode": true
+    "atobDecode": true,
+    "changeTimePattern": true,
+    "ecr_i18n": true,
+    "waf_i18n": true,
+    "base_i18n": true,
+    "dashboard_i18n": true,
+    "job_i18n": true,
+    "job_history_i18n": true,
+    "message_i18n": true
   }
 }

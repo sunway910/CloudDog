@@ -56,12 +56,9 @@ import {computed} from 'vue';
 import {useSidebarStore} from '@/stores/sidebar';
 import {useRoute} from 'vue-router';
 
-const {t, locale} = useI18n()
+const {t} = useI18n()
 
-const toggleLocale = () => {
-  // locale.value 用来表示当前所属语言，可修改进行语言切换
-  locale.value = locale.value === 'zh-CN' ? 'en' : 'zh-CN'
-}
+
 const items = [
   {
     // icon : https://element-plus.org/en-US/component/icon.html

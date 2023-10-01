@@ -4,7 +4,7 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-select v-model="queryConditions.cloud_platform" placeholder="Cloud Platform" class="handle-select mr10">
+        <el-select v-model="queryConditions.cloud_platform" :placeholder=t(base_i18n.cloudPlatform) class="handle-select mr10">
           <el-option
               v-for="item in platformOptions"
               :key="item.value"
@@ -12,10 +12,10 @@
               :value="item.value"
           />
         </el-select>
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchEcr" placeholder="Project Name" class="handle-input mr10"></el-input>
-        <el-button :icon="Search" type="primary" @click="searchEcr">Search</el-button>
-        <el-button type="primary" @click="exportXlsx" style="float: right">Export</el-button>
-        <el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">Refresh</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="searchEcr" :placeholder=t(base_i18n.projectName) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="searchEcr">{{ t(base_i18n.search) }}</el-button>
+        <el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
+        <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
 
       <el-scrollbar>
@@ -28,26 +28,26 @@
           <el-table-column type="expand">
             <template #default="props">
               <div m="4">
-                <p m="t-0 b-2" style="font-weight: bold">Request ID: {{ props.row.api_request_id }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Request Time: {{ props.row.request_time }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Product Type: {{ props.row.product_type }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Instance Start Time: {{ props.row.start_time }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Stopped Mode: {{ props.row.stopped_mode }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Instance ID: {{ props.row.instance_id }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Lock Reason: {{ props.row.lock_reason }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Internet Charge Type: {{ props.row.internet_charge_type }}</p><br>
-                <p m="t-0 b-2" style="font-weight: bold">Auto Release Time: {{ props.row.auto_release_time ? props.row.auto_release_time : 'None' }}</p>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(base_i18n.api_request_id) }}: {{ props.row.api_request_id }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(base_i18n.request_time) }}: {{ changeTimePattern(props.row.request_time) }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(base_i18n.product_type) }}: {{ props.row.product_type }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(ecr_i18n.start_time) }}: {{ changeTimePattern(props.row.start_time) }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(ecr_i18n.stopped_mode) }}: {{ props.row.stopped_mode }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(base_i18n.instance_id) }}: {{ props.row.instance_id }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(ecr_i18n.lock_reason) }}: {{ props.row.lock_reason }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(ecr_i18n.internet_charge_type) }}: {{ props.row.internet_charge_type }}</p><br>
+                <p m="t-0 b-2" style="font-weight: bold">{{ t(ecr_i18n.auto_release_time) }}: {{ props.row.auto_release_time ? props.row.auto_release_time : 'None' }}</p>
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="Project" show-overflow-tooltip width="100px">
+          <el-table-column align="center" :label=t(base_i18n.project) show-overflow-tooltip width="100px">
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.project_name }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="Name" show-overflow-tooltip width="200px" color:red>
+          <el-table-column align="center" :label=t(ecr_i18n.instance_name) show-overflow-tooltip width="200px" color:red>
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.instance_name }}
@@ -55,7 +55,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="auto_renew_enabled" label="Auto Renew Enabled" align="center" width="180px">
+          <el-table-column prop="auto_renew_enabled" :label=t(ecr_i18n.auto_renew_enabled) align="center" width="180px">
             <template #default="scope">
               <el-tag :type="scope.row.auto_renew_enabled ? 'success' : 'danger'">
                 {{ scope.row.auto_renew_enabled ? "True" : "False" }}
@@ -63,7 +63,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Status" align="center" width="100px" :render-header="renderHeader">
+          <el-table-column :label=t(ecr_i18n.ecs_status) align="center" width="100px" :render-header="renderHeader">
             <template #default="scope">
               <el-tag :type="scope.row.ecs_status === 'Running' ? 'success' : 'danger'">
                 {{ scope.row.ecs_status }}
@@ -71,7 +71,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="Region" show-overflow-tooltip width="150px" font-weight: bold>
+          <el-table-column align="center" :label=t(ecr_i18n.region_id) show-overflow-tooltip width="150px" font-weight: bold>
             <template #default="scope" style="font-weight: bold">
               <div style="font-weight: bold">
                 {{ scope.row.region_id.toString().split('-')[1].substring(0, 1).toUpperCase() + scope.row.region_id.toString().split('-')[1].substring(1).toLowerCase() }}
@@ -79,29 +79,35 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="expired_time" align="center" label="Expired Time" show-overflow-tooltip width="150px">
+          <el-table-column prop="expired_time" align="center" :label=t(ecr_i18n.expired_time) show-overflow-tooltip width="150px">
             <template #default="scope">
               <el-tag>
                 {{ scope.row.expired_time.toString().substring(0, 10) }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="instance_charge_type" align="center" label="Instance Charge Type" show-overflow-tooltip width="180px"
+          <el-table-column prop="instance_charge_type" align="center" :label=t(ecr_i18n.instance_charge_type) show-overflow-tooltip width="180px"
                            :render-header="renderHeader"></el-table-column>
-          <el-table-column prop="duration" align="center" label="Renewal Time" show-overflow-tooltip width="120px"></el-table-column>
-          <el-table-column prop="renewal_status" align="center" label="Renewal Status" show-overflow-tooltip width="130px"></el-table-column>
-          <el-table-column prop="period_init" align="center" label="Renewal Period Unit" show-overflow-tooltip width="180px"></el-table-column>
+          <el-table-column prop="duration" align="center" :label=t(ecr_i18n.duration) show-overflow-tooltip width="120px"></el-table-column>
+          <el-table-column prop="renewal_status" align="center" :label=t(ecr_i18n.renewal_status) show-overflow-tooltip width="160px"></el-table-column>
+          <el-table-column prop="period_init" align="center" :label=t(ecr_i18n.period_init) show-overflow-tooltip width="180px"></el-table-column>
 
 
-          <el-table-column prop="api_request_id" align="center" label="Request ID" show-overflow-tooltip width="180px"></el-table-column>
-          <el-table-column prop="request_time" align="center" label="Request Time" show-overflow-tooltip width="180px"></el-table-column>
-          <el-table-column prop="product_type" align="center" label="Product Type" show-overflow-tooltip width="180px"></el-table-column>
-          <el-table-column prop="start_time" align="center" label="Instance Start Time" show-overflow-tooltip width="180px"></el-table-column>
-          <el-table-column prop="stopped_mode" align="center" label="Stopped Mode" show-overflow-tooltip width="180px" :render-header="renderHeader"></el-table-column>
-          <el-table-column prop="instance_id" align="center" label="Instance ID" show-overflow-tooltip width="180px"></el-table-column>
-          <el-table-column prop="internet_charge_type" align="center" label="Internet Charge Type" show-overflow-tooltip width="180px" :render-header="renderHeader"></el-table-column>
-          <el-table-column prop="lock_reason" align="center" label="Lock Reason" show-overflow-tooltip width="180px" :render-header="renderHeader"></el-table-column>
-          <el-table-column prop="auto_release_time" align="center" label="Auto Release Time" show-overflow-tooltip width="180px">
+          <el-table-column prop="api_request_id" align="center" :label=t(base_i18n.api_request_id) show-overflow-tooltip width="180px"></el-table-column>
+          <el-table-column align="center" :label=t(base_i18n.request_time) show-overflow-tooltip width="180px">
+            <template #default="scope">
+              <el-tag>
+                {{ changeTimePattern(scope.row.request_time) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="product_type" align="center" :label=t(base_i18n.product_type) show-overflow-tooltip width="180px"></el-table-column>
+          <el-table-column prop="start_time" align="center" :label=t(ecr_i18n.start_time) show-overflow-tooltip width="180px"></el-table-column>
+          <el-table-column prop="stopped_mode" align="center" :label=t(ecr_i18n.stopped_mode) show-overflow-tooltip width="180px" :render-header="renderHeader"></el-table-column>
+          <el-table-column prop="instance_id" align="center" :label=t(base_i18n.instance_id) show-overflow-tooltip width="180px"></el-table-column>
+          <el-table-column prop="internet_charge_type" align="center" :label=t(ecr_i18n.internet_charge_type) show-overflow-tooltip width="180px" :render-header="renderHeader"></el-table-column>
+          <el-table-column prop="lock_reason" align="center" :label=t(ecr_i18n.lock_reason) show-overflow-tooltip width="180px" :render-header="renderHeader"></el-table-column>
+          <el-table-column prop="auto_release_time" align="center" :label=t(ecr_i18n.auto_release_time) show-overflow-tooltip width="210px">
             <template #default="scope">
               {{ scope.row.auto_release_time ? scope.row.auto_release_time : '-' }}
             </template>
@@ -133,12 +139,16 @@ import {h, reactive, ref} from 'vue';
 import {Refresh, Search} from '@element-plus/icons-vue';
 import {ElTooltip, ElMessage} from 'element-plus';
 import * as XLSX from 'xlsx';
+import {changeTimePattern, ecr_i18n, base_i18n} from "~/stores/utils";
 
+const {t} = useI18n()
 const parentBorder = ref(true)
 const auth = ['admin', 'user']
 const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
+
+
 const platformOptions = [
   {
     value: 'All',
@@ -321,10 +331,10 @@ const exportXlsx = () => {
   elasticComputeResourceList.value.map((item: any) => {
     let arr = [];
     arr.push(item.api_request_id, item.instance_id, item.request_time,
-      item.product_type, item.project_name, item.instance_name, item.auto_renew_enabled,
-      item.renewal_status, item.period_init, item.duration, item.region_id,
-      item.ecs_status, item.instance_charge_type, item.internet_charge_type, item.expired_time,
-      item.stopped_mode, item.start_time, item.auto_release_time, item.lock_reason
+        item.product_type, item.project_name, item.instance_name, item.auto_renew_enabled,
+        item.renewal_status, item.period_init, item.duration, item.region_id,
+        item.ecs_status, item.instance_charge_type, item.internet_charge_type, item.expired_time,
+        item.stopped_mode, item.start_time, item.auto_release_time, item.lock_reason
     );
     excelList.push(arr);
   });
