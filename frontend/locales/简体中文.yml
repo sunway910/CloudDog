@@ -32,6 +32,7 @@ export: 导出
 refresh: 刷新
 new: 新建项目
 operation: 操作
+
 # dashboard
 id: ID
 project_region: 地域
@@ -89,7 +90,7 @@ traceback: 调用栈
 # message
 unread: 未读
 read: 已读
-trash: 垃圾桶
+trash: 垃圾箱
 message_id: 消息ID
 event_message: 消息内容
 event_type: 消息类型

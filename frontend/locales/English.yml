@@ -31,21 +31,21 @@ search: Search
 export: Export
 refresh: Refresh
 new: New
-operation: "Operation"
-status: "Status"
-create_time: "Create Time"
+operation: Operation
+status: Status
+create_time: Create Time
 
 # dashboard
 
-id: "ID"
-project_region: "Region"
-cloud_platform: "Cloud Platform"
-project_name: "Project Name"
-project_access_key: "AK"
-project_secret_key: "SK"
-cron_expression: "Cron Expression"
-cron_toggle: "Toggle"
-account: "RAM Account"
+id: ID
+project_region: Region
+cloud_platform: Cloud Platform
+project_name: Project Name
+project_access_key: AK
+project_secret_key: SK
+cron_expression: Cron Expression
+cron_toggle: Toggle
+account: RAM Account
 
 
 
