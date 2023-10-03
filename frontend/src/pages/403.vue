@@ -1,13 +1,14 @@
 <script setup lang="ts">
-const typedRef = useTyped([' is not found!'])
+const typedRef = useTyped([' Permission deny'])
 </script>
 
 <template>
+  <Navigation/>
 	<div class="h-screen flex flex-wrap items-center justify-around text-center">
 		<div class="desc font-blod">
-			<div class="code text-7xl">404</div>
-			<div ref="typedRef" class="content mb-5 text-2xl">The Page</div>
-			<RouterLink to="/">
+			<div class="code text-7xl">403</div>
+			<div ref="typedRef" class="content mb-5 text-2xl"> ! </div>
+			<RouterLink to="/403">
 				<button
 					class="rounded bg-light-800 px-5 py-2 text-lg transition"
 					hover="shadow-md"
@@ -18,7 +19,7 @@ const typedRef = useTyped([' is not found!'])
 			</RouterLink>
 		</div>
 
-		<img src="/notFound/2.svg" class="cover" alt="page not found" />
+		<img src="/notFound/31.svg" class="cover" alt="page not found" />
 	</div>
 </template>
 
@@ -48,7 +49,7 @@ const typedRef = useTyped([' is not found!'])
 <route lang="json">
 {
 	"meta": {
-		"title": "404",
+		"title": "403",
 		"layout": "notFound"
 	}
 }

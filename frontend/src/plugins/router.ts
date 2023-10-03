@@ -74,7 +74,7 @@ router.beforeEach((to, from, next) => {
     let token = atobDecode(localStorage.getItem('access'))
     let now_time = new Date().getTime()
     let expire_time: number = -1
-    if (!token && to.path !== '/login') {
+    if (!token && (to.path !== '/login' && to.path !== '/')) {
         next('/login')
     } else if (expiredTime !== null) {
         expire_time = parseInt(expiredTime)

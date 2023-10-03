@@ -13,7 +13,7 @@ import time
 
 logger = logging.getLogger('cpm')
 
-PROJECT_SERIALIZER_FIELDS = ['id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_expression', 'cron_toggle']
+PROJECT_SERIALIZER_FIELDS = ['id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_toggle']
 
 
 @api_view(['GET'])
@@ -29,7 +29,6 @@ def get_list(request):
             'project_name',
             'status',
             'create_time',
-            'cron_expression',
             'cron_toggle'
         ).order_by('-id')
 
@@ -59,7 +58,6 @@ def search(request):
             'project_name',
             'status',
             'create_time',
-            'cron_expression',
             'cron_toggle'
         ).order_by('-id')
         if cloud_platform and cloud_platform != "All":

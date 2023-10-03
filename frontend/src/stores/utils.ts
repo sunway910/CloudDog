@@ -27,7 +27,6 @@ export const dashboard_i18n = {
     project_name: "project_name",
     project_access_key: "project_access_key",
     project_secret_key: "project_secret_key",
-    cron_expression: "cron_expression",
     cron_toggle: "cron_toggle",
     account: "account",
 

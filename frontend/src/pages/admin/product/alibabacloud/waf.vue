@@ -4,14 +4,6 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-select v-model="queryConditions.cloud_platform" :placeholder=t(waf_i18n.region) class="handle-select mr10">
-          <el-option
-              v-for="item in regionOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-          />
-        </el-select>
         <el-input v-model="queryConditions.project_name" @keydown.enter="searchWaf" :placeholder=t(base_i18n.projectName) class="handle-input mr10"></el-input>
         <el-button color="#626aef" :icon="Search" type="primary" @click="searchWaf">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getWAFList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
@@ -242,7 +234,6 @@ const pageTotal = ref(0);
 
 // The conditions of search api
 const queryConditions = reactive({
-  cloud_platform: "",
   project_name: "",
 });
 
@@ -289,11 +280,10 @@ const initlist = () => {
 }
 // initlist()
 
-// search ECR by cloud_platform and project_name
+// search ECR by project_name
 const searchWaf = () => {
   sendGetReq({
     uri: "/waf/search", params: {
-      cloud_platform: queryConditions.cloud_platform,
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value

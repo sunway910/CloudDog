@@ -4,14 +4,6 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-select v-model="queryConditions.cloud_platform" :placeholder=t(base_i18n.cloudPlatform) class="handle-select mr10">
-          <el-option
-              v-for="item in platformOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-          />
-        </el-select>
         <el-input v-model="queryConditions.project_name" @keydown.enter="searchEcr" :placeholder=t(base_i18n.projectName) class="handle-input mr10"></el-input>
         <el-button color="#626aef" :icon="Search" type="primary" @click="searchEcr">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
@@ -148,34 +140,6 @@ const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
 
-
-const platformOptions = [
-  {
-    value: 'All',
-    label: 'All',
-  },
-  {
-    value: 'AlibabaCloud',
-    label: 'AlibabaCloud',
-  },
-  {
-    value: 'Aliyun',
-    label: 'Aliyun',
-  },
-  {
-    value: 'AWS',
-    label: 'AWS',
-  },
-  {
-    value: 'Azure',
-    label: 'Azure',
-  },
-  {
-    value: 'GCP',
-    label: 'GCP',
-  },
-]
-
 const StatusDescription = ref("" +
     "(Pending, 创建中)--" +
     "(Running, 运行中)--" +
@@ -265,7 +229,6 @@ const pageTotal = ref(0);
 
 // The conditions of search api
 const queryConditions = reactive({
-  cloud_platform: "",
   project_name: "",
 });
 
@@ -299,11 +262,10 @@ const getECRList = () => {
 }
 getECRList(); // init ECR list
 
-// search ECR by cloud_platform and project_name
+// search ECR by project_name
 const searchEcr = () => {
   sendGetReq({
     uri: "/ecs/search", params: {
-      cloud_platform: queryConditions.cloud_platform,
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value

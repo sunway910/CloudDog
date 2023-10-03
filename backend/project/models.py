@@ -26,7 +26,6 @@ class Project(models.Model):
     project_access_key = models.CharField(default=None, max_length=100, verbose_name='AK', db_comment='Access Key')
     project_secret_key = models.CharField(default=None, max_length=100, verbose_name='SK', db_comment='Secret Key')
     # "year", "month", "day", "week", "day_of_week", "hour", "minute", "second", "start_date", "end_date", "timezone"
-    cron_expression = ArrayField(models.CharField(default=''), default=list, verbose_name='CronExpression', db_comment='Cron Expression')
     cron_toggle = models.BooleanField(default=True, verbose_name='JobToggle', db_comment='Job Toggle')
     key_authority = models.CharField(default='ReadOnlyAccess', max_length=50, verbose_name='KeyAuthority', db_comment='Key的权限')
     status = models.CharField(default='Running', max_length=30, verbose_name='ProjectStatus', db_comment='项目状态', choices=Status)

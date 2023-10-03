@@ -25,7 +25,6 @@
             <template #default="props">
               <div m="4">
                 <p m="t-0 b-2" style="font-weight: bold">{{ t(dashboard_i18n.id) }}: {{ props.row.id }}</p>
-                <p m="t-0 b-2" style="font-weight: bold">{{ t(dashboard_i18n.cron_expression) }}: {{ props.row.cron_expression }}</p>
                 <p m="t-0 b-2" style="font-weight: bold">{{ t(dashboard_i18n.account) }}: {{ props.row.account }}</p>
               </div>
             </template>
@@ -130,9 +129,6 @@
         <el-form-item label="Secret Key" required v-show="!createOrUpdateRequest">
           <el-input v-model="createOrUpdateData.project_secret_key" placeholder="Please input SK"></el-input>
         </el-form-item>
-        <el-form-item label="Cron Expression" required v-show="!createOrUpdateRequest">
-          <el-input v-model="createOrUpdateData.cron_expression" placeholder="Please input crontab"></el-input>
-        </el-form-item>
         <el-form-item label="Cron Toggle" required v-show="!createOrUpdateRequest">
           <el-input v-model="createOrUpdateData.cron_toggle" placeholder="Cron Toggle"></el-input>
         </el-form-item>
@@ -236,7 +232,6 @@ interface ProjectItem {
   project_access_key: any,
   project_secret_key: any,
   project_name: string;
-  cron_expression: any;
   cron_toggle: boolean;
   status: string;
   create_time: string;
@@ -268,7 +263,6 @@ let createOrUpdateData = reactive<ProjectItem>({
   project_name: "",
   project_access_key: null,
   project_secret_key: null,
-  cron_expression: "",
   cron_toggle: true,
   account: "",
   status: "",
@@ -279,7 +273,6 @@ const excelList = [[
   'region',
   'platform',
   'project_name',
-  'cron_expression',
   'cron_toggle',
   'account',
   'status',
@@ -406,7 +399,7 @@ const exportXlsx = () => {
   projectList.value.map((item: any) => {
     let arr = [];
     arr.push(item.id, item.region, item.cloud_platform,
-        item.project_name, item.cron_expression, item.cron_toggle,
+        item.project_name, item.cron_toggle,
         item.account, item.status, item.create_time
     );
     excelList.push(arr);

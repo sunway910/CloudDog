@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from "~/plugins/router";
 
 export const http = axios.create({
 	baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -49,6 +50,10 @@ http.interceptors.response.use(
 					break
 				case 401:
 					msg = 'auth error'
+					break
+				case 403:
+					msg = 'permission deny'
+					router.push("/403")
 					break
 				case 404:
 					msg = 'page not found error'
