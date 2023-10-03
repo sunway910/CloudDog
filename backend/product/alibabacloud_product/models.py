@@ -10,6 +10,8 @@ logger = logging.getLogger('cpm')
 class ProductType(models.TextChoices):
     ECS = ('ecs', '服务器')
     WAF = ('waf', 'Web应用防火墙')
+    SLB = ('slb', '负载均衡')
+    ALB = ('alb', '应用型负载均衡')
 
     class Meta:
         app_label = 'ProductType'
@@ -151,3 +153,134 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
 
     class Meta:
         db_table = 'alibabacloud_waf_api_response'
+
+
+class AlibabacloudSLBApiResponse(ProductBaseModel):
+    LoadBalancerStatus = (
+        ('inactive', '实例已停止'),
+        ('active', '实例运行中'),
+        ('locked', '实例已锁定'),
+    )
+    PayType = (
+        ('PayOnDemand', '按量付费'),
+        ('PrePay', '包年包月'),
+    )
+    AddressType = (
+        ('internet', '公网负载均衡'),
+        ('intranet', '内网负载均衡'),
+    )
+    AddressIPVersion = (
+        ('ipv4', 'ipv4'),
+        ('ipv6', 'ipv6'),
+    )
+    InternetChargeType = (
+        (3, '按带宽计费'),
+        (4, '按流量计费'),
+    )
+    # 该参数仅适用于中国站且当PayType（实例付费模式）取值为PayOnDemand（按量付费）时，该参数生效。
+    InstanceChargeType = (
+        ('PayBySpec', '按规格计费'),
+        ('PayByCLCU', '按使用量计费'),
+    )
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='SLBInProject'
+    )
+
+    """ SLB Instance Property """
+    product_type = models.CharField(default=ProductType.SLB.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    create_time = models.CharField(default=None, verbose_name='CreateTime', db_comment='实例创建时间')
+    pay_type = models.CharField(default=None, verbose_name='PayType', db_comment='负载均衡实例付费模式', choices=PayType)
+    internet_charge_type = models.CharField(default=None, verbose_name='InternetChargeType', db_comment='公网类型实例付费方式', choices=InternetChargeType)
+    load_balancer_name = models.CharField(default='', max_length=50, verbose_name='LoadBalancerName', db_comment='负载均衡实例的名称')
+    address = models.CharField(default='1.1.1.1', max_length=100, verbose_name='Address', db_comment='负载均衡实例服务地址')
+    address_type = models.CharField(default='internet', max_length=100, verbose_name='AddressType', db_comment='实例的网络类型', choices=AddressType)
+    address_ip_version = models.CharField(default='ipv4', max_length=100, verbose_name='AddressIPVersion', db_comment='IP版本', choices=AddressIPVersion)
+    region_id = models.CharField(default='', max_length=100, verbose_name='RegionId', db_comment='负载均衡实例的地域ID')
+    load_balancer_status = models.CharField(default=None, max_length=100, verbose_name='LoadBalancerStatus', db_comment='负载均衡实例状态', choices=LoadBalancerStatus)
+    load_balancer_spec = models.CharField(default=None, max_length=100, verbose_name='LoadBalancerSpec', db_comment='负载均衡实例的性能规格')
+    instance_charge_type = models.CharField(default=None, max_length=100, verbose_name='InstanceChargeType', db_comment='实例计费方式', choices=InstanceChargeType)
+    master_zone_id = models.CharField(default=None, max_length=50, verbose_name='MasterZoneId', db_comment='实例的主可用区')
+    slave_zone_id = models.CharField(default=None, max_length=50, verbose_name='SlaveZoneId', db_comment='实例的备可用区')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'SLB LOG: {} \'s instance {} in {} status is {}'.format(self.project_name, self.instance_id, self.region_id, self.load_balancer_status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_slb_api_response'
+
+
+class AlibabacloudALBApiResponse(ProductBaseModel):
+    LoadBalancerBussinessStatus = (
+        ('Abnormal', '异常'),
+        ('Normal', '正常'),
+    )
+    PayType = (
+        ('PostPay', '按量付费'),
+        ('PrePay', '包年包月'),
+    )
+    AddressType = (
+        ('internet', '公网负载均衡'),
+        ('intranet', '内网负载均衡'),
+    )
+    AddressIPVersion = (
+        ('IPv4', 'IPv4类型'),
+        ('DualStack', '双栈类型'),
+    )
+    AddressAllocatedMode = (
+        ('Fixed', '固定IP模式'),
+        ('Dynamic', '动态IP模式'),
+    )
+    Ipv6AddressType = (
+        ('Internet', '公网'),
+        ('Intranet', '私网'),
+    )
+    LoadBalancerEdition = (
+        ('Basic', '基础版'),
+        ('Standard', '标准版'),
+        ('StandardWithWaf', 'WAF增强版'),
+    )
+    LoadBalancerStatus = (
+        ('Inactive', '已停止'),
+        ('Active', '运行中'),
+        ('Provisioning', '创建中'),
+        ('Configuring', '变配中'),
+        ('CreateFailed', '创建失败'),
+    )
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='ALBInProject'
+    )
+
+    """ ALB Instance Property """
+    product_type = models.CharField(default=ProductType.ALB.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    create_time = models.CharField(default=None, verbose_name='CreateTime', db_comment='实例创建时间')
+
+    address_allocated_mode = models.CharField(default='Fixed', max_length=50, verbose_name='AddressAllocatedMode', db_comment='地址模式', choices=AddressAllocatedMode)
+    address_type = models.CharField(default='internet', max_length=100, verbose_name='AddressType', db_comment='实例的网络类型', choices=AddressType)
+    dns_name = models.CharField(default='', max_length=200, verbose_name='DNSName', db_comment='DNS域名')
+    pay_type = models.CharField(default='PostPay', verbose_name='PayType', db_comment='负载均衡实例付费模式', choices=PayType)
+    load_balancer_bussiness_status = models.CharField(default=None, max_length=100, verbose_name='LoadBalancerBussinessStatus', db_comment='负载均衡的业务状态', choices=LoadBalancerBussinessStatus)
+    load_balancer_edition = models.CharField(default='Basic', max_length=50, verbose_name='LoadBalancerEdition', db_comment='负载均衡的版本', choices=LoadBalancerEdition)
+    load_balancer_name = models.CharField(default='', max_length=50, verbose_name='LoadBalancerName', db_comment='负载均衡实例的名称')
+    load_balancer_status = models.CharField(default='Active', max_length=50, verbose_name='LoadBalancerStatus', db_comment='实例状态', choices=LoadBalancerStatus)
+    address_ip_version = models.CharField(default='ipv4', max_length=50, verbose_name='AddressIPVersion', db_comment='IP版本', choices=AddressIPVersion)
+    ipv6_address_type = models.CharField(default='Internet', max_length=50, verbose_name='Ipv6AddressType', db_comment='应用型负载均衡IPv6的网络地址类型', choices=Ipv6AddressType)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'ALB LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.load_balancer_status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_alb_api_response'

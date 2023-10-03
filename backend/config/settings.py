@@ -299,6 +299,13 @@ ENDPOINT = {
     "WAF_ENDPOINT": {
         "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',
         "oversea": 'wafopenapi.ap-southeast-1.aliyuncs.com'
+    },
+    "SLB_ENDPOINT": {
+        "general": 'slb.aliyuncs.com'  # https://api.aliyun.com/product/Slb
+    },
+    "ALB_ENDPOINT": {
+        "cn-hongkong": 'alb.cn-hongkong.aliyuncs.com',  # https://api.aliyun.com/product/Alb
+        "cn-hangzhou": 'alb.cn-hangzhou.aliyuncs.com'
     }
 }
 

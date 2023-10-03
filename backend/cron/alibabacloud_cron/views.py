@@ -1,22 +1,23 @@
 import json
-import logging
 from abc import ABC
 
+from alibabacloud_alb20200616 import models as alb_20200616_models
+from alibabacloud_alb20200616.client import Client as AlbApiClient
 from alibabacloud_ecs20140526 import models as ecs_20140526_models
 from alibabacloud_ecs20140526.client import Client as EcsApiClient
+from alibabacloud_slb20140515 import models as slb_20140515_models
+from alibabacloud_slb20140515.client import Client as SlbApiClient
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
-from django_apscheduler.jobstores import register_job
 
 from config import settings
 from cron.base_cron.views import DjangoJobViewSet
-from cron.base_cron.views import scheduler
 from message.models import Event
 from message.views import send_message
-from product.alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
+from product.alibabacloud_product.models import *
 from project.models import Project
 
 logger = logging.getLogger('cpm')
@@ -41,7 +42,7 @@ def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str)
 
 
 # cron: sunday 01:10AM exec the job
-#@register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ecr_api_response')
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ali_ecr_api_response')
 def get_ecr_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
@@ -104,11 +105,10 @@ def get_ecr_api_response() -> None:
 
 
 # cron: sunday 01:20AM exec the job
-#@register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='20', id='get_waf_api_response')
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='20', id='get_ali_waf_api_response')
 def get_waf_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
-    print("project_list", project_list)
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         client = WAFApiClient(set_client_config(project['project_access_key'],
@@ -121,7 +121,6 @@ def get_waf_api_response() -> None:
             describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
             describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
             waf_info = describe_waf_attribute_response_json_obj['body']
-            print("WAF INFO==", waf_info)
             waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
                                              instance_id=waf_info['InstanceId'],
                                              project_name=project['project_name'],
@@ -151,6 +150,107 @@ def get_waf_api_response() -> None:
             UtilClient.assert_as_string(error)
 
 
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='30', id='get_ali_slb_api_response')
+def get_slb_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        client = SlbApiClient(set_client_config(project['project_access_key'],
+                                                project['project_secret_key'],
+                                                settings.ENDPOINT['SLB_ENDPOINT']['general']))
+        for region in project['region']:
+            describe_load_balancers_request = slb_20140515_models.DescribeLoadBalancersRequest(region)
+            try:
+                res = client.describe_load_balancers_with_options(describe_load_balancers_request, runtime)
+                describe_slb_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_slb_attribute_response_json_obj = json.loads(describe_slb_attribute_response_to_str)
+                slb_info = describe_slb_attribute_response_json_obj['body']['LoadBalancers']
+                slb = AlibabacloudSLBApiResponse(api_request_id=slb_info['RequestId'],
+                                                 instance_id=slb_info['InstanceId'],
+                                                 project_name=project['project_name'],
+                                                 project_id=project['id'],
+                                                 create_time=slb_info['CreateTime'],
+                                                 pay_type=slb_info['PayType'],
+                                                 internet_charge_type=slb_info['InternetChargeType'],
+                                                 load_balancer_name=slb_info['LoadBalancerName'],
+                                                 address=slb_info['Address'],
+                                                 address_type=slb_info['AddressType'],
+                                                 address_ip_version=slb_info['AddressIPVersion'],
+                                                 region_id=slb_info['RegionId'],
+                                                 load_balancer_status=slb_info['LoadBalancerStatus'],
+                                                 load_balancer_spec=slb_info['LoadBalancerSpec'],
+                                                 instance_charge_type=slb_info['InstanceChargeType'],
+                                                 master_zone_id=slb_info['MasterZoneId'],
+                                                 slave_zone_id=slb_info['SlaveZoneId'],
+                                                 )
+                logger.info(slb.get_basic_info())
+                slb.save()
+                if slb.load_balancer_status != 'active':
+                    message = "project {} slb {} status is no active".format(project['project_name'], slb_info['LoadBalancerStatus'])
+                    event = Event(
+                        project_name=project['project_name'],
+                        event_type="exception",
+                        instance_id=slb_info['InstanceId'],
+                        product_type='slb',
+                        event_message=message)
+                    event.save()
+                    send_message(event)
+                    logger.info(message)
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='40', id='get_ali_alb_api_response')
+def get_alb_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for region in project['region']:
+            client = AlbApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['ALB_ENDPOINT'][region]))
+            list_load_balancers_request = alb_20200616_models.ListLoadBalancersRequest()
+            try:
+                res = client.list_load_balancers_with_options(list_load_balancers_request, runtime)
+                describe_alb_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_alb_attribute_response_json_obj = json.loads(describe_alb_attribute_response_to_str)
+                if describe_alb_attribute_response_json_obj['body']['TotalCount'] > 0:
+                    alb_info = describe_alb_attribute_response_json_obj['body']['LoadBalancers']
+                    alb = AlibabacloudALBApiResponse(api_request_id=describe_alb_attribute_response_json_obj['body']['RequestId'],
+                                                     instance_id=alb_info['LoadBalancerId'],
+                                                     project_name=project['project_name'],
+                                                     project_id=project['id'],
+                                                     create_time=alb_info['CreateTime'],
+                                                     address_allocated_mode=alb_info['AddressAllocatedMode'],
+                                                     address_type=alb_info['AddressType'],
+                                                     dns_name=alb_info['DNSName'],
+                                                     pay_type=alb_info['PayType'],
+                                                     load_balancer_bussiness_status=alb_info['LoadBalancerBussinessStatus'],
+                                                     load_balancer_edition=alb_info['LoadBalancerEdition'],
+                                                     load_balancer_name=alb_info['LoadBalancerName'],
+                                                     load_balancer_status=alb_info['LoadBalancerStatus'],
+                                                     address_ip_version=alb_info['AddressIPVersion'],
+                                                     ipv6_address_type=alb_info['Ipv6AddressType'],
+                                                     )
+                    logger.info(alb.get_basic_info())
+                    alb.save()
+                    if alb.load_balancer_status != 'Active':
+                        message = "project {} alb {} status is no active".format(project['project_name'], alb_info['LoadBalancerStatus'])
+                        event = Event(
+                            project_name=project['project_name'],
+                            event_type="exception",
+                            instance_id=alb_info['InstanceId'],
+                            product_type='alb',
+                            event_message=message)
+                        event.save()
+                        send_message(event)
+                        logger.info(message)
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
 class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_ecr_api_response()
@@ -159,3 +259,13 @@ class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
 class AliWAFDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_waf_api_response()
+
+
+class AliSLBDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_slb_api_response()
+
+
+class AliALBDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_alb_api_response()

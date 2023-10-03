@@ -1,5 +1,5 @@
 from dynamicFieldsModelSerializer import DynamicFieldsModelSerializer
-from product.alibabacloud_product.models import AlibabacloudEcsApiResponse, AlibabacloudWafApiResponse
+from product.alibabacloud_product.models import *
 
 
 class AlibabacloudEcsApiResponseSerializer(DynamicFieldsModelSerializer):
@@ -11,4 +11,16 @@ class AlibabacloudEcsApiResponseSerializer(DynamicFieldsModelSerializer):
 class AlibabacloudWafApiResponseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = AlibabacloudWafApiResponse
+        fields = '__all__'
+
+
+class AlibabacloudSlbApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudSLBApiResponse
+        fields = '__all__'
+
+
+class AlibabacloudAlbApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudALBApiResponse
         fields = '__all__'
