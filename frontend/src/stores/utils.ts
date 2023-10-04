@@ -31,6 +31,8 @@ export const base_i18n = {
     renewal_cyc_unit: "renewal_cyc_unit",
     region_id: "region_id",
     address: "address",
+    name: "name",
+    expired_time: "expired_time",
 }
 
 export const dashboard_i18n = {
@@ -49,7 +51,6 @@ export const ecs_i18n = {
     period_init: "period_init",
     duration: "duration",
     ecs_status: "ecs_status",
-    expired_time: "expired_time",
     stopped_mode: "stopped_mode",
     start_time: "start_time",
     lock_reason: "lock_reason",
@@ -91,8 +92,6 @@ export const message_i18n = {
     message_time: "message_time",
 }
 export const lb_i18n = {
-
-    region_id: "region_id",
     load_balancer_spec: "load_balancer_spec",
     address_allocated_mode: "address_allocated_mode",
     address_type: "address_type",
@@ -103,4 +102,18 @@ export const lb_i18n = {
     load_balancer_status: "load_balancer_status",
     address_ip_version: "address_ip_version",
     ipv6_address_type: "ipv6_address_type",
+}
+export const eip_i18n = {
+    allocation_id: "allocation_id",
+    instance_type: "instance_type",
+    business_status: "business_status",
+    reservation_bandwidth: "reservation_bandwidth",
+    bandwidth: "bandwidth",
+    ip_address: "ip_address",
+    reservation_internet_charge_type: "reservation_internet_charge_type",
+    charge_type: "charge_type",
+    net_mode: "net_mode",
+    allocation_time: "allocation_time",
+    status: "status",
+    reservation_active_time: "reservation_active_time",
 }
