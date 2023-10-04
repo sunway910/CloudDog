@@ -2,7 +2,7 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-select v-model="queryConditions.cloud_platform" :placeholder=t(base_i18n.cloudPlatform) class="handle-select mr10">
+        <el-select v-model="queryConditions.cloud_platform" :placeholder=t(base_i18n.cloud_platform) class="handle-select mr10">
           <el-option
               v-for="item in platformOptions"
               :key="item.value"
@@ -10,7 +10,7 @@
               :value="item.value"
           />
         </el-select>
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchProjects" :placeholder=t(base_i18n.projectName) class="handle-input mr10"></el-input>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="searchProjects" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
         <el-button color="#626aef" :icon="Search" type="primary" @click="searchProjects">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Plus" type="primary" @click="handleCreate" v-auth=role[0] style="float: right">{{ t(base_i18n.new) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getProjectList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
@@ -30,7 +30,7 @@
             </template>
           </el-table-column>
           <!--					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>-->
-          <el-table-column align="center" :label=t(dashboard_i18n.cloud_platform)>
+          <el-table-column align="center" :label=t(base_i18n.cloud_platform)>
             <template #default="scope">
               <div style="font-weight: bold;color: red">
                 <a class="inline-flex items-center gap-2 rounded-lg px-3 py-2"
@@ -42,7 +42,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" :label=t(dashboard_i18n.project_name) show-overflow-tooltip>
+          <el-table-column align="center" :label=t(base_i18n.project_name) show-overflow-tooltip>
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.project_name }}
@@ -232,7 +232,7 @@ interface ProjectItem {
   project_access_key: any,
   project_secret_key: any,
   project_name: string;
-  cron_toggle: boolean;
+  cron_toggle: any;
   status: string;
   create_time: string;
 }

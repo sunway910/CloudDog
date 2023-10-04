@@ -3,13 +3,13 @@
     <el-tabs v-model="message">
       <el-tab-pane :label="`${t(message_i18n.unread)}(${unreadMessageList.length})`" name="first">
         <div class="handle-box">
-          <el-input v-model="queryConditions.project_name" @keydown.enter="searchMessages(status_unread)" :placeholder=t(base_i18n.projectName) class="handle-input mr10" style="width: 300px"></el-input>
+          <el-input v-model="queryConditions.project_name" @keydown.enter="searchMessages(status_unread)" :placeholder=t(base_i18n.project_name) class="handle-input mr10" style="width: 300px"></el-input>
           <el-button color="#626aef" :icon="Search" type="primary" @click="searchMessages(status_unread)">{{ t(base_i18n.search) }}</el-button>
           <el-button :icon="Refresh" type="primary" @click="getMessageWithStatus(status_unread)" style="float: right">{{ t(base_i18n.refresh) }}
           </el-button>
         </div>
         <el-table :data="unreadMessageList" style="margin-top: 20px">
-          <el-table-column align="center" :label=t(base_i18n.projectName) width="200px">
+          <el-table-column align="center" :label=t(base_i18n.project_name) width="200px">
             <template #default="scope">
               <span class="message-title">{{ scope.row.project_name }}</span>
             </template>
@@ -41,7 +41,7 @@
       </el-tab-pane>
       <el-tab-pane :label="`${t(message_i18n.read)}(${readMessageList.length})`" name="second">
         <div class="handle-box">
-          <el-input v-model="queryConditions.project_name" @keydown.enter="searchMessages(status_unread)" :placeholder=t(base_i18n.projectName) class="handle-input mr10" style="width: 300px"></el-input>
+          <el-input v-model="queryConditions.project_name" @keydown.enter="searchMessages(status_unread)" :placeholder=t(base_i18n.project_name) class="handle-input mr10" style="width: 300px"></el-input>
           <el-button color="#626aef" :icon="Search" type="primary" @click="searchMessages(status_unread)">{{ t(base_i18n.search) }}</el-button>
           <el-button :icon="Refresh" type="primary" @click="getMessageWithStatus(status_unread)" style="float: right">{{ t(base_i18n.refresh) }}
           </el-button>
@@ -79,7 +79,7 @@
       </el-tab-pane>
       <el-tab-pane :label="`${t(message_i18n.trash)}(${trashMessageList.length})`" name="third">
         <div class="handle-box">
-          <el-input v-model="queryConditions.project_name" @keydown.enter="searchMessages(status_unread)" :placeholder=t(base_i18n.projectName) class="handle-input mr10" style="width: 300px"></el-input>
+          <el-input v-model="queryConditions.project_name" @keydown.enter="searchMessages(status_unread)" :placeholder=t(base_i18n.project_name) class="handle-input mr10" style="width: 300px"></el-input>
           <el-button color="#626aef" :icon="Search" type="primary" @click="searchMessages(status_unread)">{{ t(base_i18n.search) }}</el-button>
           <el-button :icon="Refresh" type="primary" @click="getMessageWithStatus(status_unread)" style="float: right">{{ t(base_i18n.refresh) }}
           </el-button>

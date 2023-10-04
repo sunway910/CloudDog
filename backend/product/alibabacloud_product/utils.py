@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 
 
 def get_max_instance_id():

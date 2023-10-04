@@ -4,7 +4,7 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchWaf" :placeholder=t(base_i18n.projectName) class="handle-input mr10"></el-input>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="searchWaf" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
         <el-button color="#626aef" :icon="Search" type="primary" @click="searchWaf">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getWAFList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
@@ -46,7 +46,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" :label=t(waf_i18n.end_time) show-overflow-tooltip width="150px">
+          <el-table-column align="center" :label=t(base_i18n.end_time) show-overflow-tooltip width="150px">
             <template #default="scope">
               <el-tag>
                 {{ (timestampToTime(scope.row.end_time)) }}
@@ -54,7 +54,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" :label=t(base_i18n.project) show-overflow-tooltip width="130px">
+          <el-table-column align="center" :label=t(base_i18n.project_name) show-overflow-tooltip width="130px">
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.project_name }}
@@ -75,7 +75,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" :label=t(waf_i18n.pay_type) show-overflow-tooltip width="130px" :render-header="renderHeader">
+          <el-table-column align="center" :label=t(base_i18n.pay_type) show-overflow-tooltip width="130px" :render-header="renderHeader">
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.pay_type }}
@@ -312,7 +312,7 @@ const exportXlsx = () => {
   XLSX.writeFile(new_workbook, `waf_summary.xlsx`);
 };
 
-function timestampToTime(timestamp) {
+function timestampToTime(timestamp: any) {
   // 时间戳为10位需*1000，时间戳为13位不需乘1000
   let date = new Date(timestamp);
   let Y = date.getFullYear() + "-";
