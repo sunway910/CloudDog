@@ -4,7 +4,7 @@ from project.models import Project
 from abc import abstractmethod
 import logging
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 
 
 class ProductType(models.TextChoices):
@@ -71,6 +71,11 @@ class AlibabacloudEcsApiResponse(ProductBaseModel):
         ('StopCharging', '停机后不收费。停机后，我们释放实例对应的资源，例如vCPU、内存和公网IP等资源。重启是否成功依赖于当前地域中是否仍有资源库存'),
         ('Not-applicable', '本实例不支持停机不收费功能'),
     )
+    RenewalStatus = (
+        ('AutoRenewal', '自动续费'),
+        ('Normal', '非自动续费'),
+        ('NotRenewal', '不再续费'),
+    )
     project = models.ForeignKey(
         to="project.Project",
         to_field="id",
@@ -82,7 +87,7 @@ class AlibabacloudEcsApiResponse(ProductBaseModel):
     product_type = models.CharField(default=ProductType.ECS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     auto_renew_enabled = models.BooleanField(default=True, verbose_name='AutoRenewEnabled', db_comment='是否已开启自动续费功能')
     instance_name = models.CharField(default='', max_length=30, verbose_name='InstanceName', db_comment='实例的自定义名称')
-    renewal_status = models.CharField(default='', max_length=30, verbose_name='RenewalStatus', db_comment='实例的自动续费状态')
+    renewal_status = models.CharField(default='', max_length=30, verbose_name='RenewalStatus', db_comment='实例的自动续费状态', choices=RenewalStatus)
     period_init = models.CharField(default='', max_length=20, verbose_name='PeriodUnit', db_comment='自动续费时长的单位')
     duration = models.IntegerField(default=0, verbose_name='Duration', db_comment='自动续费时长')
     region_id = models.CharField(default='', max_length=30, verbose_name='RegionId', db_comment='实例地域')
@@ -182,6 +187,15 @@ class AlibabacloudSLBApiResponse(ProductBaseModel):
         ('PayBySpec', '按规格计费'),
         ('PayByCLCU', '按使用量计费'),
     )
+    RenewalStatus = (
+        ('AutoRenewal', '自动续费'),
+        ('Normal', '非自动续费'),
+        ('NotRenewal', '不再续费'),
+    )
+    RenewalCycUnit = (
+        ('Year', '年'),
+        ('Month', '月'),
+    )
     project = models.ForeignKey(
         to="project.Project",
         to_field="id",
@@ -204,6 +218,15 @@ class AlibabacloudSLBApiResponse(ProductBaseModel):
     instance_charge_type = models.CharField(default=None, max_length=100, verbose_name='InstanceChargeType', db_comment='实例计费方式', choices=InstanceChargeType)
     master_zone_id = models.CharField(default=None, max_length=50, verbose_name='MasterZoneId', db_comment='实例的主可用区')
     slave_zone_id = models.CharField(default=None, max_length=50, verbose_name='SlaveZoneId', db_comment='实例的备可用区')
+
+    # detail
+    bandwidth = models.IntegerField(default=0, verbose_name='Bandwidth', db_comment='按带宽计费的公网型实例的带宽峰值')
+    end_time_stamp = models.BigIntegerField(default=3249380160000, verbose_name='EndTimeStamp', db_comment='传统型负载均衡实例结束时间戳')
+    end_time = models.CharField(default='', max_length=50, verbose_name='EndTime', db_comment='传统型负载均衡实例结束时间')
+    auto_release_time = models.BigIntegerField(default=3249380160000, verbose_name='AutoReleaseTime', db_comment='释放时间的时间戳')
+    renewal_status = models.CharField(default='', max_length=50, verbose_name='RenewalStatus', db_comment='续费状态', choices=RenewalStatus)
+    renewal_duration = models.IntegerField(default=0, verbose_name='RenewalDuration', db_comment='自动续费时长')
+    renewal_cyc_unit = models.CharField(null=True, blank=True, default='Month', max_length=50, verbose_name='RenewalCycUnit', db_comment='自动续费周期', choices=RenewalCycUnit)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -229,8 +252,8 @@ class AlibabacloudALBApiResponse(ProductBaseModel):
         ('internet', '公网负载均衡'),
         ('intranet', '内网负载均衡'),
     )
-    AddressIPVersion = (
-        ('IPv4', 'IPv4类型'),
+    AddressIpVersion = (
+        ('Ipv4', 'IPv4类型'),
         ('DualStack', '双栈类型'),
     )
     AddressAllocatedMode = (
@@ -272,8 +295,8 @@ class AlibabacloudALBApiResponse(ProductBaseModel):
     load_balancer_edition = models.CharField(default='Basic', max_length=50, verbose_name='LoadBalancerEdition', db_comment='负载均衡的版本', choices=LoadBalancerEdition)
     load_balancer_name = models.CharField(default='', max_length=50, verbose_name='LoadBalancerName', db_comment='负载均衡实例的名称')
     load_balancer_status = models.CharField(default='Active', max_length=50, verbose_name='LoadBalancerStatus', db_comment='实例状态', choices=LoadBalancerStatus)
-    address_ip_version = models.CharField(default='ipv4', max_length=50, verbose_name='AddressIPVersion', db_comment='IP版本', choices=AddressIPVersion)
-    ipv6_address_type = models.CharField(default='Internet', max_length=50, verbose_name='Ipv6AddressType', db_comment='应用型负载均衡IPv6的网络地址类型', choices=Ipv6AddressType)
+    address_ip_version = models.CharField(default='ipv4', max_length=50, verbose_name='AddressIpVersion', db_comment='IP版本', choices=AddressIpVersion)
+    ipv6_address_type = models.CharField(default='-', max_length=50, verbose_name='Ipv6AddressType', db_comment='应用型负载均衡IPv6的网络地址类型', choices=Ipv6AddressType)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

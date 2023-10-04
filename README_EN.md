@@ -31,12 +31,12 @@ This system is used to implement Finops of the cloud platform
     2.
         - [x] WAF monitor
     3.
-        - [ ] Load Balancer monitor
+        - [x] Load Balancer monitor
 
         1.
-            - [ ] ALB monitor
+            - [x] ALB monitor
         2.
-            - [ ] SLB monitor
+            - [x] SLB monitor
         3.
             - [ ] NLB monitor
     4.

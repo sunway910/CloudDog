@@ -31,12 +31,12 @@
     2.
         - [x] WAF 监控
     3.
-        - [ ] Load Balancer 监控
+        - [x] Load Balancer 监控
 
         1.
-            - [ ] ALB 监控
+            - [x] ALB 监控
         2.
-            - [ ] SLB 监控
+            - [x] SLB 监控
         3.
             - [ ] NLB 监控
     4.
@@ -119,9 +119,9 @@ git clone https://github.com/0utsiderZhong/CloudDog.git
 cd CloudDog   
 cd backend
 docker build -t xxx:clouddog2023 -f Dockerfile .
-mkdir -p /data/postgres && mkdir -p /data/cpm/log
+mkdir -p /data/postgres && mkdir -p /data/clouddog/log
 docker run -d  --name postgres  -p 5432:5432 -e POSTGRES_PASSWORD=sunway -v /data/postgres:/var/lib/postgresql/data  postgres:latest
-docker run -d  -p 8000:8000 -e DJANGO_POSTGRES_HOST=<PG Container IP> --name cpm -v /data/cpm/log:/code/cpm/log xxx:clouddog2023
+docker run -d  -p 8000:8000 -e DJANGO_POSTGRES_HOST=<PG Container IP> --name clouddog -v /data/clouddog/log:/code/clouddog/log xxx:clouddog2023
 
 cd ../frontend 
 pnpm build

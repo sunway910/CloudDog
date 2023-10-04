@@ -20,7 +20,7 @@ from message.views import send_message
 from product.alibabacloud_product.models import *
 from project.models import Project
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 
 
 def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str) -> open_api_models.Config:
@@ -43,7 +43,7 @@ def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str)
 
 # cron: sunday 01:10AM exec the job
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ali_ecr_api_response')
-def get_ecr_api_response() -> None:
+def get_ecs_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     runtime = util_models.RuntimeOptions()
@@ -160,43 +160,57 @@ def get_slb_api_response() -> None:
                                                 project['project_secret_key'],
                                                 settings.ENDPOINT['SLB_ENDPOINT']['general']))
         for region in project['region']:
-            describe_load_balancers_request = slb_20140515_models.DescribeLoadBalancersRequest(region)
+            describe_load_balancers_request = slb_20140515_models.DescribeLoadBalancersRequest(region_id=region)
             try:
                 res = client.describe_load_balancers_with_options(describe_load_balancers_request, runtime)
                 describe_slb_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_slb_attribute_response_json_obj = json.loads(describe_slb_attribute_response_to_str)
-                slb_info = describe_slb_attribute_response_json_obj['body']['LoadBalancers']
-                slb = AlibabacloudSLBApiResponse(api_request_id=slb_info['RequestId'],
-                                                 instance_id=slb_info['InstanceId'],
-                                                 project_name=project['project_name'],
-                                                 project_id=project['id'],
-                                                 create_time=slb_info['CreateTime'],
-                                                 pay_type=slb_info['PayType'],
-                                                 internet_charge_type=slb_info['InternetChargeType'],
-                                                 load_balancer_name=slb_info['LoadBalancerName'],
-                                                 address=slb_info['Address'],
-                                                 address_type=slb_info['AddressType'],
-                                                 address_ip_version=slb_info['AddressIPVersion'],
-                                                 region_id=slb_info['RegionId'],
-                                                 load_balancer_status=slb_info['LoadBalancerStatus'],
-                                                 load_balancer_spec=slb_info['LoadBalancerSpec'],
-                                                 instance_charge_type=slb_info['InstanceChargeType'],
-                                                 master_zone_id=slb_info['MasterZoneId'],
-                                                 slave_zone_id=slb_info['SlaveZoneId'],
-                                                 )
-                logger.info(slb.get_basic_info())
-                slb.save()
-                if slb.load_balancer_status != 'active':
-                    message = "project {} slb {} status is no active".format(project['project_name'], slb_info['LoadBalancerStatus'])
-                    event = Event(
-                        project_name=project['project_name'],
-                        event_type="exception",
-                        instance_id=slb_info['InstanceId'],
-                        product_type='slb',
-                        event_message=message)
-                    event.save()
-                    send_message(event)
-                    logger.info(message)
+                if describe_slb_attribute_response_json_obj['body']['TotalCount'] > 0:
+                    slb_info = describe_slb_attribute_response_json_obj['body']['LoadBalancers']
+                    for num, slb_instance in enumerate(slb_info):
+                        describe_load_balancer_attribute_request = slb_20140515_models.DescribeLoadBalancerAttributeRequest(region_id=region, load_balancer_id=slb_instance['InstanceId'])
+                        detail_res = client.describe_load_balancer_attribute_with_options(describe_load_balancer_attribute_request, runtime)
+                        describe_slb_detail_attribute_response_to_str = UtilClient.to_jsonstring(detail_res)
+                        describe_slb_detail_attribute_response_json_obj = json.loads(describe_slb_detail_attribute_response_to_str)
+                        slb_instance_detail = describe_slb_detail_attribute_response_json_obj['body']
+                        slb = AlibabacloudSLBApiResponse(api_request_id=(describe_slb_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=slb_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         bandwidth=slb_instance_detail['Bandwidth'],
+                                                         end_time_stamp=slb_instance_detail['EndTimeStamp'],
+                                                         end_time=slb_instance_detail['EndTime'],
+                                                         auto_release_time=slb_instance_detail['AutoReleaseTime'],
+                                                         renewal_status=slb_instance_detail['RenewalStatus'],
+                                                         renewal_duration=slb_instance_detail['RenewalDuration'],
+                                                         renewal_cyc_unit=slb_instance_detail['RenewalCycUnit'],
+                                                         create_time=slb_instance['CreateTime'],
+                                                         pay_type=slb_instance['PayType'],
+                                                         internet_charge_type=slb_instance['InternetChargeType'],
+                                                         load_balancer_name=slb_instance['LoadBalancerName'],
+                                                         address=slb_instance['Address'],
+                                                         address_type=slb_instance['AddressType'],
+                                                         address_ip_version=slb_instance['AddressIPVersion'],
+                                                         region_id=slb_instance['RegionId'],
+                                                         load_balancer_status=slb_instance['LoadBalancerStatus'],
+                                                         load_balancer_spec=slb_instance['LoadBalancerSpec'],
+                                                         instance_charge_type=slb_instance['InstanceChargeType'],
+                                                         master_zone_id=slb_instance['MasterZoneId'],
+                                                         slave_zone_id=slb_instance['SlaveZoneId'],
+                                                         )
+                        logger.info(slb.get_basic_info())
+                        slb.save()
+                        if slb.load_balancer_status != 'active':
+                            message = "project {} slb {} status is no active".format(project['project_name'], slb_info['LoadBalancerStatus'])
+                            event = Event(
+                                project_name=project['project_name'],
+                                event_type="exception",
+                                instance_id=slb_info['InstanceId'],
+                                product_type='slb',
+                                event_message=message)
+                            event.save()
+                            send_message(event)
+                            logger.info(message)
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
@@ -253,7 +267,7 @@ def get_alb_api_response() -> None:
 
 class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
-        get_ecr_api_response()
+        get_ecs_api_response()
 
 
 class AliWAFDjangoJobViewSet(DjangoJobViewSet, ABC):
