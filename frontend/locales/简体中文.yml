@@ -38,28 +38,33 @@ api_request_id: 请求ID
 instance_id: 实例ID
 request_time: 请求时间
 product_type: 产品类型
-projectName: 项目名称
-cloudPlatform: 云平台
+cloud_platform: 云平台
+project_name: 项目名称
 search: 搜索
 export: 导出
 refresh: 刷新
 new: 新建项目
 operation: 操作
+create_time: 创建时间
+pay_type: 实例开通状态
+address: 地址
+bandwidth: 带宽
+end_time_stamp: 实例结束时间戳
+renewal_duration: 自动续费时长
+master_zone_id: 主可用区
+slave_zone_id: 备可用区
+renewal_cyc_unit: 自动续费周期
 
 # dashboard
 id: ID
 project_region: 地域
-cloud_platform: 云平台
-project_name: 项目名称
 project_access_key: AK
 project_secret_key: SK
 cron_toggle: 定时任务开关
 account: 账号
 status: 项目状态
-create_time: 账号创建时间
 
-
-# ECR
+# ECS
 instance_name: 实例名称
 auto_renew_enabled: 是否已设置自动续费
 renewal_status: 实例的自动续费状态
@@ -81,7 +86,6 @@ waf_start_time: 购买时间
 end_time: 到期时间
 edition: WAF版本
 region: 实例地域
-pay_type: 实例开通状态
 in_debt: 是否欠费
 
 # JOB
@@ -107,3 +111,15 @@ message_id: 消息ID
 event_message: 消息内容
 event_type: 消息类型
 message_time: 消息时间
+
+# ALB/SLB/NLB
+address_allocated_mode: 地址模式
+address_type: 实例的网络类型
+dns_name: DNS域名
+load_balancer_spec: 负载均衡实例的性能规格
+load_balancer_bussiness_status: 负载均衡的业务状态
+load_balancer_edition: 负载均衡的版本
+load_balancer_name: 负载均衡实例的名称
+load_balancer_status: 实例状态
+address_ip_version: IP版本
+ipv6_address_type: 应用型负载均衡IPv6的网络地址类型

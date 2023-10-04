@@ -38,9 +38,8 @@ api_request_id: Request ID
 instance_id: Instance Id
 request_time: Request Time
 product_type: Product Type
-project: Project
-projectName: Project Name
-cloudPlatform: Cloud Platform
+project_name: Project Name
+cloud_platform: Cloud Platform
 search: Search
 export: Export
 refresh: Refresh
@@ -48,43 +47,45 @@ new: New
 operation: Operation
 status: Status
 create_time: Create Time
+pay_type: Pay Type
+region_id: Region
+bandwidth: Bandwidth
+renewal_status: Renewal Status
+end_time_stamp: End Time Stamp
+end_time: End Time
+renewal_duration: Renewal Duration
+auto_release_time: Auto Release Time
+master_zone_id: MasterZoneId
+slave_zone_id: SlaveZoneId
+renewal_cyc_unit: RenewalCycUnit
 
 # dashboard
-
 id: ID
 project_region: Region
-cloud_platform: Cloud Platform
-project_name: Project Name
 project_access_key: AK
 project_secret_key: SK
 cron_toggle: Toggle
 account: RAM Account
 
-
-
-# ECR
+# ECS
 instance_name: Instance Name
 auto_renew_enabled: Auto Renew Enabled
-renewal_status: Renewal Status
 period_init: Period Init
 duration: Renewal Time
-region_id: Region
 ecs_status: Status
 instance_charge_type: Instance Charge Type
 internet_charge_type: Internet Charge Type
 expired_time: Expired Time
 stopped_mode: Stopped Mode
 start_time: Start Time
-auto_release_time: Auto Release Time
 lock_reason: Lock Reason
 
 # WAF
 waf_status: Status
 waf_start_time: Start Time
-end_time: End Time
+
 edition: Edition
 region: Region
-pay_type: Pay Type
 in_debt: In Debt
 
 # JOB
@@ -110,3 +111,16 @@ message_id: Message Id
 event_message: Event Message
 event_type: Event Type
 message_time: Message Time
+
+# ALB/SLB/NLB
+address: Address
+load_balancer_spec: LoadBalancerSpec
+address_allocated_mode: AddressAllocatedMode
+address_type: AddressType
+dns_name: DNSName
+load_balancer_bussiness_status: LoadBalancerBussinessStatus
+load_balancer_edition: LoadBalancerEdition
+load_balancer_name: LoadBalancerName
+load_balancer_status: LoadBalancerStatus
+address_ip_version: AddressIPVersion
+ipv6_address_type: Ipv6AddressType
