@@ -12,6 +12,7 @@ class ProductType(models.TextChoices):
     WAF = ('waf', 'Web应用防火墙')
     SLB = ('slb', '负载均衡')
     ALB = ('alb', '应用型负载均衡')
+    EIP = ('eip', '弹性公网IP')
 
     class Meta:
         app_label = 'ProductType'
@@ -307,3 +308,61 @@ class AlibabacloudALBApiResponse(ProductBaseModel):
 
     class Meta:
         db_table = 'alibabacloud_alb_api_response'
+
+
+class AlibabacloudEIPApiResponse(ProductBaseModel):
+    ReservationInternetChargeType = (
+        ('PayByBandwidth', '按固定带宽计费'),
+        ('PayByTraffic', '按使用流量计费'),
+    )
+    BusinessStatus = (
+        ('Normal', '正常'),
+        ('FinancialLocked', '被锁定'),
+    )
+    ChargeType = (
+        ('PostPaid', '按量计费'),
+        ('PrePaid', '包年包月'),
+    )
+    EIPStatus = (
+        ('Associating', '绑定中'),
+        ('Unassociating', '解绑中'),
+        ('InUse', '已分配'),
+        ('Available', '可用'),
+        ('Releasing', '释放中'),
+    )
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='EIPInProject'
+    )
+
+    """ EIP Instance Property """
+    product_type = models.CharField(default=ProductType.EIP.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    name = models.CharField(default='', max_length=50, verbose_name='Name', db_comment='EIP的名称')
+    region_id = models.CharField(default='', max_length=50, verbose_name='RegionId', db_comment='EIP所在的地域ID')
+    expired_time = models.CharField(default='', max_length=50, verbose_name='ExpiredTime', db_comment='到期时间')
+    allocation_id = models.CharField(default='', max_length=50, verbose_name='AllocationId', db_comment='EIP的实例ID')
+    instance_id = models.CharField(default='', max_length=50, verbose_name='InstanceId', db_comment='当前绑定的实例的ID')
+    instance_type = models.CharField(default='', max_length=50, verbose_name='InstanceType', db_comment='当前绑定的实例类型')
+    internet_charge_type = models.CharField(default='', max_length=50, verbose_name='InternetChargeType', db_comment='EIP的计费方式', choices=BusinessStatus)
+    business_status = models.CharField(default='', max_length=50, verbose_name='BusinessStatus', db_comment='EIP实例的业务状态', choices=BusinessStatus)
+    reservation_bandwidth = models.CharField(default='internet', max_length=10, verbose_name='ReservationBandwidth', db_comment='续费带宽-单位:Mbps')
+    bandwidth = models.CharField(default='', max_length=10, verbose_name='Bandwidth', db_comment='EIP的带宽峰值')
+    ip_address = models.CharField(default='1.1.1.1', max_length=30, verbose_name='IpAddress', db_comment='EIP的IP地址')
+    reservation_internet_charge_type = models.CharField(default='PayByTraffic', max_length=100, verbose_name='ReservationInternetChargeType', db_comment='续费付费类型', choices=ReservationInternetChargeType)
+    charge_type = models.CharField(default='Basic', max_length=50, verbose_name='ChargeType', db_comment='EIP的付费模式', choices=ChargeType)
+    net_mode = models.CharField(default='public', max_length=50, verbose_name='Netmode', db_comment='网络类型')
+    allocation_time = models.CharField(default='', max_length=100, verbose_name='AllocationTime', db_comment='EIP的创建时间')
+    status = models.CharField(default='ipv4', max_length=50, verbose_name='Status', db_comment='EIP的状态', choices=EIPStatus)
+    reservation_active_time = models.CharField(default='', max_length=100, verbose_name='ReservationActiveTime', db_comment='续费生效时间')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'EIP LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_eip_api_response'

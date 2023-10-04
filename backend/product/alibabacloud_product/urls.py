@@ -19,4 +19,8 @@ urlpatterns = [
     path('api/alb/init', views.init_alb_list),
     path('api/alb/list', views.get_alb_list),
     path('api/alb/search', views.search_alb),
+
+    path('api/eip/init', views.init_eip_list),
+    path('api/eip/list', views.get_eip_list),
+    path('api/eip/search', views.search_eip),
 ]

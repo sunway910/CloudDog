@@ -10,6 +10,8 @@ from alibabacloud_slb20140515.client import Client as SlbApiClient
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
+from alibabacloud_vpc20160428 import models as vpc_20160428_models
+from alibabacloud_vpc20160428.client import Client as VpcApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
 from asgiref.sync import sync_to_async
@@ -17,7 +19,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from config.settings import ENDPOINT
+from config import settings
 from handler import APIResponse
 from paginator import CustomPaginator
 from product.alibabacloud_product.serializers import *
@@ -52,7 +54,7 @@ def get_ecs_api_response() -> None:
         client = EcsApiClient(set_client_config(
             project['project_access_key'],
             project['project_secret_key'],
-            ENDPOINT['WAF_ENDPOINT']['oversea'])
+            settings.ENDPOINT['WAF_ENDPOINT']['oversea'])
         )
         for region in project['region']:
             describe_instances_request = ecs_20140526_models.DescribeInstancesRequest(region_id=region)
@@ -107,7 +109,7 @@ def get_waf_api_response() -> None:
         client = WAFApiClient(set_client_config(
             project['project_access_key'],
             project['project_secret_key'],
-            ENDPOINT['WAF_ENDPOINT']['oversea'])
+            settings.ENDPOINT['WAF_ENDPOINT']['oversea'])
         )
         describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
         try:
@@ -141,7 +143,7 @@ def get_slb_api_response() -> None:
     for project in project_list:
         client = SlbApiClient(set_client_config(project['project_access_key'],
                                                 project['project_secret_key'],
-                                                ENDPOINT['SLB_ENDPOINT']['general']))
+                                                settings.ENDPOINT['SLB_ENDPOINT']['general']))
         for region in project['region']:
             describe_load_balancers_request = slb_20140515_models.DescribeLoadBalancersRequest(region_id=region)
             try:
@@ -196,7 +198,7 @@ def get_alb_api_response() -> None:
         for region in project['region']:
             client = AlbApiClient(set_client_config(project['project_access_key'],
                                                     project['project_secret_key'],
-                                                    ENDPOINT['ALB_ENDPOINT'][region]))
+                                                    settings.ENDPOINT['ALB_ENDPOINT'][region]))
             list_load_balancers_request = alb_20200616_models.ListLoadBalancersRequest()
             try:
                 res = client.list_load_balancers_with_options(list_load_balancers_request, runtime)
@@ -224,6 +226,51 @@ def get_alb_api_response() -> None:
                             alb.ipv6_address_type = alb_instance['Ipv6AddressType']
                         logger.info(alb.get_basic_info())
                         alb.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
+@sync_to_async
+def get_eip_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for region in project['region']:
+            client = VpcApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['VPC_ENDPOINT'][region]))
+            describe_eip_addresses_request = vpc_20160428_models.DescribeEipAddressesRequest(region_id=region)
+            try:
+                res = client.describe_eip_addresses_with_options(describe_eip_addresses_request, runtime)
+                describe_eip_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_eip_attribute_response_json_obj = json.loads(describe_eip_attribute_response_to_str)
+                if describe_eip_attribute_response_json_obj['body']['TotalCount'] > 0:
+                    eip_info = describe_eip_attribute_response_json_obj['body']['EipAddresses']
+                    for num, eip_instance in enumerate(eip_info):
+                        eip = AlibabacloudEIPApiResponse(api_request_id=(describe_eip_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=eip_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         name=eip_instance['Name'],
+                                                         region_id=eip_instance['RegionId'],
+                                                         expired_time=eip_instance['ExpiredTime'],
+                                                         allocation_id=eip_instance['AllocationId'],
+                                                         instance_type=eip_instance['InstanceType'],
+                                                         internet_charge_type=eip_instance['InternetChargeType'],
+                                                         business_status=eip_instance['BusinessStatus'],
+                                                         reservation_bandwidth=eip_instance['ReservationBandwidth'],
+                                                         bandwidth=eip_instance['Bandwidth'],
+                                                         ip_address=eip_instance['IpAddress'],
+                                                         reservation_internet_charge_type=eip_instance['ReservationInternetChargeType'],
+                                                         charge_type=eip_instance['ChargeType'],
+                                                         net_mode=eip_instance['Netmode'],
+                                                         allocation_time=eip_instance['AllocationTime'],
+                                                         status=eip_instance['Status'],
+                                                         reservation_active_time=eip_instance['ReservationActiveTime'],
+                                                         )
+                        logger.info(eip.get_basic_info())
+                        eip.save()
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
@@ -386,4 +433,44 @@ def search_alb(request):
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudAlbApiResponseSerializer(data, many=True)
     logger.info("{} call search_alb api with conditions project_name: {}".format(request.user.username, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def init_eip_list(request):
+    res = asyncio.run(get_eip_api_response())
+    return APIResponse(code=0, msg='request successfully', data=res)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_eip_list(request):
+    alibabacloud_eip_api_response = AlibabacloudEIPApiResponse.objects.all().order_by("project_id")
+    paginator = CustomPaginator(request, alibabacloud_eip_api_response)
+    total = paginator.count
+    data = paginator.get_page()
+    serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
+    logger.info("{} call get_eip_list api".format(request.user.username))
+    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def search_eip(request):
+    try:
+        project_name = request.GET.get('project_name', None)
+        alibabacloud_eip_api_response = AlibabacloudEIPApiResponse.objects.all().order_by("project_id")
+        if project_name:
+            alibabacloud_eip_api_response = alibabacloud_eip_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_eip_api_response)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudEIPApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
+    logger.info("{} call search_eip api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

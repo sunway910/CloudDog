@@ -24,3 +24,9 @@ class AlibabacloudAlbApiResponseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = AlibabacloudALBApiResponse
         fields = '__all__'
+
+
+class AlibabacloudEipApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudEIPApiResponse
+        fields = '__all__'

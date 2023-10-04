@@ -293,11 +293,11 @@ SCHEDULER_AUTOSTART = True
 
 ENDPOINT = {
     "ECS_ENDPOINT": {
-        "mainland": 'ecs-cn-hangzhou.aliyuncs.com',
+        "mainland": 'ecs-cn-hangzhou.aliyuncs.com',  # https://api.aliyun.com/product/Ecs
         "oversea": 'ecs.cn-hongkong.aliyuncs.com'
     },
     "WAF_ENDPOINT": {
-        "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',
+        "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',  # https://api.aliyun.com/product/waf-openapi
         "oversea": 'wafopenapi.ap-southeast-1.aliyuncs.com'
     },
     "SLB_ENDPOINT": {
@@ -306,7 +306,11 @@ ENDPOINT = {
     "ALB_ENDPOINT": {
         "cn-hongkong": 'alb.cn-hongkong.aliyuncs.com',  # https://api.aliyun.com/product/Alb
         "cn-hangzhou": 'alb.cn-hangzhou.aliyuncs.com'
-    }
+    },
+    "VPC_ENDPOINT": {
+        "cn-hongkong": 'vpc.cn-hongkong.aliyuncs.com',  # https://api.aliyun.com/product/Vpc
+        "cn-hangzhou": 'vpc.aliyuncs.com'
+    },
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -317,7 +321,6 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') or ''
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') or ''
 EMAIL_FROM = 'Service'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
 
 RECIPIENT_ADDRESS = {
     "",

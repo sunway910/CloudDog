@@ -16,3 +16,4 @@ alibabacloud_tea_openapi==0.3.7
 alibabacloud_tea_console==0.0.1
 alibabacloud_tea_util==0.3.11
 alibabacloud_alb20200616==1.0.19
+alibabacloud_vpc20160428==5.1.0

@@ -10,6 +10,8 @@ from alibabacloud_slb20140515.client import Client as SlbApiClient
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
+from alibabacloud_vpc20160428 import models as vpc_20160428_models
+from alibabacloud_vpc20160428.client import Client as VpcApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
 
@@ -264,6 +266,49 @@ def get_alb_api_response() -> None:
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='50', id='get_ali_alb_api_response')
+def get_eip_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for region in project['region']:
+            client = VpcApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['VPC_ENDPOINT'][region]))
+            describe_eip_addresses_request = vpc_20160428_models.DescribeEipAddressesRequest(region_id=region)
+            try:
+                res = client.describe_eip_addresses_with_options(describe_eip_addresses_request, runtime)
+                describe_eip_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_eip_attribute_response_json_obj = json.loads(describe_eip_attribute_response_to_str)
+                if describe_eip_attribute_response_json_obj['body']['TotalCount'] > 0:
+                    eip_info = describe_eip_attribute_response_json_obj['body']['EipAddresses']
+                    for num, eip_instance in enumerate(eip_info):
+                        eip = AlibabacloudEIPApiResponse(api_request_id=(describe_eip_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=eip_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         name=eip_instance['Name'],
+                                                         region_id=eip_instance['RegionId'],
+                                                         expired_time=eip_instance['ExpiredTime'],
+                                                         allocation_id=eip_instance['AllocationId'],
+                                                         instance_type=eip_instance['InstanceType'],
+                                                         internet_charge_type=eip_instance['InternetChargeType'],
+                                                         business_status=eip_instance['BusinessStatus'],
+                                                         reservation_bandwidth=eip_instance['ReservationBandwidth'],
+                                                         bandwidth=eip_instance['Bandwidth'],
+                                                         ip_address=eip_instance['IpAddress'],
+                                                         reservation_internet_charge_type=eip_instance['ReservationInternetChargeType'],
+                                                         charge_type=eip_instance['ChargeType'],
+                                                         net_mode=eip_instance['Netmode'],
+                                                         allocation_time=eip_instance['AllocationTime'],
+                                                         status=eip_instance['Status'],
+                                                         reservation_active_time=eip_instance['ReservationActiveTime'],
+                                                         )
+                        logger.info(eip.get_basic_info())
+                        eip.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
 
 class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
