@@ -47,6 +47,7 @@ declare global {
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const ecs_i18n: typeof import('../../src/stores/utils')['ecs_i18n']
   const effectScope: typeof import('vue')['effectScope']
+  const eip_i18n: typeof import('../../src/stores/utils')['eip_i18n']
   const extendRef: typeof import('@vueuse/core')['extendRef']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']

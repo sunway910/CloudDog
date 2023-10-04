@@ -44,7 +44,7 @@ This system is used to implement Finops of the cloud platform
     5.
         - [ ] Redis monitor
     6.
-        - [ ] Elastic Network Interface monitor
+        - [ ] Elastic Internet IP monitor
     7.
         - [ ] Cloud Security Center monitor
     8.

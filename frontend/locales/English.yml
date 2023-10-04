@@ -18,10 +18,11 @@ remember: Remember
 signin: Sign in
 
 AlibabaCloud: AlibabaCloud
-ECR: ECR
+ECS: ECS
 WAF: WAF
 SLB: SLB
 ALB: ALB
+EIP: EIP
 
 AWS: AWS
 EC2: EC2
@@ -58,6 +59,8 @@ auto_release_time: Auto Release Time
 master_zone_id: MasterZoneId
 slave_zone_id: SlaveZoneId
 renewal_cyc_unit: RenewalCycUnit
+name: Name
+
 
 # dashboard
 id: ID
@@ -124,3 +127,15 @@ load_balancer_name: LoadBalancerName
 load_balancer_status: LoadBalancerStatus
 address_ip_version: AddressIPVersion
 ipv6_address_type: Ipv6AddressType
+
+# EIP
+allocation_id: AllocationId
+instance_type: InstanceType
+business_status: BusinessStatus
+reservation_bandwidth: ReservationBandwidth
+ip_address: IpAddress
+reservation_internet_charge_type: ReservationInternetChargeType
+charge_type: ChargeType
+net_mode: Netmode
+allocation_time: AllocationTime
+reservation_active_time: ReservationActiveTime

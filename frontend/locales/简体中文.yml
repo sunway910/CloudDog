@@ -19,10 +19,11 @@ remember: 记住密码
 signin: 登录
 
 AlibabaCloud: 阿里云
-ECR: 弹性计算资源
+ECS: 弹性计算资源
 WAF: Web应用防火墙
 SLB: 负载均衡
 ALB: 应用型负载均衡
+EIP: 弹性公网IP
 
 AWS: 亚马逊云
 EC2: 弹性云计算
@@ -54,7 +55,7 @@ renewal_duration: 自动续费时长
 master_zone_id: 主可用区
 slave_zone_id: 备可用区
 renewal_cyc_unit: 自动续费周期
-
+name: 实例名称
 # dashboard
 id: ID
 project_region: 地域
@@ -123,3 +124,15 @@ load_balancer_name: 负载均衡实例的名称
 load_balancer_status: 实例状态
 address_ip_version: IP版本
 ipv6_address_type: 应用型负载均衡IPv6的网络地址类型
+
+# EIP
+allocation_id: 实例ID
+instance_type: 绑定的实例类型
+business_status: 业务状态
+reservation_bandwidth: 续费带宽
+ip_address: IP地址
+reservation_internet_charge_type: 续费付费类型
+charge_type: 付费模式
+net_mode: 网络类型
+allocation_time: 创建时间
+reservation_active_time: 续费生效时间

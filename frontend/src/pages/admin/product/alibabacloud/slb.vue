@@ -124,29 +124,12 @@ const background = ref(true)
 const disabled = ref(false)
 
 
-const LoadBalancerStatus = ref("" +
-    "(Inactive, 已停止)--" +
-    " (Active, 运行中)--" +
-    " (Provisioning, 创建中)--" +
-    " (Configuring, 变配中)--" +
-    " (CreateFailed, 创建失败)")
+const RenewalStatus = ref("" +
+    "(AutoRenewal, 自动续费)--" +
+    " (Normal, 非自动续费)--" +
+    " (NotRenewal, 不再续费)--")
 
-const LoadBalancerEdition = ref("" +
-    "(Basic, 基础版)" +
-    " (Standard, 标准版)" +
-    " (StandardWithWaf, WAF增强版)")
 
-const AddressAllocatedMode = ref("" +
-    "(Fixed, 固定IP模式)" +
-    " (Dynamic, 动态IP模式)")
-
-const AddressIpVersion = ref("" +
-    "(Ipv4, IPv4类型)--" +
-    " (DualStack, 双栈类型)")
-
-const AddressType = ref("" +
-    "(internet, 公网负载均衡)" +
-    " (intranet, 内网负载均衡)")
 
 
 const renderHeader = ({column}) => {
@@ -289,7 +272,7 @@ const exportXlsx = () => {
     arr.push(item.api_request_id, item.instance_id, item.request_time,
         item.product_type, item.project_name,
         item.bandwidth, item.end_time_stamp, item.end_time,
-        item.auto_release_time, item.renewal_status, item.renewal_duration,item.renewal_cyc_unit,
+        item.auto_release_time, item.renewal_status, item.renewal_duration, item.renewal_cyc_unit,
         item.create_time, item.pay_type,
         item.internet_charge_type, item.load_balancer_name, item.address, item.address_type,
         item.address_ip_version, item.region_id, item.load_balancer_status, item.load_balancer_spec,
@@ -305,16 +288,8 @@ const exportXlsx = () => {
 
 const getDescription = (label: string) => {
   switch (label) {
-    case "LoadBalancerStatus":
-      return LoadBalancerStatus.value;
-    case "LoadBalancerEdition":
-      return LoadBalancerEdition.value;
-    case "AddressAllocatedMode":
-      return AddressAllocatedMode.value;
-    case "AddressIpVersion":
-      return AddressIpVersion.value;
-    case "AddressType":
-      return AddressType.value;
+    case "RenewalStatus":
+      return RenewalStatus.value;
     default:
       return "-";
   }

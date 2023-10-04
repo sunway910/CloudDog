@@ -124,6 +124,13 @@ const items = [
             auth: 'user',
             subs: null,
           },
+          {
+            icon: 'ArrowUpBold',
+            index: '/admin/product/alibabacloud/eip',
+            title: 'EIP',
+            auth: 'user',
+            subs: null,
+          },
         ]
       },
       {

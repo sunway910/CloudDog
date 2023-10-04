@@ -71,7 +71,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" :label=t(ecs_i18n.expired_time) show-overflow-tooltip width="150px">
+          <el-table-column align="center" :label=t(base_i18n.expired_time) show-overflow-tooltip width="150px">
             <template #default="scope">
               <el-tag>
                 {{ scope.row.expired_time.toString().substring(0, 10) }}

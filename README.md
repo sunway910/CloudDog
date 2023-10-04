@@ -44,7 +44,7 @@
     5.
         - [ ] Redis 监控
     6.
-        - [ ] Elastic Network Interface 监控
+        - [ ] Elastic Internet IP 监控
     7.
         - [ ] Cloud Security Center 监控
     8.
