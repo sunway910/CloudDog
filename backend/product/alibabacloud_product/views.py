@@ -23,7 +23,7 @@ from paginator import CustomPaginator
 from product.alibabacloud_product.serializers import *
 from project.models import Project
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 
 
 def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str) -> open_api_models.Config:
@@ -44,7 +44,7 @@ def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str)
 
 
 @sync_to_async
-def get_ecr_api_response() -> None:
+def get_ecs_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     runtime = util_models.RuntimeOptions()
@@ -150,26 +150,39 @@ def get_slb_api_response() -> None:
                 describe_slb_attribute_response_json_obj = json.loads(describe_slb_attribute_response_to_str)
                 if describe_slb_attribute_response_json_obj['body']['TotalCount'] > 0:
                     slb_info = describe_slb_attribute_response_json_obj['body']['LoadBalancers']
-                    slb = AlibabacloudSLBApiResponse(api_request_id=describe_slb_attribute_response_json_obj['body']['RequestId'],
-                                                     instance_id=slb_info['InstanceId'],
-                                                     project_name=project['project_name'],
-                                                     project_id=project['id'],
-                                                     create_time=slb_info['CreateTime'],
-                                                     pay_type=slb_info['PayType'],
-                                                     internet_charge_type=slb_info['InternetChargeType'],
-                                                     load_balancer_name=slb_info['LoadBalancerName'],
-                                                     address=slb_info['Address'],
-                                                     address_type=slb_info['AddressType'],
-                                                     address_ip_version=slb_info['AddressIPVersion'],
-                                                     region_id=slb_info['RegionId'],
-                                                     load_balancer_status=slb_info['LoadBalancerStatus'],
-                                                     load_balancer_spec=slb_info['LoadBalancerSpec'],
-                                                     instance_charge_type=slb_info['InstanceChargeType'],
-                                                     master_zone_id=slb_info['MasterZoneId'],
-                                                     slave_zone_id=slb_info['SlaveZoneId'],
-                                                     )
-                    logger.info(slb.get_basic_info())
-                    slb.save()
+                    for num, slb_instance in enumerate(slb_info):
+                        describe_load_balancer_attribute_request = slb_20140515_models.DescribeLoadBalancerAttributeRequest(region_id=region, load_balancer_id=slb_instance['InstanceId'])
+                        detail_res = client.describe_load_balancer_attribute_with_options(describe_load_balancer_attribute_request, runtime)
+                        describe_slb_detail_attribute_response_to_str = UtilClient.to_jsonstring(detail_res)
+                        describe_slb_detail_attribute_response_json_obj = json.loads(describe_slb_detail_attribute_response_to_str)
+                        slb_instance_detail = describe_slb_detail_attribute_response_json_obj['body']
+                        slb = AlibabacloudSLBApiResponse(api_request_id=(describe_slb_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=slb_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         bandwidth=slb_instance_detail['Bandwidth'],
+                                                         end_time_stamp=slb_instance_detail['EndTimeStamp'],
+                                                         end_time=slb_instance_detail['EndTime'],
+                                                         auto_release_time=slb_instance_detail['AutoReleaseTime'],
+                                                         renewal_status=slb_instance_detail['RenewalStatus'],
+                                                         renewal_duration=slb_instance_detail['RenewalDuration'],
+                                                         renewal_cyc_unit=slb_instance_detail['RenewalCycUnit'],
+                                                         create_time=slb_instance['CreateTime'],
+                                                         pay_type=slb_instance['PayType'],
+                                                         internet_charge_type=slb_instance['InternetChargeType'],
+                                                         load_balancer_name=slb_instance['LoadBalancerName'],
+                                                         address=slb_instance['Address'],
+                                                         address_type=slb_instance['AddressType'],
+                                                         address_ip_version=slb_instance['AddressIPVersion'],
+                                                         region_id=slb_instance['RegionId'],
+                                                         load_balancer_status=slb_instance['LoadBalancerStatus'],
+                                                         load_balancer_spec=slb_instance['LoadBalancerSpec'],
+                                                         instance_charge_type=slb_instance['InstanceChargeType'],
+                                                         master_zone_id=slb_instance['MasterZoneId'],
+                                                         slave_zone_id=slb_instance['SlaveZoneId'],
+                                                         )
+                        logger.info(slb.get_basic_info())
+                        slb.save()
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
@@ -191,24 +204,26 @@ def get_alb_api_response() -> None:
                 describe_alb_attribute_response_json_obj = json.loads(describe_alb_attribute_response_to_str)
                 if describe_alb_attribute_response_json_obj['body']['TotalCount'] > 0:
                     alb_info = describe_alb_attribute_response_json_obj['body']['LoadBalancers']
-                    alb = AlibabacloudALBApiResponse(api_request_id=describe_alb_attribute_response_json_obj['body']['RequestId'],
-                                                     instance_id=alb_info['LoadBalancerId'],
-                                                     project_name=project['project_name'],
-                                                     project_id=project['id'],
-                                                     create_time=alb_info['CreateTime'],
-                                                     address_allocated_mode=alb_info['AddressAllocatedMode'],
-                                                     address_type=alb_info['AddressType'],
-                                                     dns_name=alb_info['DNSName'],
-                                                     pay_type=alb_info['PayType'],
-                                                     load_balancer_bussiness_status=alb_info['LoadBalancerBussinessStatus'],
-                                                     load_balancer_edition=alb_info['LoadBalancerEdition'],
-                                                     load_balancer_name=alb_info['LoadBalancerName'],
-                                                     load_balancer_status=alb_info['LoadBalancerStatus'],
-                                                     address_ip_version=alb_info['AddressIPVersion'],
-                                                     ipv6_address_type=alb_info['Ipv6AddressType'],
-                                                     )
-                    logger.info(alb.get_basic_info())
-                    alb.save()
+                    for num, alb_instance in enumerate(alb_info):
+                        alb = AlibabacloudALBApiResponse(api_request_id=(describe_alb_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=alb_instance['LoadBalancerId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         create_time=alb_instance['CreateTime'],
+                                                         address_allocated_mode=alb_instance['AddressAllocatedMode'],
+                                                         address_type=alb_instance['AddressType'],
+                                                         dns_name=alb_instance['DNSName'],
+                                                         pay_type=alb_instance['LoadBalancerBillingConfig']['PayType'],
+                                                         load_balancer_bussiness_status=alb_instance['LoadBalancerBussinessStatus'],
+                                                         load_balancer_edition=alb_instance['LoadBalancerEdition'],
+                                                         load_balancer_name=alb_instance['LoadBalancerName'],
+                                                         load_balancer_status=alb_instance['LoadBalancerStatus'],
+                                                         address_ip_version=alb_instance['AddressIpVersion'],
+                                                         )
+                        if alb.address_ip_version != 'Ipv4':
+                            alb.ipv6_address_type = alb_instance['Ipv6AddressType']
+                        logger.info(alb.get_basic_info())
+                        alb.save()
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
@@ -217,7 +232,7 @@ def get_alb_api_response() -> None:
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def init_ecr_list(request):
-    res = asyncio.run(get_ecr_api_response())
+    res = asyncio.run(get_ecs_api_response())
     return APIResponse(code=0, msg='request successfully', data=res)
 
 

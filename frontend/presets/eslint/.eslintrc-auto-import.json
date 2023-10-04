@@ -331,6 +331,9 @@
     "dashboard_i18n": true,
     "job_i18n": true,
     "job_history_i18n": true,
-    "message_i18n": true
+    "message_i18n": true,
+    "alb_i18n": true,
+    "lb_i18n": true,
+    "ecs_i18n": true
   }
 }

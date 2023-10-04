@@ -14,7 +14,7 @@ from cron.serializers import DjangoJobSerializer, DjangoJobExecutionSerializer
 from handler import APIResponse
 from paginator import CustomPaginator
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 JOB_SERIALIZER_FIELDS = ['id', 'next_run_time']
 
 scheduler = BackgroundScheduler(

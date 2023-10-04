@@ -98,8 +98,8 @@ const items = [
         subs: [
           {
             icon: 'Cpu',
-            index: '/admin/product/alibabacloud/ecr',
-            title: 'ECR',
+            index: '/admin/product/alibabacloud/ecs',
+            title: 'ECS',
             auth: 'user',
             subs: null,
           },
@@ -133,7 +133,7 @@ const items = [
         auth: 'admin',
         subs: [{
           icon: 'ArrowUpBold',
-          index: '/admin/product/product/aws',
+          index: '/admin/product/aws/ec2',
           title: 'EC2',
           auth: 'user',
           subs: null,

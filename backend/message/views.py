@@ -14,7 +14,7 @@ from message.models import Event
 from message.serializers import EventSerializer
 from paginator import CustomPaginator
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 
 
 def send_message(event_info) -> bool:
@@ -30,7 +30,7 @@ def send_message(event_info) -> bool:
              }
         )
         from_send = settings.EMAIL_HOST_USER
-        sbj = 'Sunway Service'
+        sbj = 'CloudDog Service'
         send_mail(subject=sbj, message=None, html_message=html_content, from_email=from_send, recipient_list=[settings.RECIPIENT_ADDRESS])
         return True
     except Exception as error:

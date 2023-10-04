@@ -46,7 +46,7 @@ declare module 'vue-router/auto/routes' {
     '/admin/auth/user': RouteRecordInfo<'/admin/auth/user', '/admin/auth/user', Record<never, never>, Record<never, never>>,
     '/admin/dashboard': RouteRecordInfo<'/admin/dashboard', '/admin/dashboard', Record<never, never>, Record<never, never>>,
     '/admin/product/alibabacloud/alb': RouteRecordInfo<'/admin/product/alibabacloud/alb', '/admin/product/alibabacloud/alb', Record<never, never>, Record<never, never>>,
-    '/admin/product/alibabacloud/ecr': RouteRecordInfo<'/admin/product/alibabacloud/ecr', '/admin/product/alibabacloud/ecr', Record<never, never>, Record<never, never>>,
+    '/admin/product/alibabacloud/ecs': RouteRecordInfo<'/admin/product/alibabacloud/ecs', '/admin/product/alibabacloud/ecs', Record<never, never>, Record<never, never>>,
     '/admin/product/alibabacloud/slb': RouteRecordInfo<'/admin/product/alibabacloud/slb', '/admin/product/alibabacloud/slb', Record<never, never>, Record<never, never>>,
     '/admin/product/alibabacloud/waf': RouteRecordInfo<'/admin/product/alibabacloud/waf', '/admin/product/alibabacloud/waf', Record<never, never>, Record<never, never>>,
     '/admin/product/aws/ec2': RouteRecordInfo<'/admin/product/aws/ec2', '/admin/product/aws/ec2', Record<never, never>, Record<never, never>>,

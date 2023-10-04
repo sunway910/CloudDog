@@ -11,7 +11,7 @@ from .permissions import IsAdminUserOrReadOnly
 import logging
 import time
 
-logger = logging.getLogger('cpm')
+logger = logging.getLogger('clouddog')
 
 PROJECT_SERIALIZER_FIELDS = ['id', 'cloud_platform', 'region', 'account', 'project_name', 'status', 'create_time', 'cron_toggle']
 
