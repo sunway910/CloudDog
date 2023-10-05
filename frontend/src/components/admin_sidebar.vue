@@ -125,9 +125,23 @@ const items = [
             subs: null,
           },
           {
-            icon: 'ArrowUpBold',
+            icon: 'Monitor',
             index: '/admin/product/alibabacloud/eip',
             title: 'EIP',
+            auth: 'user',
+            subs: null,
+          },
+          {
+            icon: 'Monitor',
+            index: '/admin/product/alibabacloud/ssl',
+            title: 'SSL',
+            auth: 'user',
+            subs: null,
+          },
+            {
+            icon: 'Monitor',
+            index: '/admin/product/alibabacloud/csc',
+            title: 'CSC',
             auth: 'user',
             subs: null,
           },
@@ -153,8 +167,8 @@ const items = [
         auth: 'admin',
         subs: [{
           icon: 'ArrowUpBold',
-          index: '/admin/product/gcp/vm',
-          title: 'VM',
+          index: '/admin/product/gcp/ce',
+          title: 'CE',
           auth: 'user',
           subs: null,
         },]
