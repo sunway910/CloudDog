@@ -1,6 +1,10 @@
 import asyncio
 import json
 
+from alibabacloud_sas20181203.client import Client as CscApiClient
+from alibabacloud_sas20181203 import models as sas_20181203_models
+from alibabacloud_cas20200630.client import Client as casApiClient
+from alibabacloud_cas20200630 import models as cas_20200630_models
 from alibabacloud_alb20200616 import models as alb_20200616_models
 from alibabacloud_alb20200616.client import Client as AlbApiClient
 from alibabacloud_ecs20140526 import models as ecs_20140526_models
@@ -41,7 +45,7 @@ def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str)
         access_key_id=access_key_id,
         access_key_secret=access_key_secret
     )
-    config.endpoint = endpoint  # Endpoint Ref: https://api.aliyun.com/product/Ecs
+    config.endpoint = endpoint
     return config
 
 
@@ -106,33 +110,33 @@ def get_waf_api_response() -> None:
     runtime = util_models.RuntimeOptions()
 
     for project in project_list:
-        client = WAFApiClient(set_client_config(
-            project['project_access_key'],
-            project['project_secret_key'],
-            settings.ENDPOINT['WAF_ENDPOINT']['oversea'])
-        )
-        describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
-        try:
-            # 复制代码运行请自行打印 API 的返回值
-            res = client.describe_instance_with_options(describe_instance_info_request, runtime)
-            describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
-            describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
-            waf_info = describe_waf_attribute_response_json_obj['body']
-            waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
-                                             instance_id=waf_info['InstanceId'],
-                                             project_name=project['project_name'],
-                                             project_id=project['id'],
-                                             waf_status=waf_info['Status'],
-                                             end_time=waf_info['EndTime'],
-                                             edition=waf_info['Edition'],
-                                             region=waf_info['RegionId'],
-                                             pay_type=waf_info['PayType'],
-                                             in_debt=waf_info['InDebt'],
-                                             start_time=waf_info['StartTime'], )
-            logger.info(waf.get_basic_info())
-            waf.save()
-        except Exception as error:
-            UtilClient.assert_as_string(error)
+        for endpoint in settings.ENDPOINT['WAF_ENDPOINT']:
+            client = WAFApiClient(set_client_config(
+                project['project_access_key'],
+                project['project_secret_key'],
+                settings.ENDPOINT['WAF_ENDPOINT'][endpoint])
+            )
+            describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
+            try:
+                res = client.describe_instance_with_options(describe_instance_info_request, runtime)
+                describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
+                waf_info = describe_waf_attribute_response_json_obj['body']
+                waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
+                                                 instance_id=waf_info['InstanceId'],
+                                                 project_name=project['project_name'],
+                                                 project_id=project['id'],
+                                                 waf_status=waf_info['Status'],
+                                                 end_time=waf_info['EndTime'],
+                                                 edition=waf_info['Edition'],
+                                                 region=waf_info['RegionId'],
+                                                 pay_type=waf_info['PayType'],
+                                                 in_debt=waf_info['InDebt'],
+                                                 start_time=waf_info['StartTime'], )
+                logger.info(waf.get_basic_info())
+                waf.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
 
 
 @sync_to_async
@@ -271,6 +275,97 @@ def get_eip_api_response() -> None:
                                                          )
                         logger.info(eip.get_basic_info())
                         eip.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
+@sync_to_async
+def get_ssl_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['SSL_ENDPOINT']:
+            client = casApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['SSL_ENDPOINT'][endpoint]))
+            list_client_certificate_request = cas_20200630_models.ListClientCertificateRequest()
+            try:
+                res = client.list_client_certificate_with_options(list_client_certificate_request, runtime)
+                describe_ssl_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_ssl_attribute_response_json_obj = json.loads(describe_ssl_attribute_response_to_str)
+                if describe_ssl_attribute_response_json_obj['body']['TotalCount'] > 0:
+                    ssl_info = describe_ssl_attribute_response_json_obj['body']['CertificateList']
+                    for num, ssl_instance in enumerate(ssl_info):
+                        ssl = AlibabacloudSSLApiResponse(api_request_id=(describe_ssl_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=ssl_instance['Identifier'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         subject_dn=ssl_instance['SubjectDN'],
+                                                         common_name=ssl_instance['CommonName'],
+                                                         organization_unit=ssl_instance['OrganizationUnit'],
+                                                         organization=ssl_instance['Organization'],
+                                                         status=ssl_instance['Status'],
+                                                         BeforeDate=ssl_instance['BeforeDate'],
+                                                         AfterDate=ssl_instance['AfterDate'],
+                                                         days=ssl_instance['Days'],
+                                                         )
+                        logger.info(ssl.get_basic_info())
+                        ssl.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
+@sync_to_async
+def get_csc_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['CSC_ENDPOINT']:
+            client = CscApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['CSC_ENDPOINT'][endpoint]))
+            describe_version_config_request = sas_20181203_models.DescribeVersionConfigRequest()
+            try:
+                res = client.describe_version_config_with_options(describe_version_config_request, runtime)
+                describe_csc_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_csc_attribute_response_json_obj = json.loads(describe_csc_attribute_response_to_str)
+                csc_info = describe_csc_attribute_response_json_obj['body']
+                csc = AlibabacloudSSLApiResponse(api_request_id=(describe_csc_attribute_response_json_obj['body']['RequestId']),
+                                                 instance_id=csc_info['InstanceId'],
+                                                 project_name=project['project_name'],
+                                                 project_id=project['id'],
+                                                 mv_auth_count=csc_info['MVAuthCount'],
+                                                 sas_log=csc_info['SasLog'],
+                                                 sas_screen=csc_info['SasScreen'],
+                                                 honeypot_capacity=csc_info['HoneypotCapacity'],
+                                                 mv_unused_auth_count=csc_info['MVUnusedAuthCount'],
+                                                 web_lock=csc_info['WebLock'],
+                                                 app_white_list_auth_count=csc_info['AppWhiteListAuthCount'],
+                                                 last_trail_end_time=csc_info['LastTrailEndTime'],
+                                                 version=csc_info['Version'],
+                                                 web_lock_auth_count=csc_info['WebLockAuthCount'],
+                                                 release_time=csc_info['ReleaseTime'],
+                                                 highest_version=csc_info['HighestVersion'],
+                                                 asset_level=csc_info['AssetLevel'],
+                                                 is_over_balance=csc_info['IsOverBalance'],
+                                                 sls_capacity=csc_info['SlsCapacity'],
+                                                 vm_cores=csc_info['VmCores'],
+                                                 allow_partial_buy=csc_info['AllowPartialBuy'],
+                                                 app_white_list=csc_info['AppWhiteList'],
+                                                 image_scan_capacity=csc_info['ImageScanCapacity'],
+                                                 is_trial_version=csc_info['IsTrialVersion'],
+                                                 user_defined_alarms=csc_info['UserDefinedAlarms'],
+                                                 open_time=csc_info['OpenTime'],
+                                                 is_new_container_version=csc_info['IsNewContainerVersion'],
+                                                 is_new_multi_version=csc_info['IsNewMultiVersion'],
+                                                 threat_analysis_capacity=csc_info['ThreatAnalysisCapacity'],
+                                                 cspm_capacity=csc_info['CspmCapacity'],
+                                                 vul_fix_capacity=csc_info['VulFixCapacity'],
+                                                 )
+                logger.info(csc.get_basic_info())
+                csc.save()
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
@@ -473,4 +568,71 @@ def search_eip(request):
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
     logger.info("{} call search_eip api with conditions project_name: {}".format(request.user.username, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def init_ssl_list(request):
+    res = asyncio.run(get_ssl_api_response())
+    return APIResponse(code=0, msg='request successfully', data=res)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_ssl_list(request):
+    alibabacloud_ssl_api_response = AlibabacloudSSLApiResponse.objects.all().order_by("project_id")
+    paginator = CustomPaginator(request, alibabacloud_ssl_api_response)
+    total = paginator.count
+    data = paginator.get_page()
+    serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
+    logger.info("{} call get_ssl_list api".format(request.user.username))
+    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def search_ssl(request):
+    try:
+        project_name = request.GET.get('project_name', None)
+        alibabacloud_ssl_api_response = AlibabacloudSSLApiResponse.objects.all().order_by("project_id")
+        if project_name:
+            alibabacloud_ssl_api_response = alibabacloud_ssl_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_ssl_api_response)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudSSLApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudSSLApiResponseSerializer(data, many=True)
+    logger.info("{} call search_ssl api with conditions project_name: {}".format(request.user.username, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def init_csc_list(request):
+    res = asyncio.run(get_csc_api_response())
+    return APIResponse(code=0, msg='request successfully', data=res)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_csc_list(request):
+    try:
+        project_name = request.GET.get('project_name', None)
+        alibabacloud_csc_api_response = AlibabacloudCSCApiResponse.objects.all().order_by("project_id")
+        if project_name:
+            alibabacloud_csc_api_response = alibabacloud_csc_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_csc_api_response)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudCSCApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudCSCApiResponseSerializer(data, many=True)
+    logger.info("{} call get_csc api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

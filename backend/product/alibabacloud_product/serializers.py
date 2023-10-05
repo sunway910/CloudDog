@@ -30,3 +30,15 @@ class AlibabacloudEipApiResponseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = AlibabacloudEIPApiResponse
         fields = '__all__'
+
+
+class AlibabacloudSSLApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudSSLApiResponse
+        fields = '__all__'
+
+
+class AlibabacloudCSCApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudCSCApiResponse
+        fields = '__all__'

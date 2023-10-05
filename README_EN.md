@@ -44,13 +44,13 @@ This system is used to implement Finops of the cloud platform
     5.
         - [ ] Redis monitor
     6.
-        - [ ] Elastic Internet IP monitor
+        - [x] Elastic Internet IP monitor
     7.
-        - [ ] Cloud Security Center monitor
+        - [x] Cloud Security Center monitor
     8.
         - [ ] Cloud FireWall monitor
     9.
-        - [ ] SSL Certificate monitor
+        - [x] SSL Certificate monitor
     10.
         - [ ] Billing monitor
 2.

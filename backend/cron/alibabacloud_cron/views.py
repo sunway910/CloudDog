@@ -14,6 +14,8 @@ from alibabacloud_vpc20160428 import models as vpc_20160428_models
 from alibabacloud_vpc20160428.client import Client as VpcApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
+from alibabacloud_cas20200630.client import Client as casApiClient
+from alibabacloud_cas20200630 import models as cas_20200630_models
 
 from config import settings
 from cron.base_cron.views import DjangoJobViewSet
@@ -113,43 +115,44 @@ def get_waf_api_response() -> None:
         values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
     runtime = util_models.RuntimeOptions()
     for project in project_list:
-        client = WAFApiClient(set_client_config(project['project_access_key'],
-                                                project['project_secret_key'],
-                                                settings.ENDPOINT['WAF_ENDPOINT']['oversea']))
-        describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
-        try:
-            # 复制代码运行请自行打印 API 的返回值
-            res = client.describe_instance_with_options(describe_instance_info_request, runtime)
-            describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
-            describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
-            waf_info = describe_waf_attribute_response_json_obj['body']
-            waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
-                                             instance_id=waf_info['InstanceId'],
-                                             project_name=project['project_name'],
-                                             project_id=project['id'],
-                                             waf_status=waf_info['Status'],
-                                             end_time=waf_info['EndTime'],
-                                             edition=waf_info['Edition'],
-                                             region=waf_info['RegionId'],
-                                             pay_type=waf_info['PayType'],
-                                             in_debt=waf_info['InDebt'],
-                                             start_time=waf_info['StartTime'],
-                                             )
-            logger.info(waf.get_basic_info())
-            waf.save()
-            if waf.waf_status != 1:
-                message = "project {} waf {} status is no Running".format(project['project_name'], waf_info['Status'])
-                event = Event(
-                    project_name=project['project_name'],
-                    event_type="exception",
-                    instance_id=waf_info['InstanceId'],
-                    product_type='waf',
-                    event_message=message)
-                event.save()
-                send_message(event)
-                logger.info(message)
-        except Exception as error:
-            UtilClient.assert_as_string(error)
+        for endpoint in settings.ENDPOINT['WAF_ENDPOINT']:
+            client = WAFApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['WAF_ENDPOINT'][endpoint]))
+            describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
+            try:
+                # 复制代码运行请自行打印 API 的返回值
+                res = client.describe_instance_with_options(describe_instance_info_request, runtime)
+                describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
+                waf_info = describe_waf_attribute_response_json_obj['body']
+                waf = AlibabacloudWafApiResponse(api_request_id=waf_info['RequestId'],
+                                                 instance_id=waf_info['InstanceId'],
+                                                 project_name=project['project_name'],
+                                                 project_id=project['id'],
+                                                 waf_status=waf_info['Status'],
+                                                 end_time=waf_info['EndTime'],
+                                                 edition=waf_info['Edition'],
+                                                 region=waf_info['RegionId'],
+                                                 pay_type=waf_info['PayType'],
+                                                 in_debt=waf_info['InDebt'],
+                                                 start_time=waf_info['StartTime'],
+                                                 )
+                logger.info(waf.get_basic_info())
+                waf.save()
+                if waf.waf_status != 1:
+                    message = "project {} waf {} status is no Running".format(project['project_name'], waf_info['Status'])
+                    event = Event(
+                        project_name=project['project_name'],
+                        event_type="exception",
+                        instance_id=waf_info['InstanceId'],
+                        product_type='waf',
+                        event_message=message)
+                    event.save()
+                    send_message(event)
+                    logger.info(message)
+            except Exception as error:
+                UtilClient.assert_as_string(error)
 
 
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='30', id='get_ali_slb_api_response')
@@ -266,6 +269,7 @@ def get_alb_api_response() -> None:
             except Exception as error:
                 UtilClient.assert_as_string(error)
 
+
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='50', id='get_ali_alb_api_response')
 def get_eip_api_response() -> None:
     project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
@@ -307,8 +311,68 @@ def get_eip_api_response() -> None:
                                                          )
                         logger.info(eip.get_basic_info())
                         eip.save()
+                        if eip.status != 'Associating':
+                            message = "project {} eip {} status is no Associating".format(project['project_name'], eip_instance['Status'])
+                            event = Event(
+                                project_name=project['project_name'],
+                                event_type="exception",
+                                instance_id=eip_instance['InstanceId'],
+                                product_type='eip',
+                                event_message=message)
+                            event.save()
+                            send_message(event)
+                            logger.info(message)
             except Exception as error:
                 UtilClient.assert_as_string(error)
+
+
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='55', id='get_ali_alb_api_response')
+def get_ssl_api_response() -> None:
+    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
+        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['SSL_ENDPOINT']:
+            client = casApiClient(set_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['SSL_ENDPOINT'][endpoint]))
+            list_client_certificate_request = cas_20200630_models.ListClientCertificateRequest()
+            try:
+                res = client.list_client_certificate_with_options(list_client_certificate_request, runtime)
+                describe_ssl_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_ssl_attribute_response_json_obj = json.loads(describe_ssl_attribute_response_to_str)
+                if describe_ssl_attribute_response_json_obj['body']['TotalCount'] > 0:
+                    ssl_info = describe_ssl_attribute_response_json_obj['body']['CertificateList']
+                    for num, ssl_instance in enumerate(ssl_info):
+                        ssl = AlibabacloudSSLApiResponse(api_request_id=(describe_ssl_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=ssl_instance['Identifier'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         subject_dn=ssl_instance['SubjectDN'],
+                                                         common_name=ssl_instance['CommonName'],
+                                                         organization_unit=ssl_instance['OrganizationUnit'],
+                                                         organization=ssl_instance['Organization'],
+                                                         status=ssl_instance['Status'],
+                                                         BeforeDate=ssl_instance['BeforeDate'],
+                                                         AfterDate=ssl_instance['AfterDate'],
+                                                         days=ssl_instance['Days'],
+                                                         )
+                        logger.info(ssl.get_basic_info())
+                        ssl.save()
+                        if ssl.status != 'ISSUE':
+                            message = "project {} ssl certificate {} status is REVOKE".format(project['project_name'], ssl_instance['Status'])
+                            event = Event(
+                                project_name=project['project_name'],
+                                event_type="exception",
+                                instance_id=ssl_instance['Identifier'],
+                                product_type='ssl',
+                                event_message=message)
+                            event.save()
+                            send_message(event)
+                            logger.info(message)
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
 
 class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
@@ -328,3 +392,8 @@ class AliSLBDjangoJobViewSet(DjangoJobViewSet, ABC):
 class AliALBDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_alb_api_response()
+
+
+class AliSSLDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_ssl_api_response()

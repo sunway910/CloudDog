@@ -44,13 +44,13 @@
     5.
         - [ ] Redis 监控
     6.
-        - [ ] Elastic Internet IP 监控
+        - [x] Elastic Internet IP 监控
     7.
-        - [ ] Cloud Security Center 监控
+        - [x] Cloud Security Center 监控
     8.
         - [ ] Cloud FireWall 监控
     9.
-        - [ ] SSL Certificate 监控
+        - [x] SSL Certificate 监控
     10.
         - [ ] Billing 监控
 2.
@@ -82,7 +82,7 @@
     2.
         - [x] Data Export
     3.
-        - [x] Email通知
+        - [x] Email
     4.
         - [x] Cron Job
     5.
@@ -100,17 +100,17 @@
     11.
         - [x] Toast
     12.
-        - [x] vite 3
-    13.
         - [x] axios
-    14.
+    13.
         - [x] i18n
-    15.
+    14.
         - [x] Localstorage脱敏
-    16.
+    15.
         - [ ] postgres加密
-    17.
+    16.
         - [ ] Echarts
+    17.
+        - [ ] 
 
 ## 安装步骤 How To Start
 

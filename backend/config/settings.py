@@ -297,8 +297,8 @@ ENDPOINT = {
         "oversea": 'ecs.cn-hongkong.aliyuncs.com'
     },
     "WAF_ENDPOINT": {
-        "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',  # https://api.aliyun.com/product/waf-openapi
-        "oversea": 'wafopenapi.ap-southeast-1.aliyuncs.com'
+        "oversea": 'wafopenapi.ap-southeast-1.aliyuncs.com',  # https://api.aliyun.com/product/waf-openapi
+        "mainland": 'wafopenapi.cn-hangzhou.aliyuncs.com',
     },
     "SLB_ENDPOINT": {
         "general": 'slb.aliyuncs.com'  # https://api.aliyun.com/product/Slb
@@ -310,6 +310,14 @@ ENDPOINT = {
     "VPC_ENDPOINT": {
         "cn-hongkong": 'vpc.cn-hongkong.aliyuncs.com',  # https://api.aliyun.com/product/Vpc
         "cn-hangzhou": 'vpc.aliyuncs.com'
+    },
+    "SSL_ENDPOINT": {
+        "mainland": 'cas.aliyuncs.com',  # https://api.aliyun.com/product/cas
+        "oversea": 'cas.ap-southeast-1.aliyuncs.com',
+    },
+    "CSC_ENDPOINT": {
+        "china": 'tds.aliyuncs.com',  # https://api.aliyun.com/product/Sas
+        "asia_pacific": 'tds.ap-southeast-1.aliyuncs.com',
     },
 }
 

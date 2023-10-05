@@ -23,4 +23,11 @@ urlpatterns = [
     path('api/eip/init', views.init_eip_list),
     path('api/eip/list', views.get_eip_list),
     path('api/eip/search', views.search_eip),
+
+    path('api/ssl/init', views.init_ssl_list),
+    path('api/ssl/list', views.get_ssl_list),
+    path('api/ssl/search', views.search_ssl),
+
+    path('api/csc/init', views.init_csc_list),
+    path('api/csc/list', views.get_csc_list),
 ]

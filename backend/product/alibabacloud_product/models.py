@@ -13,6 +13,8 @@ class ProductType(models.TextChoices):
     SLB = ('slb', '负载均衡')
     ALB = ('alb', '应用型负载均衡')
     EIP = ('eip', '弹性公网IP')
+    SSL = ('ssl', 'SSL证书')
+    CSC = ('csc', '云安全中心')
 
     class Meta:
         app_label = 'ProductType'
@@ -366,3 +368,104 @@ class AlibabacloudEIPApiResponse(ProductBaseModel):
 
     class Meta:
         db_table = 'alibabacloud_eip_api_response'
+
+
+class AlibabacloudSSLApiResponse(ProductBaseModel):
+    Status = (
+        ('ISSUE', '表示正常签发'),
+        ('REVOKE', '表示已被吊销'),
+    )
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='SSLInProject'
+    )
+
+    """ SSL Instance Property """
+    product_type = models.CharField(default=ProductType.SSL.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    subject_dn = models.CharField(default='', max_length=50, verbose_name='SubjectDN', db_comment='证书的Distinguished_Name属性')
+    common_name = models.CharField(default='', max_length=50, verbose_name='CommonName', db_comment='证书的公用名')
+    organization_unit = models.CharField(default='', max_length=50, verbose_name='OrganizationUnit', db_comment='签发该证书的子CA证书关联的组织机构下部门的名称')
+    organization = models.CharField(default='', max_length=50, verbose_name='Organization', db_comment='签发该证书的子CA证书关联的组织机构的名称')
+    status = models.CharField(default='ISSUE', max_length=50, verbose_name='Status', db_comment='证书的状态', choices=Status)
+    before_date = models.BigIntegerField(default=0, verbose_name='BeforeDate', db_comment='证书的签发日期')
+    after_date = models.BigIntegerField(default=0, verbose_name='AfterDate', db_comment='证书的到期日期')
+    days = models.IntegerField(default=0, verbose_name='Days', db_comment='证书的有效期')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'SSL LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_ssl_api_response'
+
+
+class AlibabacloudCSCApiResponse(ProductBaseModel):
+    Status = (
+        (0, '未购买'),
+        (1, '已购买'),
+    )
+    IsEnabled = (
+        (0, '未开启'),
+        (1, '已开启'),
+    )
+    Version = (
+        (1, '免费版'),
+        (3, '企业版'),
+        (5, '高级版'),
+        (6, '防病毒版'),
+        (7, '旗舰版'),
+        (8, '多版本'),
+        (10, '仅采购增值服务'),
+    )
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='CSCInProject'
+    )
+
+    """ CSC Instance Property """
+    product_type = models.CharField(default=ProductType.CSC.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    mv_auth_count = models.IntegerField(default=0, verbose_name='MVAuthCount', db_comment='购买多版本时的总授权数')
+    sas_log = models.IntegerField(default=0, verbose_name='SasLog', db_comment='是否已购买日志分析', choices=Status)
+    sas_screen = models.IntegerField(default=0, verbose_name='SasScreen', db_comment='是否已购买安全大屏', choices=Status)
+    honeypot_capacity = models.IntegerField(default=0, verbose_name='HoneypotCapacity', db_comment='蜜罐的台数')
+    mv_unused_auth_count = models.IntegerField(default=0, verbose_name='MVUnusedAuthCount', db_comment='购买多版本时总剩余授权数')
+    web_lock = models.IntegerField(default=0, verbose_name='WebLock', db_comment='是否开启了网页防篡改服务', choices=IsEnabled)
+    app_white_list_auth_count = models.IntegerField(default=0, verbose_name='AppWhiteListAuthCount', db_comment='应用白名单授权数')
+    last_trail_end_time = models.BigIntegerField(default=0, verbose_name='LastTrailEndTime', db_comment='上一次试用的截止时间戳')
+    version = models.IntegerField(default=0, verbose_name='Version', db_comment='云安全中心版本', choices=Version)
+    web_lock_auth_count = models.IntegerField(default=0, verbose_name='WebLockAuthCount', db_comment='已购买的网页防篡改的授权数')
+    release_time = models.BigIntegerField(default=0, verbose_name='ReleaseTime', db_comment='云安全中心实例释放时间戳')
+    highest_version = models.IntegerField(default=0, verbose_name='HighestVersion', db_comment='购买安全中心最高版本', choices=Version)
+    asset_level = models.IntegerField(default=0, verbose_name='AssetLevel', db_comment='已购买的服务器授权数')
+    is_over_balance = models.BooleanField(default=False, verbose_name='IsOverBalance', db_comment='现有服务器台数是否超过购买的最大授权数')
+    sls_capacity = models.IntegerField(default=0, verbose_name='SlsCapacity', db_comment='已购买的日志存储容量GB')
+    vm_cores = models.IntegerField(default=0, verbose_name='VmCores', db_comment='已购买的授权核数')
+    allow_partial_buy = models.IntegerField(default=1, verbose_name='AllowPartialBuy', db_comment='是否允许按量购买')
+    app_white_list = models.IntegerField(default=0, verbose_name='AppWhiteList', db_comment='是否开启应用白名单')  # 0：未开启 2：已开启
+    image_scan_capacity = models.IntegerField(default=0, verbose_name='ImageScanCapacity', db_comment='镜像扫描授权数')
+    is_trial_version = models.IntegerField(default=0, verbose_name='IsTrialVersion', db_comment='是否是试用版本')  # 0：非试用版本 1：试用版本
+    user_defined_alarms = models.IntegerField(default=0, verbose_name='UserDefinedAlarms', db_comment='是否开启自定义告警功能')  # 0：未开启 2：已开启
+    open_time = models.BigIntegerField(default=0, verbose_name='OpenTime', db_comment='开通服务时间戳')  # 0：未开启 2：已开启
+    is_new_container_version = models.BooleanField(default=False, verbose_name='IsNewContainerVersion', db_comment='是否是新旗舰版')
+    is_new_multi_version = models.BooleanField(default=False, verbose_name='IsNewMultiVersion', db_comment='是否是新多版本')
+    threat_analysis_capacity = models.IntegerField(default=0, verbose_name='ThreatAnalysisCapacity', db_comment='威胁分析容量GB')
+    cspm_capacity = models.IntegerField(default=0, verbose_name='CspmCapacity', db_comment='云平台配置检查扫描数')
+    vul_fix_capacity = models.IntegerField(default=0, verbose_name='VulFixCapacity', db_comment='漏洞修复数n次/月')
+    rasp_capacity = models.IntegerField(default=0, verbose_name='RaspCapacity', db_comment='应用防护数n个/月')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'CSC LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_csc_api_response'

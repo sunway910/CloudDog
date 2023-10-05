@@ -166,3 +166,6 @@ def get_ecr_api_response() -> None:
 # get_ecr_api_response()
 # test_endpoint()
 # test_json_exist()
+
+for endpoint in settings.ENDPOINT['SSL_ENDPOINT']:
+    print(settings.ENDPOINT['SSL_ENDPOINT'][endpoint])
