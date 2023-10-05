@@ -72,7 +72,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="region_id" :label=t(lb_i18n.region_id) align="center" width="100px" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="region_id" :label=t(base_i18n.region_id) align="center" width="100px" show-overflow-tooltip></el-table-column>
           <el-table-column :render-header="renderHeader" prop="load_balancer_spec" align="center" :label=t(lb_i18n.load_balancer_spec) show-overflow-tooltip width="160px"></el-table-column>
           <el-table-column prop="instance_charge_type" align="center" :label=t(base_i18n.instance_charge_type) show-overflow-tooltip width="180px"></el-table-column>
           <el-table-column prop="master_zone_id" align="center" :label=t(base_i18n.master_zone_id) show-overflow-tooltip width="180px"></el-table-column>

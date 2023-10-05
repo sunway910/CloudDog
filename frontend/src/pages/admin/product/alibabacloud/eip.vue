@@ -115,7 +115,7 @@ import {h, reactive, ref} from 'vue';
 import {Refresh, Search} from '@element-plus/icons-vue';
 import {ElTooltip, ElMessage} from 'element-plus';
 import * as XLSX from 'xlsx';
-import {changeTimePattern, eip_i18n, base_i18n, ecs_i18n} from "@/stores/utils";
+import {changeTimePattern, eip_i18n, base_i18n} from "@/stores/utils";
 
 const {t} = useI18n()
 const parentBorder = ref(true)
@@ -123,7 +123,6 @@ const auth = ['admin', 'user']
 const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
-
 
 
 const EIPStatus = ref("" +
