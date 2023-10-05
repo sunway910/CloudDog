@@ -117,3 +117,45 @@ export const eip_i18n = {
     status: "status",
     reservation_active_time: "reservation_active_time",
 }
+
+export const ssl_i18n = {
+    subject_dn: "subject_dn",
+    common_name: "common_name",
+    organization_unit: "organization_unit",
+    organization: "organization",
+    before_date: "before_date",
+    after_date: "after_date",
+    days: "days",
+}
+
+
+export const csc_i18n = {
+    mv_auth_count: "mv_auth_count",
+    sas_log: "sas_log",
+    sas_screen: "sas_screen",
+    honeypot_capacity: "honeypot_capacity",
+    mv_unused_auth_count: "mv_unused_auth_count",
+    web_lock: "web_lock",
+    app_white_list_auth_count: "app_white_list_auth_count",
+    last_trail_end_time: "last_trail_end_time",
+    version: "version",
+    web_lock_auth_count: "web_lock_auth_count",
+    release_time: "release_time",
+    highest_version: "highest_version",
+    asset_level: "asset_level",
+    is_over_balance: "is_over_balance",
+    sls_capacity: "sls_capacity",
+    vm_cores: "vm_cores",
+    allow_partial_buy: "allow_partial_buy",
+    app_white_list: "app_white_list",
+    image_scan_capacity: "image_scan_capacity",
+    is_trial_version: "is_trial_version",
+    user_defined_alarms: "user_defined_alarms",
+    open_time: "open_time",
+    is_new_container_version: "is_new_container_version",
+    is_new_multi_version: "is_new_multi_version",
+    threat_analysis_capacity: "threat_analysis_capacity",
+    cspm_capacity: "cspm_capacity",
+    vul_fix_capacity: "vul_fix_capacity",
+    rasp_capacity: "rasp_capacity",
+}

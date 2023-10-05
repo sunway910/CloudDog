@@ -24,13 +24,16 @@ WAF: Web应用防火墙
 SLB: 负载均衡
 ALB: 应用型负载均衡
 EIP: 弹性公网IP
+SSL: SSL证书
+CSC: 云安全中心
+
 
 AWS: 亚马逊云
 EC2: 弹性云计算
 
 GCP: 谷歌云
 VM: 虚拟机
-
+CE: 计算引擎
 Azure: 微软云
 
 # base
@@ -136,3 +139,42 @@ charge_type: 付费模式
 net_mode: 网络类型
 allocation_time: 创建时间
 reservation_active_time: 续费生效时间
+
+# SSL
+subject_dn: 证书的Distinguished_Name属性
+common_name: 证书的公用名
+organization_unit: 签发该证书的子CA证书关联的组织机构下部门的名称
+organization: 签发该证书的子CA证书关联的组织机构的名称
+before_date: 证书的签发日期
+after_date: 证书的到期日期
+days: 证书的有效期
+
+# CSC
+mv_auth_count: 购买多版本时的总授权数
+sas_log: 是否已购买日志分析
+sas_screen: 是否已购买安全大屏
+honeypot_capacity: 蜜罐的台数
+mv_unused_auth_count: 购买多版本时总剩余授权数
+web_lock: 是否开启了网页防篡改服务
+app_white_list_auth_count: 应用白名单授权数
+last_trail_end_time: 上一次试用的截止时间戳
+version: 云安全中心版本
+web_lock_auth_count: 已购买的网页防篡改的授权数
+release_time: 云安全中心实例释放时间戳
+highest_version: 购买安全中心最高版本
+asset_level: 已购买的服务器授权数
+is_over_balance: 现有服务器台数是否超过购买的最大授权数
+sls_capacity: 已购买的日志存储容量GB
+vm_cores: 已购买的授权核数
+allow_partial_buy: 是否允许按量购买
+app_white_list: 是否开启应用白名单
+image_scan_capacity: 镜像扫描授权数
+is_trial_version: 是否是试用版本
+user_defined_alarms: 是否开启自定义告警功能
+open_time: 开通服务时间戳
+is_new_container_version: 是否是新旗舰版
+is_new_multi_version: 是否是新多版本
+threat_analysis_capacity: 威胁分析容量GB
+cspm_capacity: 云平台配置检查扫描数
+vul_fix_capacity: 漏洞修复数n次/月
+rasp_capacity: 应用防护数n个/月

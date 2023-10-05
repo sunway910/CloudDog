@@ -23,13 +23,15 @@ WAF: WAF
 SLB: SLB
 ALB: ALB
 EIP: EIP
+SSL: SSL
+CSC: CSC
 
 AWS: AWS
 EC2: EC2
 
 GCP: GCP
 VM: VM
-
+CE: CE
 Azure: Azure
 
 
@@ -139,3 +141,42 @@ charge_type: ChargeType
 net_mode: Netmode
 allocation_time: AllocationTime
 reservation_active_time: ReservationActiveTime
+
+# SSL
+subject_dn: SubjectDN
+common_name: CommonName
+organization_unit: OrganizationUnit
+organization: Organization
+before_date: BeforeDate
+after_date: AfterDate
+days: Days
+
+# CSC
+mv_auth_count: MVAuthCount
+sas_log: SasLog
+sas_screen: SasScreen
+honeypot_capacity: HoneypotCapacity
+mv_unused_auth_count: MVUnusedAuthCount
+web_lock: WebLock
+app_white_list_auth_count: AppWhiteListAuthCount
+last_trail_end_time: LastTrailEndTime
+version: Version
+web_lock_auth_count: WebLockAuthCount
+release_time: ReleaseTime
+highest_version: HighestVersion
+asset_level: AssetLevel
+is_over_balance: IsOverBalance
+sls_capacity: SlsCapacity
+vm_cores: VmCores
+allow_partial_buy: AllowPartialBuy
+app_white_list: AppWhiteList
+image_scan_capacity: ImageScanCapacity
+is_trial_version: IsTrialVersion
+user_defined_alarms: UserDefinedAlarms
+open_time: OpenTime
+is_new_container_version: IsNewContainerVersion
+is_new_multi_version: IsNewMultiVersion
+threat_analysis_capacity: ThreatAnalysisCapacity
+cspm_capacity: CspmCapacity
+vul_fix_capacity: VulFixCapacity
+rasp_capacity: RaspCapacity
