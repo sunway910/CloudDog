@@ -335,6 +335,8 @@
     "alb_i18n": true,
     "lb_i18n": true,
     "ecs_i18n": true,
-    "eip_i18n": true
+    "eip_i18n": true,
+    "ssl_i18n": true,
+    "csc_i18n": true
   }
 }
