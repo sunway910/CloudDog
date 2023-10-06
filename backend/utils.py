@@ -6,13 +6,26 @@ from hashlib import sha256
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.cache import cache
+from alibabacloud_tea_openapi import models as open_api_models
 
 logger = logging.getLogger('clouddog')
 
 
-def get_max_instance_id():
-    from models import ProductBaseModel
-    return ProductBaseModel.objects.latest().pk
+def set_api_client_config(access_key_id: str, access_key_secret: str, endpoint: str) -> open_api_models.Config:
+    """
+    use AK&SK to init Client
+    @param access_key_id: LTAI5sQAwvrwHZQx7PuG2ur4
+    @param access_key_secret: ijWtg8hCaptL3U73U7PsFqNCLQwEG2
+    @param endpoint: ecs-cn-hangzhou.aliyuncs.com
+    @return: open_api_models.Config
+    @throws Exception
+    """
+    config = open_api_models.Config(
+        access_key_id=access_key_id,
+        access_key_secret=access_key_secret
+    )
+    config.endpoint = endpoint
+    return config
 
 
 def get_sha256(input_string):

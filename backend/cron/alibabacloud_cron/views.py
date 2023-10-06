@@ -3,19 +3,20 @@ from abc import ABC
 
 from alibabacloud_alb20200616 import models as alb_20200616_models
 from alibabacloud_alb20200616.client import Client as AlbApiClient
+from alibabacloud_cas20200630 import models as cas_20200630_models
+from alibabacloud_cas20200630.client import Client as casApiClient
 from alibabacloud_ecs20140526 import models as ecs_20140526_models
 from alibabacloud_ecs20140526.client import Client as EcsApiClient
+from alibabacloud_sas20181203 import models as sas_20181203_models
+from alibabacloud_sas20181203.client import Client as CscApiClient
 from alibabacloud_slb20140515 import models as slb_20140515_models
 from alibabacloud_slb20140515.client import Client as SlbApiClient
-from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 from alibabacloud_vpc20160428 import models as vpc_20160428_models
 from alibabacloud_vpc20160428.client import Client as VpcApiClient
 from alibabacloud_waf_openapi20211001 import models as waf_openapi_20211001_models
 from alibabacloud_waf_openapi20211001.client import Client as WAFApiClient
-from alibabacloud_cas20200630.client import Client as casApiClient
-from alibabacloud_cas20200630 import models as cas_20200630_models
 
 from config import settings
 from cron.base_cron.views import DjangoJobViewSet
@@ -23,38 +24,24 @@ from message.models import Event
 from message.views import send_message
 from product.alibabacloud_product.models import *
 from project.models import Project
+from utils import set_api_client_config
 
 logger = logging.getLogger('clouddog')
-
-
-def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str) -> open_api_models.Config:
-    """
-    use AK&SK to init Client
-    @param access_key_id: AK
-    @param access_key_secret: SK
-    @param endpoint: xxx-cn-region.aliyuncs.com
-    @return: open_api_models.Config
-    @throws Exception
-    """
-    config = open_api_models.Config(
-        access_key_id=access_key_id,
-        access_key_secret=access_key_secret
-    )
-    # Endpoint Ref: https://api.aliyun.com/product/Ecs
-    config.endpoint = endpoint
-    return config
 
 
 # cron: sunday 01:10AM exec the job
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ali_ecr_api_response')
 def get_ecs_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
-        client = EcsApiClient(set_client_config(project['project_access_key'],
-                                                project['project_secret_key'],
-                                                settings.ENDPOINT['ECS_ENDPOINT']['mainland']))
+        client = EcsApiClient(set_api_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['ECS_ENDPOINT']['mainland']))
         for region in project['region']:
             describe_instances_request = ecs_20140526_models.DescribeInstancesRequest(region_id=region)
             try:
@@ -111,14 +98,17 @@ def get_ecs_api_response() -> None:
 # cron: sunday 01:20AM exec the job
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='20', id='get_ali_waf_api_response')
 def get_waf_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         for endpoint in settings.ENDPOINT['WAF_ENDPOINT']:
-            client = WAFApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['WAF_ENDPOINT'][endpoint]))
+            client = WAFApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['WAF_ENDPOINT'][endpoint]))
             describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
             try:
                 # 复制代码运行请自行打印 API 的返回值
@@ -157,13 +147,16 @@ def get_waf_api_response() -> None:
 
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='30', id='get_ali_slb_api_response')
 def get_slb_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
-        client = SlbApiClient(set_client_config(project['project_access_key'],
-                                                project['project_secret_key'],
-                                                settings.ENDPOINT['SLB_ENDPOINT']['general']))
+        client = SlbApiClient(set_api_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['SLB_ENDPOINT']['general']))
         for region in project['region']:
             describe_load_balancers_request = slb_20140515_models.DescribeLoadBalancersRequest(region_id=region)
             try:
@@ -222,14 +215,17 @@ def get_slb_api_response() -> None:
 
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='40', id='get_ali_alb_api_response')
 def get_alb_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         for region in project['region']:
-            client = AlbApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['ALB_ENDPOINT'][region]))
+            client = AlbApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['ALB_ENDPOINT'][region]))
             list_load_balancers_request = alb_20200616_models.ListLoadBalancersRequest()
             try:
                 res = client.list_load_balancers_with_options(list_load_balancers_request, runtime)
@@ -272,14 +268,17 @@ def get_alb_api_response() -> None:
 
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='50', id='get_ali_alb_api_response')
 def get_eip_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         for region in project['region']:
-            client = VpcApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['VPC_ENDPOINT'][region]))
+            client = VpcApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['VPC_ENDPOINT'][region]))
             describe_eip_addresses_request = vpc_20160428_models.DescribeEipAddressesRequest(region_id=region)
             try:
                 res = client.describe_eip_addresses_with_options(describe_eip_addresses_request, runtime)
@@ -328,14 +327,17 @@ def get_eip_api_response() -> None:
 
 # @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='55', id='get_ali_alb_api_response')
 def get_ssl_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         for endpoint in settings.ENDPOINT['SSL_ENDPOINT']:
-            client = casApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['SSL_ENDPOINT'][endpoint]))
+            client = casApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['SSL_ENDPOINT'][endpoint]))
             list_client_certificate_request = cas_20200630_models.ListClientCertificateRequest()
             try:
                 res = client.list_client_certificate_with_options(list_client_certificate_request, runtime)
@@ -374,6 +376,64 @@ def get_ssl_api_response() -> None:
                 UtilClient.assert_as_string(error)
 
 
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='2', minute='00', id='get_ali_alb_api_response')
+def get_csc_api_response() -> None:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False,
+                                           cron_toggle=True).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['CSC_ENDPOINT']:
+            client = CscApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['CSC_ENDPOINT'][endpoint]))
+            describe_version_config_request = sas_20181203_models.DescribeVersionConfigRequest()
+            try:
+                # https://next.api.aliyun.com/api/Sas/2018-12-03/DescribeVersionConfig
+                res = client.describe_version_config_with_options(describe_version_config_request, runtime)
+                describe_csc_attribute_response_to_str = UtilClient.to_jsonstring(res)
+                describe_csc_attribute_response_json_obj = json.loads(describe_csc_attribute_response_to_str)
+                csc_info = describe_csc_attribute_response_json_obj['body']
+                csc = AlibabacloudSSLApiResponse(api_request_id=(describe_csc_attribute_response_json_obj['body']['RequestId']),
+                                                 instance_id=csc_info['InstanceId'],
+                                                 project_name=project['project_name'],
+                                                 project_id=project['id'],
+                                                 mv_auth_count=csc_info['MVAuthCount'],
+                                                 sas_log=csc_info['SasLog'],
+                                                 sas_screen=csc_info['SasScreen'],
+                                                 honeypot_capacity=csc_info['HoneypotCapacity'],
+                                                 mv_unused_auth_count=csc_info['MVUnusedAuthCount'],
+                                                 web_lock=csc_info['WebLock'],
+                                                 app_white_list_auth_count=csc_info['AppWhiteListAuthCount'],
+                                                 last_trail_end_time=csc_info['LastTrailEndTime'],
+                                                 version=csc_info['Version'],
+                                                 web_lock_auth_count=csc_info['WebLockAuthCount'],
+                                                 release_time=csc_info['ReleaseTime'],
+                                                 highest_version=csc_info['HighestVersion'],
+                                                 asset_level=csc_info['AssetLevel'],
+                                                 is_over_balance=csc_info['IsOverBalance'],
+                                                 sls_capacity=csc_info['SlsCapacity'],
+                                                 vm_cores=csc_info['VmCores'],
+                                                 allow_partial_buy=csc_info['AllowPartialBuy'],
+                                                 app_white_list=csc_info['AppWhiteList'],
+                                                 image_scan_capacity=csc_info['ImageScanCapacity'],
+                                                 is_trial_version=csc_info['IsTrialVersion'],
+                                                 user_defined_alarms=csc_info['UserDefinedAlarms'],
+                                                 open_time=csc_info['OpenTime'],
+                                                 is_new_container_version=csc_info['IsNewContainerVersion'],
+                                                 is_new_multi_version=csc_info['IsNewMultiVersion'],
+                                                 threat_analysis_capacity=csc_info['ThreatAnalysisCapacity'],
+                                                 cspm_capacity=csc_info['CspmCapacity'],
+                                                 vul_fix_capacity=csc_info['VulFixCapacity'],
+                                                 )
+                logger.info(csc.get_basic_info())
+                csc.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
 class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_ecs_api_response()
@@ -397,3 +457,8 @@ class AliALBDjangoJobViewSet(DjangoJobViewSet, ABC):
 class AliSSLDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_ssl_api_response()
+
+
+class AliCSCDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_csc_api_response()

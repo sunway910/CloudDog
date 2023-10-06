@@ -1,17 +1,16 @@
 import asyncio
 import json
 
-from alibabacloud_sas20181203.client import Client as CscApiClient
-from alibabacloud_sas20181203 import models as sas_20181203_models
-from alibabacloud_cas20200630.client import Client as casApiClient
-from alibabacloud_cas20200630 import models as cas_20200630_models
 from alibabacloud_alb20200616 import models as alb_20200616_models
 from alibabacloud_alb20200616.client import Client as AlbApiClient
+from alibabacloud_cas20200630 import models as cas_20200630_models
+from alibabacloud_cas20200630.client import Client as casApiClient
 from alibabacloud_ecs20140526 import models as ecs_20140526_models
 from alibabacloud_ecs20140526.client import Client as EcsApiClient
+from alibabacloud_sas20181203 import models as sas_20181203_models
+from alibabacloud_sas20181203.client import Client as CscApiClient
 from alibabacloud_slb20140515 import models as slb_20140515_models
 from alibabacloud_slb20140515.client import Client as SlbApiClient
-from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 from alibabacloud_vpc20160428 import models as vpc_20160428_models
@@ -28,34 +27,21 @@ from handler import APIResponse
 from paginator import CustomPaginator
 from product.alibabacloud_product.serializers import *
 from project.models import Project
+from utils import set_api_client_config
 
 logger = logging.getLogger('clouddog')
 
 
-def set_client_config(access_key_id: str, access_key_secret: str, endpoint: str) -> open_api_models.Config:
-    """
-    use AK&SK to init Client
-    @param access_key_id: LTAI5sQAwvrwHZQx7PuG2ur4
-    @param access_key_secret: ijWtg8hCaptL3U73U7PsFqNCLQwEG2
-    @param endpoint: ecs-cn-hangzhou.aliyuncs.com
-    @return: OpenApiClient
-    @throws Exception
-    """
-    config = open_api_models.Config(
-        access_key_id=access_key_id,
-        access_key_secret=access_key_secret
-    )
-    config.endpoint = endpoint
-    return config
-
-
 @sync_to_async
-def get_ecs_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_ecs_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
+    ecs_total_count = 0
     for project in project_list:
-        client = EcsApiClient(set_client_config(
+        client = EcsApiClient(set_api_client_config(
             project['project_access_key'],
             project['project_secret_key'],
             settings.ENDPOINT['WAF_ENDPOINT']['oversea'])
@@ -68,56 +54,60 @@ def get_ecs_api_response() -> None:
                 describe_instance_response_to_str = UtilClient.to_jsonstring(describe_instance_response)
                 describe_instance_response_json_obj = json.loads(describe_instance_response_to_str)
                 instance_list = describe_instance_response_json_obj['body']['Instances']['Instance']
+                ecs_total_count += describe_instance_response_json_obj['body']['TotalCount']
                 for instance in instance_list:
                     describe_instance_auto_renew_attribute_request = ecs_20140526_models.DescribeInstanceAutoRenewAttributeRequest(region_id=region, instance_id=instance['InstanceId'])
                     # API Ref: https://next.api.aliyun.com/document/Ecs/2014-05-26/DescribeInstanceAutoRenewAttribute
                     describe_instance_auto_renew_attribute_response = client.describe_instance_auto_renew_attribute_with_options(describe_instance_auto_renew_attribute_request, runtime)
                     describe_instance_auto_renew_attribute_response_to_str = UtilClient.to_jsonstring(describe_instance_auto_renew_attribute_response)
                     describe_instance_auto_renew_attribute_response_json_obj = json.loads(describe_instance_auto_renew_attribute_response_to_str)
-                    if describe_instance_auto_renew_attribute_response_json_obj['body']['TotalCount'] > 0:
-                        instance_auto_renew_info = describe_instance_auto_renew_attribute_response_json_obj['body']['InstanceRenewAttributes']['InstanceRenewAttribute'][0]
-                        # request 2 API and get two request id, so the new request id is formed by combining two request id
-                        request_id = describe_instance_response_json_obj['body']['RequestId'] + " " + describe_instance_auto_renew_attribute_response_json_obj['body']['RequestId']
-                        ecs = AlibabacloudEcsApiResponse(api_request_id=request_id,
-                                                         instance_id=instance['InstanceId'],
-                                                         project_name=project['project_name'],
-                                                         instance_name=instance['InstanceName'],
-                                                         project_id=project['id'],
-                                                         region_id=instance['RegionId'],
-                                                         ecs_status=instance['Status'],
-                                                         instance_charge_type=instance['InstanceChargeType'],
-                                                         internet_charge_type=instance['InternetChargeType'],
-                                                         expired_time=instance['ExpiredTime'],
-                                                         stopped_mode=instance['StoppedMode'],
-                                                         start_time=instance['StartTime'],
-                                                         auto_release_time=instance['AutoReleaseTime'],
-                                                         lock_reason=instance['OperationLocks']['LockReason'],
-                                                         auto_renew_enabled=instance_auto_renew_info['AutoRenewEnabled'],
-                                                         renewal_status=instance_auto_renew_info['RenewalStatus'],
-                                                         period_init=instance_auto_renew_info['PeriodUnit'],
-                                                         duration=instance_auto_renew_info['Duration'],
-                                                         )
-                        logger.info(ecs.get_basic_info())
-                        ecs.save()
+                    instance_auto_renew_info = describe_instance_auto_renew_attribute_response_json_obj['body']['InstanceRenewAttributes']['InstanceRenewAttribute'][0]
+                    # request 2 API and get two request id, so the new request id is formed by combining two request id
+                    request_id = describe_instance_response_json_obj['body']['RequestId'] + " " + describe_instance_auto_renew_attribute_response_json_obj['body']['RequestId']
+                    ecs = AlibabacloudEcsApiResponse(api_request_id=request_id,
+                                                     instance_id=instance['InstanceId'],
+                                                     project_name=project['project_name'],
+                                                     instance_name=instance['InstanceName'],
+                                                     project_id=project['id'],
+                                                     region_id=instance['RegionId'],
+                                                     ecs_status=instance['Status'],
+                                                     instance_charge_type=instance['InstanceChargeType'],
+                                                     internet_charge_type=instance['InternetChargeType'],
+                                                     expired_time=instance['ExpiredTime'],
+                                                     stopped_mode=instance['StoppedMode'],
+                                                     start_time=instance['StartTime'],
+                                                     auto_release_time=instance['AutoReleaseTime'],
+                                                     lock_reason=instance['OperationLocks']['LockReason'],
+                                                     auto_renew_enabled=instance_auto_renew_info['AutoRenewEnabled'],
+                                                     renewal_status=instance_auto_renew_info['RenewalStatus'],
+                                                     period_init=instance_auto_renew_info['PeriodUnit'],
+                                                     duration=instance_auto_renew_info['Duration'],
+                                                     )
+                    logger.info(ecs.get_basic_info())
+                    ecs.save()
+                return APIResponse(code=0, msg='request successfully', total=ecs_total_count)
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @sync_to_async
-def get_waf_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_waf_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
-
     for project in project_list:
         for endpoint in settings.ENDPOINT['WAF_ENDPOINT']:
-            client = WAFApiClient(set_client_config(
+            client = WAFApiClient(set_api_client_config(
                 project['project_access_key'],
                 project['project_secret_key'],
                 settings.ENDPOINT['WAF_ENDPOINT'][endpoint])
             )
             describe_instance_info_request = waf_openapi_20211001_models.DescribeInstanceRequest()
             try:
+                # https://next.api.aliyun.com/api/waf-openapi/2019-09-10/DescribeInstanceInfo
                 res = client.describe_instance_with_options(describe_instance_info_request, runtime)
                 describe_waf_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_waf_attribute_response_json_obj = json.loads(describe_waf_attribute_response_to_str)
@@ -132,32 +122,42 @@ def get_waf_api_response() -> None:
                                                  region=waf_info['RegionId'],
                                                  pay_type=waf_info['PayType'],
                                                  in_debt=waf_info['InDebt'],
-                                                 start_time=waf_info['StartTime'], )
+                                                 start_time=waf_info['StartTime'],
+                                                 )
                 logger.info(waf.get_basic_info())
                 waf.save()
+                return APIResponse(code=0, msg='request successfully')
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @sync_to_async
-def get_slb_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_slb_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
+    slb_total_count = 0
     for project in project_list:
-        client = SlbApiClient(set_client_config(project['project_access_key'],
-                                                project['project_secret_key'],
-                                                settings.ENDPOINT['SLB_ENDPOINT']['general']))
+        client = SlbApiClient(set_api_client_config(project['project_access_key'],
+                                                    project['project_secret_key'],
+                                                    settings.ENDPOINT['SLB_ENDPOINT']['general']))
         for region in project['region']:
             describe_load_balancers_request = slb_20140515_models.DescribeLoadBalancersRequest(region_id=region)
             try:
+                # https://next.api.aliyun.com/api/Slb/2014-05-15/DescribeLoadBalancers
                 res = client.describe_load_balancers_with_options(describe_load_balancers_request, runtime)
                 describe_slb_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_slb_attribute_response_json_obj = json.loads(describe_slb_attribute_response_to_str)
-                if describe_slb_attribute_response_json_obj['body']['TotalCount'] > 0:
+                count = describe_slb_attribute_response_json_obj['body']['TotalCount']
+                slb_total_count += count
+                if count > 0:
                     slb_info = describe_slb_attribute_response_json_obj['body']['LoadBalancers']
                     for num, slb_instance in enumerate(slb_info):
                         describe_load_balancer_attribute_request = slb_20140515_models.DescribeLoadBalancerAttributeRequest(region_id=region, load_balancer_id=slb_instance['InstanceId'])
+                        # https://next.api.aliyun.com/api/Slb/2014-05-15/DescribeLoadBalancerAttribute
                         detail_res = client.describe_load_balancer_attribute_with_options(describe_load_balancer_attribute_request, runtime)
                         describe_slb_detail_attribute_response_to_str = UtilClient.to_jsonstring(detail_res)
                         describe_slb_detail_attribute_response_json_obj = json.loads(describe_slb_detail_attribute_response_to_str)
@@ -189,26 +189,34 @@ def get_slb_api_response() -> None:
                                                          )
                         logger.info(slb.get_basic_info())
                         slb.save()
+                return APIResponse(code=0, msg='request successfully', total=slb_total_count)
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @sync_to_async
-def get_alb_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_alb_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
+    alb_total_count = 0
     for project in project_list:
         for region in project['region']:
-            client = AlbApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['ALB_ENDPOINT'][region]))
+            client = AlbApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['ALB_ENDPOINT'][region]))
             list_load_balancers_request = alb_20200616_models.ListLoadBalancersRequest()
             try:
+                # https://next.api.aliyun.com/api/Alb/2020-06-16/ListLoadBalancers
                 res = client.list_load_balancers_with_options(list_load_balancers_request, runtime)
                 describe_alb_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_alb_attribute_response_json_obj = json.loads(describe_alb_attribute_response_to_str)
-                if describe_alb_attribute_response_json_obj['body']['TotalCount'] > 0:
+                count = describe_alb_attribute_response_json_obj['body']['TotalCount']
+                alb_total_count += count
+                if count > 0:
                     alb_info = describe_alb_attribute_response_json_obj['body']['LoadBalancers']
                     for num, alb_instance in enumerate(alb_info):
                         alb = AlibabacloudALBApiResponse(api_request_id=(describe_alb_attribute_response_json_obj['body']['RequestId'] + str(num)),
@@ -230,26 +238,34 @@ def get_alb_api_response() -> None:
                             alb.ipv6_address_type = alb_instance['Ipv6AddressType']
                         logger.info(alb.get_basic_info())
                         alb.save()
+                return APIResponse(code=0, msg='request successfully', total=alb_total_count)
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @sync_to_async
-def get_eip_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_eip_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
+    eip_total_count = 0
     for project in project_list:
         for region in project['region']:
-            client = VpcApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['VPC_ENDPOINT'][region]))
+            client = VpcApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['VPC_ENDPOINT'][region]))
             describe_eip_addresses_request = vpc_20160428_models.DescribeEipAddressesRequest(region_id=region)
             try:
+                # https://next.api.aliyun.com/api/Vpc/2016-04-28/DescribeEipAddresses
                 res = client.describe_eip_addresses_with_options(describe_eip_addresses_request, runtime)
                 describe_eip_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_eip_attribute_response_json_obj = json.loads(describe_eip_attribute_response_to_str)
-                if describe_eip_attribute_response_json_obj['body']['TotalCount'] > 0:
+                count = describe_eip_attribute_response_json_obj['body']['TotalCount']
+                eip_total_count += count
+                if count > 0:
                     eip_info = describe_eip_attribute_response_json_obj['body']['EipAddresses']
                     for num, eip_instance in enumerate(eip_info):
                         eip = AlibabacloudEIPApiResponse(api_request_id=(describe_eip_attribute_response_json_obj['body']['RequestId'] + str(num)),
@@ -275,26 +291,34 @@ def get_eip_api_response() -> None:
                                                          )
                         logger.info(eip.get_basic_info())
                         eip.save()
+                return APIResponse(code=0, msg='request successfully', total=eip_total_count)
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @sync_to_async
-def get_ssl_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_ssl_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         for endpoint in settings.ENDPOINT['SSL_ENDPOINT']:
-            client = casApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['SSL_ENDPOINT'][endpoint]))
+            client = casApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['SSL_ENDPOINT'][endpoint]))
             list_client_certificate_request = cas_20200630_models.ListClientCertificateRequest()
+            ssl_certificate_count = 0
             try:
+                # https://next.api.aliyun.com/api/cas/2020-06-30/ListClientCertificate
                 res = client.list_client_certificate_with_options(list_client_certificate_request, runtime)
                 describe_ssl_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_ssl_attribute_response_json_obj = json.loads(describe_ssl_attribute_response_to_str)
-                if describe_ssl_attribute_response_json_obj['body']['TotalCount'] > 0:
+                count = describe_ssl_attribute_response_json_obj['body']['TotalCount']
+                ssl_certificate_count += count
+                if count > 0:
                     ssl_info = describe_ssl_attribute_response_json_obj['body']['CertificateList']
                     for num, ssl_instance in enumerate(ssl_info):
                         ssl = AlibabacloudSSLApiResponse(api_request_id=(describe_ssl_attribute_response_json_obj['body']['RequestId'] + str(num)),
@@ -312,22 +336,27 @@ def get_ssl_api_response() -> None:
                                                          )
                         logger.info(ssl.get_basic_info())
                         ssl.save()
+                return APIResponse(code=0, msg='request successfully', total=ssl_certificate_count)
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @sync_to_async
-def get_csc_api_response() -> None:
-    project_list = Project.objects.filter(status='Running', project_access_key__isnull=False, project_secret_key__isnull=False, cron_toggle=True). \
-        values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id')
+def get_csc_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
     runtime = util_models.RuntimeOptions()
     for project in project_list:
         for endpoint in settings.ENDPOINT['CSC_ENDPOINT']:
-            client = CscApiClient(set_client_config(project['project_access_key'],
-                                                    project['project_secret_key'],
-                                                    settings.ENDPOINT['CSC_ENDPOINT'][endpoint]))
+            client = CscApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['CSC_ENDPOINT'][endpoint]))
             describe_version_config_request = sas_20181203_models.DescribeVersionConfigRequest()
             try:
+                # https://next.api.aliyun.com/api/Sas/2018-12-03/DescribeVersionConfig
                 res = client.describe_version_config_with_options(describe_version_config_request, runtime)
                 describe_csc_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_csc_attribute_response_json_obj = json.loads(describe_csc_attribute_response_to_str)
@@ -366,35 +395,23 @@ def get_csc_api_response() -> None:
                                                  )
                 logger.info(csc.get_basic_info())
                 csc.save()
+                return APIResponse(code=0, msg='request successfully')
             except Exception as error:
                 UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_ecr_list(request):
-    res = asyncio.run(get_ecs_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_ecs_api(request):
+    return asyncio.run(get_ecs_api_response())
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def get_ecr_list(request):
-    alibabacloud_ecs_api_response = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloud_ecs_api_response)
-    total = paginator.count
-    data = paginator.get_page()
-    serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
-    logger.info("{} call get_ecr_list api".format(request.user.username))
-    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def search_ecr(request):
+def get_ecs_list(request):
     try:
         project_name = request.GET.get('project_name', None)
         alibabacloud_ecs_api_response = AlibabacloudEcsApiResponse.objects.all().order_by("project_id")
@@ -406,35 +423,21 @@ def search_ecr(request):
     except AlibabacloudEcsApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudEcsApiResponseSerializer(data, many=True)
-    logger.info("{} call search_ecr api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call ecs list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_waf_list(request):
-    res = asyncio.run(get_waf_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_waf_api(request):
+    return asyncio.run(get_waf_api_response())
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_waf_list(request):
-    alibabacloud_waf_api_response = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloud_waf_api_response)
-    total = paginator.count
-    data = paginator.get_page()
-    serializer = AlibabacloudWafApiResponseSerializer(data, many=True)
-    logger.info("{} call get_waf_list api".format(request.user.username))
-    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def search_waf(request):
     try:
         project_name = request.GET.get('project_name', None)
         alibabacloud_waf_api_response = AlibabacloudWafApiResponse.objects.all().order_by("project_id")
@@ -447,35 +450,21 @@ def search_waf(request):
     except AlibabacloudWafApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudWafApiResponseSerializer(data, many=True)
-    logger.info("{} call search_waf api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call waf list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_slb_list(request):
-    res = asyncio.run(get_slb_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_slb_api(request):
+    return asyncio.run(get_slb_api_response())
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_slb_list(request):
-    alibabacloud_slb_api_response = AlibabacloudSLBApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloud_slb_api_response)
-    total = paginator.count
-    data = paginator.get_page()
-    serializer = AlibabacloudSlbApiResponseSerializer(data, many=True)
-    logger.info("{} call get_slb_list api".format(request.user.username))
-    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def search_slb(request):
     try:
         project_name = request.GET.get('project_name', None)
         alibabacloud_slb_api_response = AlibabacloudSLBApiResponse.objects.all().order_by("project_id")
@@ -487,35 +476,21 @@ def search_slb(request):
     except AlibabacloudSLBApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudSlbApiResponseSerializer(data, many=True)
-    logger.info("{} call search_slb api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call slb list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_alb_list(request):
-    res = asyncio.run(get_alb_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_alb_api(request):
+    return asyncio.run(get_alb_api_response())
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_alb_list(request):
-    alibabacloud_alb_api_response = AlibabacloudALBApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloud_alb_api_response)
-    total = paginator.count
-    data = paginator.get_page()
-    serializer = AlibabacloudAlbApiResponseSerializer(data, many=True)
-    logger.info("{} call get_alb_list api".format(request.user.username))
-    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def search_alb(request):
     try:
         project_name = request.GET.get('project_name', None)
         alibabacloud_alb_api_response = AlibabacloudALBApiResponse.objects.all().order_by("project_id")
@@ -527,35 +502,21 @@ def search_alb(request):
     except AlibabacloudSLBApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudAlbApiResponseSerializer(data, many=True)
-    logger.info("{} call search_alb api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call alb list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_eip_list(request):
-    res = asyncio.run(get_eip_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_eip_api(request):
+    return asyncio.run(get_eip_api_response())
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_eip_list(request):
-    alibabacloud_eip_api_response = AlibabacloudEIPApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloud_eip_api_response)
-    total = paginator.count
-    data = paginator.get_page()
-    serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
-    logger.info("{} call get_eip_list api".format(request.user.username))
-    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def search_eip(request):
     try:
         project_name = request.GET.get('project_name', None)
         alibabacloud_eip_api_response = AlibabacloudEIPApiResponse.objects.all().order_by("project_id")
@@ -567,35 +528,21 @@ def search_eip(request):
     except AlibabacloudEIPApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
-    logger.info("{} call search_eip api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call eip list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_ssl_list(request):
-    res = asyncio.run(get_ssl_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_ssl_api(request):
+    return asyncio.run(get_ssl_api_response())
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_ssl_list(request):
-    alibabacloud_ssl_api_response = AlibabacloudSSLApiResponse.objects.all().order_by("project_id")
-    paginator = CustomPaginator(request, alibabacloud_ssl_api_response)
-    total = paginator.count
-    data = paginator.get_page()
-    serializer = AlibabacloudEipApiResponseSerializer(data, many=True)
-    logger.info("{} call get_ssl_list api".format(request.user.username))
-    return APIResponse(code=0, msg='success', total=total, data=serializer.data)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def search_ssl(request):
     try:
         project_name = request.GET.get('project_name', None)
         alibabacloud_ssl_api_response = AlibabacloudSSLApiResponse.objects.all().order_by("project_id")
@@ -607,16 +554,15 @@ def search_ssl(request):
     except AlibabacloudSSLApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudSSLApiResponseSerializer(data, many=True)
-    logger.info("{} call search_ssl api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call ssl certificate list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
 
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def init_csc_list(request):
-    res = asyncio.run(get_csc_api_response())
-    return APIResponse(code=0, msg='request successfully', data=res)
+def call_csc_api(request):
+    return asyncio.run(get_csc_api_response())
 
 
 @api_view(['GET'])
@@ -634,5 +580,5 @@ def get_csc_list(request):
     except AlibabacloudCSCApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudCSCApiResponseSerializer(data, many=True)
-    logger.info("{} call get_csc api with conditions project_name: {}".format(request.user.username, project_name))
+    logger.info("{} call csc list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
