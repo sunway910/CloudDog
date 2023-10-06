@@ -3,8 +3,8 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchSSL" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
-        <el-button color="#626aef" :icon="Search" type="primary" @click="searchSSL">{{ t(base_i18n.search) }}</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="getSSLList" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="getSSLList">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getSSLList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
@@ -110,7 +110,6 @@ const Status = ref("" +
     " (REVOKE, 已被吊销)")
 
 
-
 const renderHeader = ({column}) => {
   return h('span', {}, [
     h(ElTooltip, {
@@ -174,29 +173,9 @@ const tableRowClassName = ({row}: { row: sslResource }) => {
   }
 }
 
-
-// get Elastic Compute Resource list
 const getSSLList = () => {
   sendGetReq({
-    params: {
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    },
-    uri: "/ssl/list"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        sslResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get ssl list error');
-  });
-}
-getSSLList(); // init ECR list
-
-// search ECR by project_name
-const searchSSL = () => {
-  sendGetReq({
-    uri: "/ssl/search", params: {
+    uri: "/ssl/list", params: {
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value
@@ -206,9 +185,10 @@ const searchSSL = () => {
         sslResourceList.value = res.data.data
       }
   ).catch((err) => {
-    ElMessage.error(err || 'Search ssl error');
+    ElMessage.error(err || 'Get ssl certificate listerror');
   });
 }
+getSSLList()
 
 const handlePageChange = (val: number) => {
   currentPageIndex.value = val;

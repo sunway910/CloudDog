@@ -3,8 +3,8 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchEip" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
-        <el-button color="#626aef" :icon="Search" type="primary" @click="searchEip">{{ t(base_i18n.search) }}</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="getEIPList" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="getEIPList">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getEIPList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
@@ -216,7 +216,9 @@ const queryConditions = reactive({
 let currentPageIndex = ref(1);
 let pageSize = ref(10);
 
-const tableRowClassName = ({row}: { row: eipResource }) => {
+const tableRowClassName = ({row}: {
+  row: eipResource
+}) => {
   if (row.business_status === 'Normal') {
     return 'success-row'
   } else {
@@ -224,29 +226,9 @@ const tableRowClassName = ({row}: { row: eipResource }) => {
   }
 }
 
-
-// get Elastic Compute Resource list
 const getEIPList = () => {
   sendGetReq({
-    params: {
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    },
-    uri: "/eip/list"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        eipResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get eip list error');
-  });
-}
-getEIPList(); // init ECR list
-
-// search ECR by project_name
-const searchEip = () => {
-  sendGetReq({
-    uri: "/eip/search", params: {
+    uri: "/eip/list", params: {
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value
@@ -256,9 +238,10 @@ const searchEip = () => {
         eipResourceList.value = res.data.data
       }
   ).catch((err) => {
-    ElMessage.error(err || 'Search eip error');
+    ElMessage.error(err || 'Get eip list error');
   });
 }
+getEIPList()
 
 const handlePageChange = (val: number) => {
   currentPageIndex.value = val;

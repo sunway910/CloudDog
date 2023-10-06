@@ -4,9 +4,9 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchEcr" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
-        <el-button color="#626aef" :icon="Search" type="primary" @click="searchEcr">{{ t(base_i18n.search) }}</el-button>
-        <el-button :icon="Refresh" type="primary" @click="getECRList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="getECSList" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="getECSList">{{ t(base_i18n.search) }}</el-button>
+        <el-button :icon="Refresh" type="primary" @click="getECSList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
 
@@ -244,28 +244,10 @@ const tableRowClassName = ({row}: { row: ElasticComputeResource }) => {
 }
 
 
-// get Elastic Compute Resource list
-const getECRList = () => {
-  sendGetReq({
-    params: {
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    },
-    uri: "/ecs/list"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        elasticComputeResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get ecr list error');
-  });
-}
-getECRList(); // init ECR list
-
 // search ECR by project_name
-const searchEcr = () => {
+const getECSList = () => {
   sendGetReq({
-    uri: "/ecs/search", params: {
+    uri: "/ecs/list", params: {
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value
@@ -275,18 +257,20 @@ const searchEcr = () => {
         elasticComputeResourceList.value = res.data.data
       }
   ).catch((err) => {
-    ElMessage.error(err || 'Search project error');
+    ElMessage.error(err || 'get ecs list error');
   });
 }
+getECSList()
+
 
 const handlePageChange = (val: number) => {
   currentPageIndex.value = val;
-  getECRList();
+  getECSList();
 };
 
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  getECRList();
+  getECSList();
 }
 
 const exportXlsx = () => {

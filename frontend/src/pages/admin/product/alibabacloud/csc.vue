@@ -263,8 +263,6 @@ const queryConditions = reactive({
 let currentPageIndex = ref(1);
 let pageSize = ref(10);
 
-
-// get Elastic Compute Resource list
 const getCSCList = () => {
   sendGetReq({
     params: {
@@ -280,7 +278,7 @@ const getCSCList = () => {
     ElMessage.error(err || 'Get csc list error');
   });
 }
-getCSCList(); // init ECR list
+getCSCList()
 
 const handlePageChange = (val: number) => {
   currentPageIndex.value = val;

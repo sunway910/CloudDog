@@ -4,8 +4,8 @@
     <div class="product_container">
       <div class="handle-box">
 
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchAlb" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
-        <el-button color="#626aef" :icon="Search" type="primary" @click="searchAlb">{{ t(base_i18n.search) }}</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="getALBList" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="getALBList">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getALBList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
@@ -212,29 +212,10 @@ const tableRowClassName = ({row}: { row: albResource }) => {
   }
 }
 
-
-// get Elastic Compute Resource list
+// search ECR by project_name
 const getALBList = () => {
   sendGetReq({
-    params: {
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    },
-    uri: "/alb/list"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        albResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get alb list error');
-  });
-}
-getALBList(); // init ECR list
-
-// search ECR by project_name
-const searchAlb = () => {
-  sendGetReq({
-    uri: "/alb/search", params: {
+    uri: "/alb/list", params: {
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value
@@ -244,9 +225,10 @@ const searchAlb = () => {
         albResourceList.value = res.data.data
       }
   ).catch((err) => {
-    ElMessage.error(err || 'Search alb error');
+    ElMessage.error(err || 'Get alb list error');
   });
 }
+getALBList()
 
 const handlePageChange = (val: number) => {
   currentPageIndex.value = val;

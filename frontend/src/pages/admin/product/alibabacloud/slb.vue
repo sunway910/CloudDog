@@ -4,8 +4,8 @@
     <div class="product_container">
       <div class="handle-box">
 
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchSlb" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
-        <el-button color="#626aef" :icon="Search" type="primary" @click="searchSlb">{{ t(base_i18n.search) }}</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="getSLBList" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="getSLBList">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getSLBList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
@@ -130,8 +130,6 @@ const RenewalStatus = ref("" +
     " (NotRenewal, 不再续费)--")
 
 
-
-
 const renderHeader = ({column}) => {
   return h('span', {}, [
     h(ElTooltip, {
@@ -221,29 +219,9 @@ const tableRowClassName = ({row}: { row: slbResource }) => {
   }
 }
 
-
-// get Elastic Compute Resource list
 const getSLBList = () => {
   sendGetReq({
-    params: {
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    },
-    uri: "/slb/list"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        slbResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get alb list error');
-  });
-}
-getSLBList(); // init ECR list
-
-// search ECR by project_name
-const searchSlb = () => {
-  sendGetReq({
-    uri: "/slb/search", params: {
+    uri: "/slb/list", params: {
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value
@@ -253,9 +231,10 @@ const searchSlb = () => {
         slbResourceList.value = res.data.data
       }
   ).catch((err) => {
-    ElMessage.error(err || 'Search alb error');
+    ElMessage.error(err || 'Get slb list error');
   });
 }
+getSLBList()
 
 const handlePageChange = (val: number) => {
   currentPageIndex.value = val;
