@@ -141,7 +141,7 @@ allocation_time: 创建时间
 reservation_active_time: 续费生效时间
 
 # SSL
-subject_dn: 证书的Distinguished_Name属性
+subject_dn: 证书的Distinguished Name属性
 common_name: 证书的公用名
 organization_unit: 签发该证书的子CA证书关联的组织机构下部门的名称
 organization: 签发该证书的子CA证书关联的组织机构的名称

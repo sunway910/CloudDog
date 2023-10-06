@@ -9,7 +9,7 @@ class APIResponse(Response):
         if total is not None:
             dic['total'] = total
 
-        dic.update(kwargs)  # 这里使用update
+        dic.update(kwargs)  # use update here
         super().__init__(data=dic, status=status,
                          template_name=None, headers=headers,
                          exception=False, content_type=content_type)
