@@ -4,8 +4,8 @@
   <div>
     <div class="product_container">
       <div class="handle-box">
-        <el-input v-model="queryConditions.project_name" @keydown.enter="searchWaf" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
-        <el-button color="#626aef" :icon="Search" type="primary" @click="searchWaf">{{ t(base_i18n.search) }}</el-button>
+        <el-input v-model="queryConditions.project_name" @keydown.enter="getWAFList" :placeholder=t(base_i18n.project_name) class="handle-input mr10"></el-input>
+        <el-button color="#626aef" :icon="Search" type="primary" @click="getWAFList">{{ t(base_i18n.search) }}</el-button>
         <el-button :icon="Refresh" type="primary" @click="getWAFList" style="float: right">{{ t(base_i18n.refresh) }}</el-button>
         <el-button type="primary" @click="exportXlsx" style="float: right">{{ t(base_i18n.export) }}</el-button>
       </div>
@@ -248,42 +248,9 @@ const tableRowClassName = ({row}: { row: WAFResource }) => {
   }
 }
 
-
-// get Elastic Compute Resource list
 const getWAFList = () => {
   sendGetReq({
-    params: {
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    },
-    uri: "/waf/list"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        WAFResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get ecr list error');
-  });
-}
-getWAFList()
-const initlist = () => {
-  sendGetReq({
-    params: {},
-    uri: "/waf/init"
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        WAFResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'Get ecr list error');
-  });
-}
-// initlist()
-
-// search ECR by project_name
-const searchWaf = () => {
-  sendGetReq({
-    uri: "/waf/search", params: {
+    uri: "/waf/list", params: {
       project_name: queryConditions.project_name,
       page_index: currentPageIndex.value,
       page_size: pageSize.value
@@ -293,9 +260,11 @@ const searchWaf = () => {
         WAFResourceList.value = res.data.data
       }
   ).catch((err) => {
-    ElMessage.error(err || 'Search project error');
+    ElMessage.error(err || 'Get waf list error');
   });
 }
+getWAFList()
+
 const exportXlsx = () => {
   WAFResourceList.value.map((item: any) => {
     let arr = [];
