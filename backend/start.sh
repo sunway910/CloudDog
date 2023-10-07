@@ -12,6 +12,7 @@ echo "Starting $NAME as `whoami`"
 cd $DJANGODIR
 
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+python python manage.py migrate && \
 python manage.py makemigrations && \
 python manage.py makemigrations alibabacloud_product project message \
   python manage.py migrate

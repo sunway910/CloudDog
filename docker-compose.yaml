@@ -1,10 +1,11 @@
-version: '1'
+version: '3'
 services:
   postgresDB:
     container_name: postgres
     image: postgres:latest
     environment:
-      POSTGRES_DB: clouddog # init database: cloud_dog
+      # init database: clouddog
+      POSTGRES_DB: clouddog
       POSTGRES_PASSWORD: 123456
     restart: always
     ports:
@@ -30,7 +31,7 @@ services:
       - django
 
   django:
-    container_name: cloud_dog
+    container_name: clouddog
     image: sunway/clouddog:image20230925
     restart: always
     environment:
