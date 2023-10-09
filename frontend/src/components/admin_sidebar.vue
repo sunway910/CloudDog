@@ -36,13 +36,13 @@
                 </el-sub-menu>
               </template>
               <template v-else>
-                <el-menu-item :index="item.index" :key="item.index" v-auth="item.auth">
+                <el-menu-item :index="subItem.index" :key="subItem.index" v-auth="subItem.auth">
                   <template #title>
                     <el-icon>
-                      <component :is="item.icon"></component>
+                      <component :is="subItem.icon"></component>
                     </el-icon>
                     <div class="items-center w-full px-8 py-2 mt-1 text-base transition duration-500 ease-in-out transform rounded-lg text-neutral-200 border-neutral-800 hover:border-neutral-800 focus:shadow-outline hover:bg-neutral-900">
-                      {{ t(item.title) }}
+                      {{ t(subItem.title) }}
                     </div>
                   </template>
                 </el-menu-item>
@@ -153,7 +153,7 @@ const items = [
         title: 'AWS',
         auth: 'admin',
         subs: [{
-          icon: 'ArrowUpBold',
+          icon: 'Monitor',
           index: '/admin/product/aws/ec2',
           title: 'EC2',
           auth: 'user',
@@ -166,7 +166,7 @@ const items = [
         title: 'GCP',
         auth: 'admin',
         subs: [{
-          icon: 'ArrowUpBold',
+          icon: 'Monitor',
           index: '/admin/product/gcp/ce',
           title: 'CE',
           auth: 'user',
@@ -179,7 +179,7 @@ const items = [
         title: 'Azure',
         auth: 'admin',
         subs: [{
-          icon: 'ArrowUpBold',
+          icon: 'Monitor',
           index: '/admin/product/azure/vm',
           title: 'VM',
           auth: 'user',
