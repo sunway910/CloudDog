@@ -3,7 +3,7 @@
 </script>
 
 <template>
-
+	<div>vm</div>
 </template>
 
 <style scoped>

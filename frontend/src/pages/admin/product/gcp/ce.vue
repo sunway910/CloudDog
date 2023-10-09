@@ -3,7 +3,7 @@
 </script>
 
 <template>
-
+	<div>compute engine</div>
 </template>
 
 <style scoped>
