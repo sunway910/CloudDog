@@ -323,6 +323,10 @@ ENDPOINT = {
     "RDS_ENDPOINT": {
         "china": 'rds.aliyuncs.com',  # https://api.aliyun.com/product/Rds
     },
+    "REDIS_ENDPOINT": {
+        "cn-hongkong": 'r-kvstore.cn-hongkong.aliyuncs.com',  # https://api.aliyun.com/product/R-kvstore
+        "mainland": 'r-kvstore.aliyuncs.com',
+    },
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

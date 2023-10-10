@@ -13,6 +13,8 @@ from alibabacloud_slb20140515 import models as slb_20140515_models
 from alibabacloud_slb20140515.client import Client as SlbApiClient
 from alibabacloud_rds20140815.client import Client as RdsApiClient
 from alibabacloud_rds20140815 import models as rds_20140815_models
+from alibabacloud_r_kvstore20150101.client import Client as R_kvstoreApiClient
+from alibabacloud_r_kvstore20150101 import models as r_kvstore_20150101_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 from alibabacloud_vpc20160428 import models as vpc_20160428_models
@@ -363,7 +365,7 @@ def get_csc_api_response() -> APIResponse:
                 describe_csc_attribute_response_to_str = UtilClient.to_jsonstring(res)
                 describe_csc_attribute_response_json_obj = json.loads(describe_csc_attribute_response_to_str)
                 csc_info = describe_csc_attribute_response_json_obj['body']
-                csc = AlibabacloudSSLApiResponse(api_request_id=(describe_csc_attribute_response_json_obj['body']['RequestId']),
+                csc = AlibabacloudCSCApiResponse(api_request_id=(describe_csc_attribute_response_json_obj['body']['RequestId']),
                                                  instance_id=csc_info['InstanceId'],
                                                  project_name=project['project_name'],
                                                  project_id=project['id'],
@@ -424,14 +426,15 @@ def get_rds_api_response() -> APIResponse:
                     describe_rds_attribute_response_to_str = UtilClient.to_jsonstring(db_list_res)
                     describe_rds_attribute_response_json_obj = json.loads(describe_rds_attribute_response_to_str)
                     rds_list = describe_rds_attribute_response_json_obj['Items']
-                    rds_total_count = len(rds_list)
+                    rds_total_count += len(rds_list)
                     for rds_instance in rds_list:
+                        # https://next.api.aliyun.com/api/Rds/2014-08-15/DescribeDBInstanceAttribute
                         describe_db_instance_detail = rds_20140815_models.DescribeDBInstanceAttributeRequest(dbinstance_id=rds_instance['DBInstanceId'])
                         db_instance_detail_res = client.describe_dbinstance_attribute_with_options(describe_db_instance_detail, runtime)
                         describe_rds_attribute_detail_response_to_str = UtilClient.to_jsonstring(db_instance_detail_res)
                         db_instance_detail = json.loads(describe_rds_attribute_detail_response_to_str)
                         request_id = describe_rds_attribute_response_json_obj['body']['RequestId'] + " " + db_instance_detail['body']['RequestId']
-                        rds = AlibabacloudSSLApiResponse(api_request_id=request_id,
+                        rds = AlibabacloudRDSApiResponse(api_request_id=request_id,
                                                          instance_id=rds_instance['InstanceId'],
                                                          project_name=project['project_name'],
                                                          project_id=project['id'],
@@ -463,6 +466,61 @@ def get_rds_api_response() -> APIResponse:
                         logger.info(rds.get_basic_info())
                         rds.save()
                     return APIResponse(code=0, msg='request successfully', total=rds_total_count)
+                except Exception as error:
+                    UtilClient.assert_as_string(error)
+                    return APIResponse(code=1, msg=error)
+
+
+@sync_to_async
+def get_redis_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    redis_total_count = 0
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['REDIS_ENDPOINT']:
+            client = R_kvstoreApiClient(set_api_client_config(project['project_access_key'],
+                                                              project['project_secret_key'],
+                                                              settings.ENDPOINT['REDIS_ENDPOINT'][endpoint]))
+            for region in project['region']:
+                describe_instances_request = r_kvstore_20150101_models.DescribeInstancesRequest(region_id=region)
+                try:
+                    # https://next.api.aliyun.com/api/R-kvstore/2015-01-01/DescribeInstances
+                    redis_list_res = client.describe_instances_with_options(describe_instances_request, runtime)
+                    describe_redis_attribute_response_to_str = UtilClient.to_jsonstring(redis_list_res)
+                    describe_redis_attribute_response_json_obj = json.loads(describe_redis_attribute_response_to_str)
+                    redis_list = describe_redis_attribute_response_json_obj['body']['Instances']
+                    redis_total_count += len(redis_list)
+                    for num, redis_instance in enumerate(redis_list):
+                        redis = AlibabacloudRedisApiResponse(api_request_id=(describe_redis_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                             instance_id=redis_instance['InstanceId'],
+                                                             project_name=project['project_name'],
+                                                             project_id=project['id'],
+                                                             private_ip=redis_instance['PrivateIp'],
+                                                             capacity=redis_instance['Capacity'],
+                                                             architecture_type=redis_instance['ArchitectureType'],
+                                                             network_type=redis_instance['NetworkType'],
+                                                             bandwidth=redis_instance['Bandwidth'],
+                                                             instance_name=redis_instance['InstanceName'],
+                                                             shard_count=redis_instance['ShardCount'],
+                                                             user_name=redis_instance['UserName'],
+                                                             instance_class=redis_instance['InstanceClass'],
+                                                             instance_type=redis_instance['InstanceType'],
+                                                             instance_status=redis_instance['InstanceStatus'],
+                                                             region_id=redis_instance['RegionId'],
+                                                             engine_version=redis_instance['EngineVersion'],
+                                                             charge_type=redis_instance['ChargeType'],
+                                                             connection_mode=redis_instance['ConnectionMode'],
+                                                             connection_domain=redis_instance['ConnectionDomain'],
+                                                             create_time=redis_instance['CreateTime'],
+                                                             expire_time=redis_instance['ExpireTime'],
+                                                             destroy_time=redis_instance['DestroyTime'],
+                                                             )
+                        logger.info(redis.get_basic_info())
+                        redis.save()
+                    return APIResponse(code=0, msg='request successfully', total=redis_total_count)
                 except Exception as error:
                     UtilClient.assert_as_string(error)
                     return APIResponse(code=1, msg=error)
@@ -672,6 +730,32 @@ def get_rds_list(request):
         data = paginator.get_page()
     except AlibabacloudRDSApiResponse.DoesNotExist:
         return APIResponse(code=1, msg='no exist err')
-    serializer = AlibabacloudCSCApiResponseSerializer(data, many=True)
+    serializer = AlibabacloudRDSApiResponseSerializer(data, many=True)
     logger.info("{} call rds list api with conditions project_name: {}".format(request.user.username, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def call_redis_api(request):
+    return asyncio.run(get_redis_api_response())
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_redis_list(request):
+    try:
+        project_name = request.GET.get('project_name', None)
+        alibabacloud_redis_api_response = AlibabacloudRedisApiResponse.objects.all().order_by("project_id")
+        if project_name:
+            alibabacloud_redis_api_response = alibabacloud_redis_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_redis_api_response)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudRedisApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudRedisApiResponseSerializer(data, many=True)
+    logger.info("{} call redis list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

@@ -15,6 +15,8 @@ class ProductType(models.TextChoices):
     EIP = ('eip', '弹性公网IP')
     SSL = ('ssl', 'SSL证书')
     CSC = ('csc', '云安全中心')
+    RDS = ('rds', '云数据库')
+    REDIS = ('redis', 'Redis数据库')
 
     class Meta:
         app_label = 'ProductType'
@@ -547,7 +549,7 @@ class AlibabacloudRDSApiResponse(ProductBaseModel):
     )
 
     """ RDS Instance Property """
-    product_type = models.CharField(default=ProductType.CSC.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    product_type = models.CharField(default=ProductType.RDS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     master_instance_id = models.CharField(default='', verbose_name='MasterInstanceId', db_comment='主实例的ID，如果没有返回此参数（即为null）则表示该实例是主实例')
     guard_db_instance_id = models.CharField(default='', verbose_name='GuardDBInstanceId', db_comment='主实例如果有灾备实例，该参数即为灾备实例的ID')
     db_instance_description = models.CharField(default='', verbose_name='DBInstanceDescription', db_comment='实例描述')
@@ -585,3 +587,85 @@ class AlibabacloudRDSApiResponse(ProductBaseModel):
 
     class Meta:
         db_table = 'alibabacloud_rds_api_response'
+
+
+class AlibabacloudRedisApiResponse(ProductBaseModel):
+    InstanceStatus = (
+        ('Normal', '正常'),
+        ('Creating', '创建中'),
+        ('Changing', '修改中'),
+        ('Inactive', '被禁用'),
+        ('Flushing', '清除中'),
+        ('Released', '已释放'),
+        ('Transforming', '转换中'),
+        ('Unavailable', '服务停止'),
+        ('Error', '创建失败'),
+        ('Migrating', '迁移中'),
+        ('BackupRecovering', '备份恢复中'),
+        ('MinorVersionUpgrading', '小版本升级中'),
+        ('NetworkModifying', '网络变更中'),
+        ('SSLModifying', 'SSL变更中'),
+        ('MajorVersionUpgrading', '大版本升级中'),
+    )
+    InstanceType = (
+        ('Tair', 'Tair'),
+        ('Redis', 'Redis'),
+        ('Memcache', 'Memcache'),
+    )
+    InstanceNetworkType = (
+        ('VPC', '专有网络'),
+        ('CLASSIC', '经典网络'),
+    )
+    PayType = (
+        ('PostPaid', '按量付费'),
+        ('PrePaid', '包年包月'),
+    )
+    ArchitectureType = (
+        ('cluster', '集群版'),
+        ('standard', '标准版'),
+        ('rwsplit', '读写分离版'),
+        ('NULL', '所有类型'),
+    )
+    ConnectionMode = (
+        ('Standard', '标准访问模式'),
+        ('Safe', '数据库代理模式'),
+    )
+
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='RedisInProject'
+    )
+
+    """ Redis Instance Property """
+    product_type = models.CharField(default=ProductType.REDIS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    private_ip = models.CharField(default='', verbose_name='PrivateIp', db_comment='实例的网络类型为经典网络时，不会返回本参数')
+    capacity = models.IntegerField(default='', verbose_name='Capacity', db_comment='实例容量MB')
+    connection_domain = models.CharField(default='', verbose_name='ConnectionDomain', db_comment='实例的内网连接地址')
+    charge_type = models.CharField(default='', verbose_name='ChargeType', db_comment='付费类型', choices=PayType)
+    architecture_type = models.CharField(default='', verbose_name='ArchitectureType', db_comment='架构类型', choices=PayType)
+    network_type = models.CharField(default='', verbose_name='NetworkType', db_comment='实例的网络类型', choices=InstanceNetworkType)
+    connection_mode = models.CharField(default='', verbose_name='ConnectionMode', db_comment='访问模式', choices=ConnectionMode)
+    engine_version = models.CharField(default='5.0', verbose_name='EngineVersion', db_comment='redis数据库版本')
+    bandwidth = models.IntegerField(default=0, verbose_name='Bandwidth', db_comment='实例带宽MB/s')
+    instance_name = models.CharField(default='', verbose_name='InstanceName', db_comment='实例的名称')
+    shard_count = models.IntegerField(default=0, verbose_name='ShardCount', db_comment='集群的数据节点数')
+    user_name = models.CharField(default='', verbose_name='UserName', db_comment='连接使用的用户名')
+    instance_class = models.CharField(default='', verbose_name='InstanceClass', db_comment='实例规格')
+    create_time = models.CharField(default='', verbose_name='CreateTime', db_comment='实例的创建时间')
+    end_time = models.CharField(default='', verbose_name='EndTime', db_comment='到期时间')
+    destroy_time = models.CharField(default='', verbose_name='DestroyTime', db_comment='销毁时间')
+    instance_type = models.CharField(default='Redis', verbose_name='InstanceType', db_comment='实例类型', choices=InstanceType)
+    region_id = models.CharField(default='', verbose_name='RegionId', db_comment='地域ID')
+    instance_status = models.CharField(default='Normal', verbose_name='InstanceStatus', db_comment='实例状态', choices=InstanceStatus)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'Redis LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.instance_status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_redis_api_response'
