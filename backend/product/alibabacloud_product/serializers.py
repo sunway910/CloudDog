@@ -42,3 +42,9 @@ class AlibabacloudCSCApiResponseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = AlibabacloudCSCApiResponse
         fields = '__all__'
+
+
+class AlibabacloudRDSApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudRDSApiResponse
+        fields = '__all__'

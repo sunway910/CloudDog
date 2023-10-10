@@ -320,6 +320,9 @@ ENDPOINT = {
         "china": 'tds.aliyuncs.com',  # https://api.aliyun.com/product/Sas
         "asia_pacific": 'tds.ap-southeast-1.aliyuncs.com',
     },
+    "RDS_ENDPOINT": {
+        "china": 'rds.aliyuncs.com',  # https://api.aliyun.com/product/Rds
+    },
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

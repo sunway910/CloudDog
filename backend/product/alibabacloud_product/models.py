@@ -469,3 +469,119 @@ class AlibabacloudCSCApiResponse(ProductBaseModel):
 
     class Meta:
         db_table = 'alibabacloud_csc_api_response'
+
+
+class AlibabacloudRDSApiResponse(ProductBaseModel):
+    DBInstanceStatus = (
+        ('Creating', '创建中'),
+        ('Running', '使用中'),
+        ('Deleting', '删除中'),
+        ('Rebooting', '重启中'),
+        ('DBInstanceClassChanging', '升降级中'),
+        ('TRANSING', '迁移中'),
+        ('EngineVersionUpgrading', '迁移版本中'),
+        ('TransingToOthers', '迁移数据到其他RDS中'),
+        ('GuardDBInstanceCreating', '生产灾备实例中'),
+        ('Restoring', '备份恢复中'),
+        ('Importing', '数据导入中'),
+        ('ImportingFromOthers', '从其他RDS实例导入数据中'),
+        ('DBInstanceNetTypeChanging', '内外网切换中'),
+        ('GuardSwitching', '容灾切换中'),
+        ('INS_CLONING', '实例克隆中'),
+        ('Released', '已释放实例'),
+    )
+    Engine = (
+        ('MySQL', 'MySQL'),
+        ('SQLServer', 'SQLServer'),
+        ('PostgreSQL', 'PostgreSQL'),
+        ('MariaDB', 'MariaDB'),
+    )
+    DBInstanceType = (
+        ('Primary', '主实例'),
+        ('Readonly', '只读实例'),
+        ('Guard', '灾备实例'),
+        ('Temp', '临时实例'),
+    )
+    Category = (
+        ('Basic', '基础版'),
+        ('HighAvailability', '高可用版'),
+        ('Finance', '三节点企业版'),
+    )
+    InstanceNetworkType = (
+        ('VPC', '专有网络'),
+        ('Classic', '经典网络'),
+    )
+    DBInstanceNetType = (
+        ('Internet', '外网连接'),
+        ('Intranet', '内网连接'),
+    )
+    PayType = (
+        ('Postpaid', '按量付费'),
+        ('Prepaid', '包年包月'),
+    )
+    ConnectionMode = (
+        ('Standard', '标准访问模式'),
+        ('Safe', '数据库代理模式'),
+    )
+    LockMode = (
+        ('Unlock', '正常'),
+        ('ManualLock', '手动触发锁定'),
+        ('LockByExpiration', '实例过期自动锁定'),
+        ('LockByRestoration', '实例回滚前自动锁定'),
+        ('LockByDiskQuota', '实例空间满自动锁定'),
+        ('Released', '实例已释放'),
+        ('Safe', '数据库代理模式'),
+    )
+    DBInstanceClassType = (
+        ('s', '共享型'),
+        ('x', '通用型'),
+        ('d', '独享套餐'),
+        ('h', '独占物理机'),
+    )
+
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='RDSInProject'
+    )
+
+    """ RDS Instance Property """
+    product_type = models.CharField(default=ProductType.CSC.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    master_instance_id = models.CharField(default='', verbose_name='MasterInstanceId', db_comment='主实例的ID，如果没有返回此参数（即为null）则表示该实例是主实例')
+    guard_db_instance_id = models.CharField(default='', verbose_name='GuardDBInstanceId', db_comment='主实例如果有灾备实例，该参数即为灾备实例的ID')
+    db_instance_description = models.CharField(default='', verbose_name='DBInstanceDescription', db_comment='实例描述')
+    engine = models.CharField(default='MySQL', verbose_name='Engine', db_comment='数据库类型', choices=Engine)
+    db_instance_status = models.CharField(default='Running', verbose_name='DBInstanceStatus', db_comment='实例状态', choices=DBInstanceStatus)
+    db_instance_type = models.CharField(default='Primary', verbose_name='DBInstanceType', db_comment='实例类型', choices=DBInstanceType)
+    category = models.CharField(default='Basic', verbose_name='Category', db_comment='实例系列', choices=Category)
+
+    db_instance_class_type = models.CharField(default='', verbose_name='DBInstanceClassType', db_comment='实例规格族', choices=DBInstanceClassType)
+    db_instance_memory = models.IntegerField(default=0, verbose_name='DBInstanceMemory', db_comment='实例内存/Mb')
+    db_instance_cpu = models.CharField(default='2', verbose_name='DBInstanceCPU', db_comment='实例CPU数量')
+    db_instance_storage = models.IntegerField(default=0, verbose_name='DBInstanceStorage', db_comment='实例存储空间GB')
+
+    region_id = models.CharField(default='', verbose_name='RegionId', db_comment='地域ID')
+    instance_network_type = models.CharField(default='', verbose_name='InstanceNetworkType', db_comment='实例的网络类型', choices=InstanceNetworkType)
+    db_instance_net_type = models.CharField(default='', verbose_name='DBInstanceNetType', db_comment='实例的网络连接类型', choices=DBInstanceNetType)
+    # https://help.aliyun.com/zh/rds/product-overview/primary-apsaradb-rds-instance-types
+    db_instance_class = models.CharField(default='', verbose_name='DBInstanceClass', db_comment='实例规格')  # It's about hundreds of db instance class, can not be enum
+    engine_version = models.CharField(default='8.0', verbose_name='EngineVersion', db_comment='数据库版本')
+    pay_type = models.CharField(default='', verbose_name='PayType', db_comment='DB实例的付费类型', choices=PayType)
+    connection_mode = models.CharField(default='', verbose_name='ConnectionMode', db_comment='实例的访问模式', choices=ConnectionMode)
+    connection_string = models.CharField(default='', verbose_name='ConnectionString', db_comment='实例的连接地址')
+    create_time = models.CharField(default='', verbose_name='CreateTime', db_comment='创建时间')
+    expire_time = models.CharField(default='', verbose_name='ExpireTime', db_comment='到期时间')
+    destroy_time = models.CharField(default='', verbose_name='DestroyTime', db_comment='销毁时间')
+    lock_mode = models.CharField(default='', verbose_name='LockMode', db_comment='实例的锁定状态', choices=LockMode)
+    lock_reason = models.CharField(default='', verbose_name='LockReason', db_comment='实例被锁定的原因')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'RDS LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.db_instance_status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_rds_api_response'

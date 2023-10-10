@@ -11,6 +11,8 @@ from alibabacloud_sas20181203 import models as sas_20181203_models
 from alibabacloud_sas20181203.client import Client as CscApiClient
 from alibabacloud_slb20140515 import models as slb_20140515_models
 from alibabacloud_slb20140515.client import Client as SlbApiClient
+from alibabacloud_rds20140815.client import Client as RdsApiClient
+from alibabacloud_rds20140815 import models as rds_20140815_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 from alibabacloud_vpc20160428 import models as vpc_20160428_models
@@ -44,7 +46,7 @@ def get_ecs_api_response() -> APIResponse:
         client = EcsApiClient(set_api_client_config(
             project['project_access_key'],
             project['project_secret_key'],
-            settings.ENDPOINT['WAF_ENDPOINT']['oversea'])
+            settings.ENDPOINT['ECS_ENDPOINT']['oversea'])
         )
         for region in project['region']:
             describe_instances_request = ecs_20140526_models.DescribeInstancesRequest(region_id=region)
@@ -401,6 +403,71 @@ def get_csc_api_response() -> APIResponse:
                 return APIResponse(code=1, msg=error)
 
 
+@sync_to_async
+def get_rds_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    rds_total_count = 0
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['RDS_ENDPOINT']:
+            client = RdsApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['RDS_ENDPOINT'][endpoint]))
+            for region in project['region']:
+                describe_db_instances_request = rds_20140815_models.DescribeDBInstancesRequest(region_id=region)
+                try:
+                    # https://next.api.aliyun.com/api/Rds/2014-08-15/DescribeDBInstances
+                    db_list_res = client.describe_dbinstances_with_options(describe_db_instances_request, runtime)
+                    describe_rds_attribute_response_to_str = UtilClient.to_jsonstring(db_list_res)
+                    describe_rds_attribute_response_json_obj = json.loads(describe_rds_attribute_response_to_str)
+                    rds_list = describe_rds_attribute_response_json_obj['Items']
+                    rds_total_count = len(rds_list)
+                    for rds_instance in rds_list:
+                        describe_db_instance_detail = rds_20140815_models.DescribeDBInstanceAttributeRequest(dbinstance_id=rds_instance['DBInstanceId'])
+                        db_instance_detail_res = client.describe_dbinstance_attribute_with_options(describe_db_instance_detail, runtime)
+                        describe_rds_attribute_detail_response_to_str = UtilClient.to_jsonstring(db_instance_detail_res)
+                        db_instance_detail = json.loads(describe_rds_attribute_detail_response_to_str)
+                        request_id = describe_rds_attribute_response_json_obj['body']['RequestId'] + " " + db_instance_detail['body']['RequestId']
+                        rds = AlibabacloudSSLApiResponse(api_request_id=request_id,
+                                                         instance_id=rds_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         master_instance_id=rds_instance['MasterInstanceId'],
+                                                         guard_db_instance_id=rds_instance['GuardDBInstanceId'],
+                                                         db_instance_description=rds_instance['DBInstanceDescription'],
+                                                         engine=rds_instance['Engine'],
+                                                         db_instance_status=rds_instance['DBInstanceStatus'],
+                                                         db_instance_type=rds_instance['DBInstanceType'],
+                                                         category=rds_instance['Category'],
+                                                         db_instance_class_type=db_instance_detail['DBInstanceClassType'],  # detail
+                                                         db_instance_storage=db_instance_detail['DBInstanceStorage'],  # detail
+                                                         db_instance_memory=db_instance_detail['DBInstanceMemory'],  # detail
+                                                         db_instance_cpu=db_instance_detail['DBInstanceCPU'],  # detail
+                                                         region_id=rds_instance['RegionId'],
+                                                         instance_network_type=rds_instance['InstanceNetworkType'],
+                                                         db_instance_net_type=rds_instance['DBInstanceNetType'],
+                                                         db_instance_class=rds_instance['DBInstanceClass'],
+                                                         engine_version=rds_instance['EngineVersion'],
+                                                         pay_type=rds_instance['PayType'],
+                                                         connection_mode=rds_instance['ConnectionMode'],
+                                                         connection_string=rds_instance['ConnectionString'],
+                                                         create_time=rds_instance['CreateTime'],
+                                                         expire_time=rds_instance['ExpireTime'],
+                                                         destroy_time=rds_instance['DestroyTime'],
+                                                         lock_mode=rds_instance['LockMode'],
+                                                         lock_reason=rds_instance['LockReason'],
+                                                         )
+                        logger.info(rds.get_basic_info())
+                        rds.save()
+                    return APIResponse(code=0, msg='request successfully', total=rds_total_count)
+                except Exception as error:
+                    UtilClient.assert_as_string(error)
+                    return APIResponse(code=1, msg=error)
+
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -581,4 +648,30 @@ def get_csc_list(request):
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudCSCApiResponseSerializer(data, many=True)
     logger.info("{} call csc list api with conditions project_name: {}".format(request.user.username, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def call_rds_api(request):
+    return asyncio.run(get_rds_api_response())
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_rds_list(request):
+    try:
+        project_name = request.GET.get('project_name', None)
+        alibabacloud_rds_api_response = AlibabacloudRDSApiResponse.objects.all().order_by("project_id")
+        if project_name:
+            alibabacloud_rds_api_response = alibabacloud_rds_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_rds_api_response)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudRDSApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudCSCApiResponseSerializer(data, many=True)
+    logger.info("{} call rds list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

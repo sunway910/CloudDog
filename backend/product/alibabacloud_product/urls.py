@@ -24,4 +24,7 @@ urlpatterns = [
 
     path('api/csc/call', views.call_csc_api),
     path('api/csc/list', views.get_csc_list),
+
+    path('api/rds/call', views.call_rds_api),
+    path('api/rds/list', views.get_rds_list),
 ]

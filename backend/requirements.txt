@@ -9,13 +9,14 @@ django-apscheduler==0.6.2
 django-rest-swagger==2.2.0
 psycopg2==2.9.7
 
+alibabacloud_tea_console==0.0.1
+alibabacloud_tea_openapi==0.3.7
+alibabacloud_tea_util==0.3.11
 alibabacloud_waf_openapi20211001==2.0.2
 alibabacloud_ecs20140526==3.0.8
 alibabacloud_slb20140515==3.3.21
-alibabacloud_tea_openapi==0.3.7
-alibabacloud_tea_console==0.0.1
-alibabacloud_tea_util==0.3.11
 alibabacloud_alb20200616==1.0.19
 alibabacloud_vpc20160428==5.1.0
 alibabacloud_cas20200630==1.0.15
 alibabacloud_sas20181203==2.6.0
+alibabacloud_rds20140815==2.3.0
