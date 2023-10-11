@@ -40,9 +40,9 @@
         3.
             - [ ] NLB 监控
     4.
-        - [ ] RDS 监控
+        - [x] RDS 监控
     5.
-        - [ ] Redis 监控
+        - [x] Redis 监控
     6.
         - [x] Elastic Internet IP 监控
     7.
@@ -110,7 +110,7 @@
     16.
         - [ ] Echarts
     17.
-        - [ ] 
+        - [ ] ASGI
 
 ## 安装步骤 How To Start
 

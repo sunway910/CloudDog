@@ -40,9 +40,9 @@ This system is used to implement Finops of the cloud platform
         3.
             - [ ] NLB monitor
     4.
-        - [ ] RDS monitor
+        - [x] RDS monitor
     5.
-        - [ ] Redis monitor
+        - [x] Redis monitor
     6.
         - [x] Elastic Internet IP monitor
     7.
