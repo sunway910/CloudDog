@@ -146,13 +146,13 @@ class AlibabacloudWafApiResponse(ProductBaseModel):
 
     """ WAF Instance Property """
     product_type = models.CharField(default=ProductType.WAF.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
-    waf_status = models.IntegerField(default=None, verbose_name='WafStatus', db_comment='WAF实例的当前状态', choices=Status)
-    end_time = models.BigIntegerField(default=None, verbose_name='EndDate', db_comment='WAF实例的到期时间')
+    waf_status = models.IntegerField(default=0, verbose_name='WafStatus', db_comment='WAF实例的当前状态', choices=Status)
+    end_time = models.BigIntegerField(default=0, verbose_name='EndDate', db_comment='WAF实例的到期时间')
     edition = models.CharField(default='', max_length=40, verbose_name='Edition', db_comment='WAF实例的版本', choices=Edition)
     region = models.CharField(default='', max_length=30, verbose_name='Region', db_comment='WAF实例的地域', choices=Region)
     pay_type = models.CharField(default=None, verbose_name='PayType', db_comment='WAF实例的付费类型', choices=PayType)
     in_debt = models.IntegerField(default=0, verbose_name='InDebt', db_comment='WAF实例是否存在欠费', choices=InDebt)
-    start_time = models.BigIntegerField(default=None, verbose_name='StartTime', db_comment='购买时间')
+    start_time = models.BigIntegerField(default=0, verbose_name='StartTime', db_comment='购买时间')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -641,7 +641,7 @@ class AlibabacloudRedisApiResponse(ProductBaseModel):
     """ Redis Instance Property """
     product_type = models.CharField(default=ProductType.REDIS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
     private_ip = models.CharField(default='', verbose_name='PrivateIp', db_comment='实例的网络类型为经典网络时，不会返回本参数')
-    capacity = models.IntegerField(default='', verbose_name='Capacity', db_comment='实例容量MB')
+    capacity = models.IntegerField(default=0, verbose_name='Capacity', db_comment='实例容量MB')
     connection_domain = models.CharField(default='', verbose_name='ConnectionDomain', db_comment='实例的内网连接地址')
     charge_type = models.CharField(default='', verbose_name='ChargeType', db_comment='付费类型', choices=PayType)
     architecture_type = models.CharField(default='', verbose_name='ArchitectureType', db_comment='架构类型', choices=PayType)
