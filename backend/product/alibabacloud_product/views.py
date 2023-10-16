@@ -13,6 +13,8 @@ from alibabacloud_slb20140515 import models as slb_20140515_models
 from alibabacloud_slb20140515.client import Client as SlbApiClient
 from alibabacloud_rds20140815.client import Client as RdsApiClient
 from alibabacloud_rds20140815 import models as rds_20140815_models
+from alibabacloud_cloudfw20171207.client import Client as CfwApiClient
+from alibabacloud_cloudfw20171207 import models as cloudfw_20171207_models
 from alibabacloud_r_kvstore20150101.client import Client as R_kvstoreApiClient
 from alibabacloud_r_kvstore20150101 import models as r_kvstore_20150101_models
 from alibabacloud_tea_util import models as util_models
@@ -526,6 +528,47 @@ def get_redis_api_response() -> APIResponse:
                     return APIResponse(code=1, msg=error)
 
 
+@sync_to_async
+def get_cfw_api_response() -> APIResponse:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    cfw_total_count = 0
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['CFW_ENDPOINT']:
+            client = CfwApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['CFW_ENDPOINT'][endpoint]))
+            describe_vpc_firewall_list_request = cloudfw_20171207_models.DescribeVpcFirewallListRequest()
+            try:
+                # https://next.api.aliyun.com/api/Cloudfw/2017-12-07/DescribeVpcFirewallList
+                cfw_list_res = client.describe_vpc_firewall_list_with_options(describe_vpc_firewall_list_request, runtime)
+                describe_redis_attribute_response_to_str = UtilClient.to_jsonstring(cfw_list_res)
+                describe_redis_attribute_response_json_obj = json.loads(describe_redis_attribute_response_to_str)
+                cfw_list = describe_redis_attribute_response_json_obj['body']['VpcFirewalls']
+                cfw_total_count += describe_redis_attribute_response_json_obj['body']['TotalCount']
+                if cfw_total_count > 0:
+                    for num, cfw_instance in enumerate(cfw_list):
+                        cfw = AlibabacloudCFWApiResponse(api_request_id=(describe_redis_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=cfw_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         connect_type=cfw_instance['ConnectType'],
+                                                         region_status=cfw_instance['RegionStatus'],
+                                                         bandwidth=cfw_instance['Bandwidth'],
+                                                         vpc_firewall_name=cfw_instance['VpcFirewallName'],
+                                                         firewall_switch_status=cfw_instance['FirewallSwitchStatus'],
+                                                         )
+                        logger.info(cfw.get_basic_info())
+                        cfw.save()
+                return APIResponse(code=0, msg='request successfully', total=cfw_total_count)
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+                return APIResponse(code=1, msg=error)
+
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -758,4 +801,30 @@ def get_redis_list(request):
         return APIResponse(code=1, msg='no exist err')
     serializer = AlibabacloudRedisApiResponseSerializer(data, many=True)
     logger.info("{} call redis list api with conditions project_name: {}".format(request.user.username, project_name))
+    return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def call_cfw_api(request):
+    return asyncio.run(get_cfw_api_response())
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_cfw_list(request):
+    try:
+        project_name = request.GET.get('project_name', None)
+        alibabacloud_cfw_api_response = AlibabacloudCFWApiResponse.objects.all().order_by("project_id")
+        if project_name:
+            alibabacloud_cfw_api_response = alibabacloud_cfw_api_response.filter(project_name__icontains=project_name)
+        paginator = CustomPaginator(request, alibabacloud_cfw_api_response)
+        total = paginator.count
+        data = paginator.get_page()
+    except AlibabacloudCFWApiResponse.DoesNotExist:
+        return APIResponse(code=1, msg='no exist err')
+    serializer = AlibabacloudCFWApiResponseSerializer(data, many=True)
+    logger.info("{} call cfw list api with conditions project_name: {}".format(request.user.username, project_name))
     return APIResponse(code=0, msg='request successfully', total=total, data=serializer.data)

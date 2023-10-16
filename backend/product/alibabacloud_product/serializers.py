@@ -54,3 +54,9 @@ class AlibabacloudRedisApiResponseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = AlibabacloudRedisApiResponse
         fields = '__all__'
+
+
+class AlibabacloudCFWApiResponseSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = AlibabacloudCFWApiResponse
+        fields = '__all__'

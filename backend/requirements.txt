@@ -21,3 +21,4 @@ alibabacloud_cas20200630==1.0.15
 alibabacloud_sas20181203==2.6.0
 alibabacloud_rds20140815==2.3.0
 alibabacloud_r_kvstore20150101==2.22.0
+alibabacloud_cloudfw20171207==2.0.1

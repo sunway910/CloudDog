@@ -17,6 +17,7 @@ class ProductType(models.TextChoices):
     CSC = ('csc', '云安全中心')
     RDS = ('rds', '云数据库')
     REDIS = ('redis', 'Redis数据库')
+    CFW = ('cfw', '云防火墙')
 
     class Meta:
         app_label = 'ProductType'
@@ -669,3 +670,40 @@ class AlibabacloudRedisApiResponse(ProductBaseModel):
 
     class Meta:
         db_table = 'alibabacloud_redis_api_response'
+
+
+class AlibabacloudCFWApiResponse(ProductBaseModel):
+    RegionStatus = (
+        ('enable', '已开放，表示该地域允许配置VPC边界防火墙'),
+        ('disable', '未开放，表示该地域不允许配置VPC边界防火墙'),
+    )
+    FirewallSwitchStatus = (
+        ('opened', '已开启'),
+        ('closed', '已关闭'),
+        ('notconfigured', '表示暂未配置VPC边界防火墙'),
+    )
+
+    project = models.ForeignKey(
+        to="project.Project",
+        to_field="id",
+        on_delete=models.CASCADE,
+        related_name='CFWInProject'
+    )
+
+    """ Redis Instance Property """
+    product_type = models.CharField(default=ProductType.CFW.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
+    connect_type = models.CharField(default='', verbose_name='ConnectType', db_comment='VPC边界防火墙的互通类型')
+    region_status = models.CharField(default='', verbose_name='RegionStatus', db_comment='地域开放状态', choices=RegionStatus)
+    bandwidth = models.IntegerField(default=0, verbose_name='Bandwidth', db_comment='高速通道的带宽规格')
+    vpc_firewall_name = models.IntegerField(default=0, verbose_name='VpcFirewallName', db_comment='VPC边界防火墙的实例名称')
+    firewall_switch_status = models.IntegerField(default=0, verbose_name='FirewallSwitchStatus', db_comment='VPC边界防火墙开关的状态', choices=FirewallSwitchStatus)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def get_basic_info(self):
+        to_string = 'CFW LOG: {} \'s instance {} status is {}'.format(self.project_name, self.instance_id, self.firewall_switch_status)
+        return to_string
+
+    class Meta:
+        db_table = 'alibabacloud_cfw_api_response'

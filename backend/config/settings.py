@@ -327,6 +327,9 @@ ENDPOINT = {
         "cn-hongkong": 'r-kvstore.cn-hongkong.aliyuncs.com',  # https://api.aliyun.com/product/R-kvstore
         "mainland": 'r-kvstore.aliyuncs.com',
     },
+    "CFW_ENDPOINT": {
+        "general": 'cloudfw.aliyuncs.com',  # https://api.aliyun.com/product/Cloudfw
+    },
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

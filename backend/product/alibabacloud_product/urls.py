@@ -30,4 +30,7 @@ urlpatterns = [
 
     path('api/redis/call', views.call_redis_api),
     path('api/redis/list', views.get_redis_list),
+
+    path('api/cfw/call', views.call_cfw_api),
+    path('api/cfw/list', views.get_cfw_list),
 ]
