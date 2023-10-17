@@ -5,8 +5,14 @@ from alibabacloud_alb20200616 import models as alb_20200616_models
 from alibabacloud_alb20200616.client import Client as AlbApiClient
 from alibabacloud_cas20200630 import models as cas_20200630_models
 from alibabacloud_cas20200630.client import Client as casApiClient
+from alibabacloud_cloudfw20171207 import models as cloudfw_20171207_models
+from alibabacloud_cloudfw20171207.client import Client as CfwApiClient
 from alibabacloud_ecs20140526 import models as ecs_20140526_models
 from alibabacloud_ecs20140526.client import Client as EcsApiClient
+from alibabacloud_r_kvstore20150101 import models as r_kvstore_20150101_models
+from alibabacloud_r_kvstore20150101.client import Client as R_kvstoreApiClient
+from alibabacloud_rds20140815 import models as rds_20140815_models
+from alibabacloud_rds20140815.client import Client as RdsApiClient
 from alibabacloud_sas20181203 import models as sas_20181203_models
 from alibabacloud_sas20181203.client import Client as CscApiClient
 from alibabacloud_slb20140515 import models as slb_20140515_models
@@ -30,7 +36,7 @@ logger = logging.getLogger('clouddog')
 
 
 # cron: sunday 01:10AM exec the job
-# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ali_ecr_api_response')
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='10', id='get_ali_ecs_api_response')
 def get_ecs_api_response() -> None:
     project_list = (Project.objects.filter(status='Running',
                                            project_access_key__isnull=False,
@@ -266,7 +272,7 @@ def get_alb_api_response() -> None:
                 UtilClient.assert_as_string(error)
 
 
-# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='50', id='get_ali_alb_api_response')
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='50', id='get_ali_eip_api_response')
 def get_eip_api_response() -> None:
     project_list = (Project.objects.filter(status='Running',
                                            project_access_key__isnull=False,
@@ -325,7 +331,7 @@ def get_eip_api_response() -> None:
                 UtilClient.assert_as_string(error)
 
 
-# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='55', id='get_ali_alb_api_response')
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='1', minute='55', id='get_ali_ssl_api_response')
 def get_ssl_api_response() -> None:
     project_list = (Project.objects.filter(status='Running',
                                            project_access_key__isnull=False,
@@ -376,7 +382,7 @@ def get_ssl_api_response() -> None:
                 UtilClient.assert_as_string(error)
 
 
-# @register_job(scheduler, 'cron', day_of_week='sun', hour='2', minute='00', id='get_ali_alb_api_response')
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='2', minute='00', id='get_ali_csc_api_response')
 def get_csc_api_response() -> None:
     project_list = (Project.objects.filter(status='Running',
                                            project_access_key__isnull=False,
@@ -434,6 +440,162 @@ def get_csc_api_response() -> None:
                 UtilClient.assert_as_string(error)
 
 
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='2', minute='00', id='get_ali_rds_api_response')
+def get_rds_api_response() -> None:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    rds_total_count = 0
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['RDS_ENDPOINT']:
+            client = RdsApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['RDS_ENDPOINT'][endpoint]))
+            for region in project['region']:
+                describe_db_instances_request = rds_20140815_models.DescribeDBInstancesRequest(region_id=region)
+                try:
+                    # https://next.api.aliyun.com/api/Rds/2014-08-15/DescribeDBInstances
+                    db_list_res = client.describe_dbinstances_with_options(describe_db_instances_request, runtime)
+                    describe_rds_attribute_response_to_str = UtilClient.to_jsonstring(db_list_res)
+                    describe_rds_attribute_response_json_obj = json.loads(describe_rds_attribute_response_to_str)
+                    rds_list = describe_rds_attribute_response_json_obj['Items']
+                    rds_total_count += len(rds_list)
+                    for rds_instance in rds_list:
+                        # https://next.api.aliyun.com/api/Rds/2014-08-15/DescribeDBInstanceAttribute
+                        describe_db_instance_detail = rds_20140815_models.DescribeDBInstanceAttributeRequest(dbinstance_id=rds_instance['DBInstanceId'])
+                        db_instance_detail_res = client.describe_dbinstance_attribute_with_options(describe_db_instance_detail, runtime)
+                        describe_rds_attribute_detail_response_to_str = UtilClient.to_jsonstring(db_instance_detail_res)
+                        db_instance_detail = json.loads(describe_rds_attribute_detail_response_to_str)
+                        request_id = describe_rds_attribute_response_json_obj['body']['RequestId'] + " " + db_instance_detail['body']['RequestId']
+                        rds = AlibabacloudRDSApiResponse(api_request_id=request_id,
+                                                         instance_id=rds_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         master_instance_id=rds_instance['MasterInstanceId'],
+                                                         guard_db_instance_id=rds_instance['GuardDBInstanceId'],
+                                                         db_instance_description=rds_instance['DBInstanceDescription'],
+                                                         engine=rds_instance['Engine'],
+                                                         db_instance_status=rds_instance['DBInstanceStatus'],
+                                                         db_instance_type=rds_instance['DBInstanceType'],
+                                                         category=rds_instance['Category'],
+                                                         db_instance_class_type=db_instance_detail['DBInstanceClassType'],  # detail
+                                                         db_instance_storage=db_instance_detail['DBInstanceStorage'],  # detail
+                                                         db_instance_memory=db_instance_detail['DBInstanceMemory'],  # detail
+                                                         db_instance_cpu=db_instance_detail['DBInstanceCPU'],  # detail
+                                                         region_id=rds_instance['RegionId'],
+                                                         instance_network_type=rds_instance['InstanceNetworkType'],
+                                                         db_instance_net_type=rds_instance['DBInstanceNetType'],
+                                                         db_instance_class=rds_instance['DBInstanceClass'],
+                                                         engine_version=rds_instance['EngineVersion'],
+                                                         pay_type=rds_instance['PayType'],
+                                                         connection_mode=rds_instance['ConnectionMode'],
+                                                         connection_string=rds_instance['ConnectionString'],
+                                                         create_time=rds_instance['CreateTime'],
+                                                         expire_time=rds_instance['ExpireTime'],
+                                                         destroy_time=rds_instance['DestroyTime'],
+                                                         lock_mode=rds_instance['LockMode'],
+                                                         lock_reason=rds_instance['LockReason'],
+                                                         )
+                        logger.info(rds.get_basic_info())
+                        rds.save()
+                except Exception as error:
+                    UtilClient.assert_as_string(error)
+
+
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='2', minute='00', id='get_ali_redis_api_response')
+def get_redis_api_response() -> None:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    redis_total_count = 0
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['REDIS_ENDPOINT']:
+            client = R_kvstoreApiClient(set_api_client_config(project['project_access_key'],
+                                                              project['project_secret_key'],
+                                                              settings.ENDPOINT['REDIS_ENDPOINT'][endpoint]))
+            for region in project['region']:
+                describe_instances_request = r_kvstore_20150101_models.DescribeInstancesRequest(region_id=region)
+                try:
+                    # https://next.api.aliyun.com/api/R-kvstore/2015-01-01/DescribeInstances
+                    redis_list_res = client.describe_instances_with_options(describe_instances_request, runtime)
+                    describe_redis_attribute_response_to_str = UtilClient.to_jsonstring(redis_list_res)
+                    describe_redis_attribute_response_json_obj = json.loads(describe_redis_attribute_response_to_str)
+                    redis_list = describe_redis_attribute_response_json_obj['body']['Instances']
+                    redis_total_count += len(redis_list)
+                    for num, redis_instance in enumerate(redis_list):
+                        redis = AlibabacloudRedisApiResponse(api_request_id=(describe_redis_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                             instance_id=redis_instance['InstanceId'],
+                                                             project_name=project['project_name'],
+                                                             project_id=project['id'],
+                                                             private_ip=redis_instance['PrivateIp'],
+                                                             capacity=redis_instance['Capacity'],
+                                                             architecture_type=redis_instance['ArchitectureType'],
+                                                             network_type=redis_instance['NetworkType'],
+                                                             bandwidth=redis_instance['Bandwidth'],
+                                                             instance_name=redis_instance['InstanceName'],
+                                                             shard_count=redis_instance['ShardCount'],
+                                                             user_name=redis_instance['UserName'],
+                                                             instance_class=redis_instance['InstanceClass'],
+                                                             instance_type=redis_instance['InstanceType'],
+                                                             instance_status=redis_instance['InstanceStatus'],
+                                                             region_id=redis_instance['RegionId'],
+                                                             engine_version=redis_instance['EngineVersion'],
+                                                             charge_type=redis_instance['ChargeType'],
+                                                             connection_mode=redis_instance['ConnectionMode'],
+                                                             connection_domain=redis_instance['ConnectionDomain'],
+                                                             create_time=redis_instance['CreateTime'],
+                                                             expire_time=redis_instance['ExpireTime'],
+                                                             destroy_time=redis_instance['DestroyTime'],
+                                                             )
+                        logger.info(redis.get_basic_info())
+                        redis.save()
+                except Exception as error:
+                    UtilClient.assert_as_string(error)
+
+
+# @register_job(scheduler, 'cron', day_of_week='sun', hour='2', minute='00', id='get_ali_cfw_api_response')
+def get_cfw_api_response() -> None:
+    project_list = (Project.objects.filter(status='Running',
+                                           project_access_key__isnull=False,
+                                           project_secret_key__isnull=False).
+                    values('project_access_key', 'project_secret_key', 'region', 'project_name', 'id'))
+    runtime = util_models.RuntimeOptions()
+    cfw_total_count = 0
+    for project in project_list:
+        for endpoint in settings.ENDPOINT['CFW_ENDPOINT']:
+            client = CfwApiClient(set_api_client_config(project['project_access_key'],
+                                                        project['project_secret_key'],
+                                                        settings.ENDPOINT['CFW_ENDPOINT'][endpoint]))
+            describe_vpc_firewall_list_request = cloudfw_20171207_models.DescribeVpcFirewallListRequest()
+            try:
+                # https://next.api.aliyun.com/api/Cloudfw/2017-12-07/DescribeVpcFirewallList
+                cfw_list_res = client.describe_vpc_firewall_list_with_options(describe_vpc_firewall_list_request, runtime)
+                describe_redis_attribute_response_to_str = UtilClient.to_jsonstring(cfw_list_res)
+                describe_redis_attribute_response_json_obj = json.loads(describe_redis_attribute_response_to_str)
+                cfw_list = describe_redis_attribute_response_json_obj['body']['VpcFirewalls']
+                cfw_total_count += describe_redis_attribute_response_json_obj['body']['TotalCount']
+                if cfw_total_count > 0:
+                    for num, cfw_instance in enumerate(cfw_list):
+                        cfw = AlibabacloudCFWApiResponse(api_request_id=(describe_redis_attribute_response_json_obj['body']['RequestId'] + str(num)),
+                                                         instance_id=cfw_instance['InstanceId'],
+                                                         project_name=project['project_name'],
+                                                         project_id=project['id'],
+                                                         connect_type=cfw_instance['ConnectType'],
+                                                         region_status=cfw_instance['RegionStatus'],
+                                                         bandwidth=cfw_instance['Bandwidth'],
+                                                         vpc_firewall_name=cfw_instance['VpcFirewallName'],
+                                                         firewall_switch_status=cfw_instance['FirewallSwitchStatus'],
+                                                         )
+                        logger.info(cfw.get_basic_info())
+                        cfw.save()
+            except Exception as error:
+                UtilClient.assert_as_string(error)
+
+
 class AliECSDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_ecs_api_response()
@@ -454,6 +616,11 @@ class AliALBDjangoJobViewSet(DjangoJobViewSet, ABC):
         get_alb_api_response()
 
 
+class AliEIPDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_eip_api_response()
+
+
 class AliSSLDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_ssl_api_response()
@@ -462,3 +629,18 @@ class AliSSLDjangoJobViewSet(DjangoJobViewSet, ABC):
 class AliCSCDjangoJobViewSet(DjangoJobViewSet, ABC):
     def custom_job(self):
         get_csc_api_response()
+
+
+class AliRDSDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_rds_api_response()
+
+
+class AliRedisDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_redis_api_response()
+
+
+class AliCFWDjangoJobViewSet(DjangoJobViewSet, ABC):
+    def custom_job(self):
+        get_cfw_api_response()
