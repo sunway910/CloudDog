@@ -1,8 +1,10 @@
-from django.utils import timezone
-from django.db import models
-from project.models import Project
-from abc import abstractmethod
 import logging
+from abc import abstractmethod
+
+from django.db import models
+from django.utils import timezone
+
+from project.models import Project
 
 logger = logging.getLogger('clouddog')
 
