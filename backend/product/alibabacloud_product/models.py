@@ -553,7 +553,7 @@ class AlibabacloudRDSApiResponse(ProductBaseModel):
 
     """ RDS Instance Property """
     product_type = models.CharField(default=ProductType.RDS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
-    master_instance_id = models.CharField(default='', verbose_name='MasterInstanceId', db_comment='主实例的ID，如果没有返回此参数（即为null）则表示该实例是主实例')
+    master_instance_id = models.CharField(null=True, blank=True, default='', verbose_name='MasterInstanceId', db_comment='主实例的ID，如果没有返回此参数（即为null）则表示该实例是主实例')
     guard_db_instance_id = models.CharField(default='', verbose_name='GuardDBInstanceId', db_comment='主实例如果有灾备实例，该参数即为灾备实例的ID')
     db_instance_description = models.CharField(default='', verbose_name='DBInstanceDescription', db_comment='实例描述')
     engine = models.CharField(default='MySQL', verbose_name='Engine', db_comment='数据库类型', choices=Engine)
@@ -643,7 +643,7 @@ class AlibabacloudRedisApiResponse(ProductBaseModel):
 
     """ Redis Instance Property """
     product_type = models.CharField(default=ProductType.REDIS.value, max_length=70, verbose_name='ProductType', db_comment='云产品类型', choices=ProductType.choices)
-    private_ip = models.CharField(default='', verbose_name='PrivateIp', db_comment='实例的网络类型为经典网络时，不会返回本参数')
+    private_ip = models.CharField(null=True, blank=True, default='', verbose_name='PrivateIp', db_comment='实例的网络类型为经典网络时，不会返回本参数')
     capacity = models.IntegerField(default=0, verbose_name='Capacity', db_comment='实例容量MB')
     connection_domain = models.CharField(default='', verbose_name='ConnectionDomain', db_comment='实例的内网连接地址')
     charge_type = models.CharField(default='', verbose_name='ChargeType', db_comment='付费类型', choices=PayType)
