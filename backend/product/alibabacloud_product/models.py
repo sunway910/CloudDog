@@ -107,6 +107,11 @@ class AlibabacloudEcsApiResponse(ProductBaseModel):
     start_time = models.CharField(default='', max_length=50, verbose_name='StartTime', db_comment='实例最近一次的启动时间')
     auto_release_time = models.CharField(default='', max_length=50, verbose_name='AutoReleaseTime', db_comment='按量付费实例的自动释放时间')
     lock_reason = models.CharField(default='', max_length=30, verbose_name='LockReason', db_comment='实例的锁定原因', choices=LockReason)
+    ram = models.IntegerField(default=1024, verbose_name='RAM', db_comment='内存大小，单位为MiB')
+    cpu = models.IntegerField(default=1, verbose_name='CPU', db_comment='vCPU数')
+    osname = models.CharField(default='', verbose_name='OSName', db_comment='操作系统名称')
+    instance_type = models.CharField(default='ecs.g5.large', verbose_name='InstanceType', db_comment='实例规格')
+    zone_id = models.CharField(default='cn-hongkong-b', verbose_name='ZoneId', db_comment='实例所属可用区')
 
     def get_basic_info(self):
         to_string = 'ECS LOG: {} \'s instance {} in {} status is {}'.format(self.project_name, self.instance_name, self.region_id, self.ecs_status)
