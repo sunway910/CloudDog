@@ -63,6 +63,11 @@
             </template>
           </el-table-column>
 
+					<el-table-column prop="cpu_ram" align="center" :label=t(ecs_i18n.cpu_ram) show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="zone_id" align="center" :label=t(ecs_i18n.zone_id) show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="osname" align="center" :label=t(ecs_i18n.osname) show-overflow-tooltip width="120px"></el-table-column>
+					<el-table-column prop="instance_type" align="center" :label=t(ecs_i18n.instance_type) show-overflow-tooltip width="120px"></el-table-column>
+
           <el-table-column align="center" :label=t(base_i18n.region_id) show-overflow-tooltip width="150px" font-weight: bold>
             <template #default="scope" style="font-weight: bold">
               <div style="font-weight: bold">
@@ -127,234 +132,267 @@
 </template>
 
 <script setup lang="ts">
-import {h, reactive, ref} from 'vue';
-import {Refresh, Search} from '@element-plus/icons-vue';
-import {ElTooltip, ElMessage} from 'element-plus';
-import * as XLSX from 'xlsx';
-import {changeTimePattern, ecs_i18n, base_i18n} from "~/stores/utils";
+import { h, reactive, ref } from 'vue'
+import { Refresh, Search } from '@element-plus/icons-vue'
+import { ElTooltip, ElMessage } from 'element-plus'
+import * as XLSX from 'xlsx'
+import { changeTimePattern, ecs_i18n, base_i18n } from '~/stores/utils'
 
-const {t} = useI18n()
+const { t } = useI18n()
 const parentBorder = ref(true)
 const auth = ['admin', 'user']
 const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
 
-const StatusDescription = ref("" +
-    "(Pending, 创建中)--" +
-    "(Running, 运行中)--" +
-    "(Starting, 启动中)--" +
-    "(Stopping, 停止中)--" +
-    "(Stopped, 已停止)")
+const StatusDescription = ref(
+	'' +
+		'(Pending, 创建中)--' +
+		'(Running, 运行中)--' +
+		'(Starting, 启动中)--' +
+		'(Stopping, 停止中)--' +
+		'(Stopped, 已停止)',
+)
 
-const LockReasonDescription = ref("" +
-    "(financial, 因欠费被锁定)" +
-    "(security, 因安全原因被锁定)" +
-    "(Recycling, 抢占式实例的待释放锁定状态)" +
-    "(dedicatedhostfinancial, 因为专有宿主机欠费导致ECS实例被锁定)" +
-    "(refunded, 因退款被锁定)")
+const LockReasonDescription = ref(
+	'' +
+		'(financial, 因欠费被锁定)' +
+		'(security, 因安全原因被锁定)' +
+		'(Recycling, 抢占式实例的待释放锁定状态)' +
+		'(dedicatedhostfinancial, 因为专有宿主机欠费导致ECS实例被锁定)' +
+		'(refunded, 因退款被锁定)',
+)
 
-const InternetChargeTypeDescription = ref("" +
-    "(PayByBandwidth, 按固定带宽计费)" +
-    "(PayByTraffic, 按使用流量计费)")
+const InternetChargeTypeDescription = ref(
+	'' + '(PayByBandwidth, 按固定带宽计费)' + '(PayByTraffic, 按使用流量计费)',
+)
 
-const InstanceChargeTypeDescription = ref("" +
-    "(PostPaid, 按量付费)--" +
-    "(PrePaid, 包年包月)")
+const InstanceChargeTypeDescription = ref(
+	'' + '(PostPaid, 按量付费)--' + '(PrePaid, 包年包月)',
+)
 
-const StoppedModeDescription = ref("" +
-    "(KeepCharging, 停机后继续收费，为您继续保留库存资源)" +
-    "(Not-applicable, 停机后不收费。停机后会释放实例对应的资源，例如vCPU、内存和公网IP等资源)" +
-    "(StopCharging, 包年包月)")
+const StoppedModeDescription = ref(
+	'' +
+		'(KeepCharging, 停机后继续收费，为您继续保留库存资源)' +
+		'(Not-applicable, 停机后不收费。停机后会释放实例对应的资源，例如vCPU、内存和公网IP等资源)' +
+		'(StopCharging, 包年包月)',
+)
 
-
-const renderHeader = ({column}) => {
-  return h('span', {}, [
-    h(ElTooltip, {
-          effect: 'dark',
-          content: getDescription(column.label),
-          placement: 'top'
-        },
-        {default: () => column.label}
-    )
-  ])
+const renderHeader = ({ column }) => {
+	return h('span', {}, [
+		h(
+			ElTooltip,
+			{
+				effect: 'dark',
+				content: getDescription(column.label),
+				placement: 'top',
+			},
+			{ default: () => column.label },
+		),
+	])
 }
 
 // The pattern of Project
 interface ElasticComputeResource {
-  api_request_id: any,
-  instance_id: string,
-  request_time: string,
-  product_type: string,
-  project: string,
-  instance_name: string,
-  auto_renew_enabled: string,
-  renewal_status: string,
-  period_init: string,
-  duration: string,
-  region_id: string,
-  ecs_status: string,
-  instance_charge_type: string,
-  internet_charge_type: string,
-  expired_time: string,
-  stopped_mode: string,
-  start_time: string,
-  auto_release_time: string,
-  lock_reason: string,
+	api_request_id: any
+	instance_id: string
+	request_time: string
+	product_type: string
+	project: string
+	instance_name: string
+	auto_renew_enabled: string
+	renewal_status: string
+	period_init: string
+	duration: string
+	region_id: string
+	ecs_status: string
+	instance_charge_type: string
+	internet_charge_type: string
+	expired_time: string
+	stopped_mode: string
+	start_time: string
+	auto_release_time: string
+	lock_reason: string
+	cpu_ram: any
+	osname: string
+	instance_type: string
+	zone_id: string
 }
 
-const excelList = [[
-  'api_request_id',
-  'instance_id',
-  'request_time',
-  'product_type',
-  'project',
-  'instance_name',
-  'auto_renew_enabled',
-  'renewal_status',
-  'period_init',
-  'duration',
-  'region_id',
-  'ecs_status',
-  'instance_charge_type',
-  'internet_charge_type',
-  'expired_time',
-  'stopped_mode',
-  'start_time',
-  'auto_release_time',
-  'lock_reason',
-]];
-const elasticComputeResourceList = ref<ElasticComputeResource[]>([]);
-const pageTotal = ref(0);
+const excelList = [
+	[
+		'api_request_id',
+		'instance_id',
+		'request_time',
+		'product_type',
+		'project',
+		'instance_name',
+		'auto_renew_enabled',
+		'renewal_status',
+		'period_init',
+		'duration',
+		'region_id',
+		'ecs_status',
+		'instance_charge_type',
+		'internet_charge_type',
+		'expired_time',
+		'stopped_mode',
+		'start_time',
+		'auto_release_time',
+		'lock_reason',
+		'cpu_ram',
+		'osname',
+		'instance_type',
+		'zone_id',
+	],
+]
+const elasticComputeResourceList = ref<ElasticComputeResource[]>([])
+const pageTotal = ref(0)
 
 // The conditions of search api
 const queryConditions = reactive({
-  project_name: "",
-});
+	project_name: '',
+})
 
-let currentPageIndex = ref(1);
-let pageSize = ref(10);
+let currentPageIndex = ref(1)
+let pageSize = ref(10)
 
-const tableRowClassName = ({row}: { row: ElasticComputeResource }) => {
-  if (row.ecs_status === 'Running') {
-    return 'success-row'
-  } else {
-    return 'warning-row'
-  }
+const tableRowClassName = ({ row }: { row: ElasticComputeResource }) => {
+	if (row.ecs_status === 'Running') {
+		return 'success-row'
+	} else {
+		return 'warning-row'
+	}
 }
-
 
 // search ECR by project_name
 const getECSList = () => {
-  sendGetReq({
-    uri: "/ecs/list", params: {
-      project_name: queryConditions.project_name,
-      page_index: currentPageIndex.value,
-      page_size: pageSize.value
-    }
-  }).then((res) => {
-        pageTotal.value = parseInt(res.data.total)
-        elasticComputeResourceList.value = res.data.data
-      }
-  ).catch((err) => {
-    ElMessage.error(err || 'get ecs list error');
-  });
+	sendGetReq({
+		uri: '/ecs/list',
+		params: {
+			project_name: queryConditions.project_name,
+			page_index: currentPageIndex.value,
+			page_size: pageSize.value,
+		},
+	})
+		.then((res) => {
+			pageTotal.value = parseInt(res.data.total)
+			elasticComputeResourceList.value = res.data.data
+		})
+		.catch((err) => {
+			ElMessage.error(err || 'get ecs list error')
+		})
 }
 getECSList()
 
-
 const handlePageChange = (val: number) => {
-  currentPageIndex.value = val;
-  getECSList();
-};
+	currentPageIndex.value = val
+	getECSList()
+}
 
 const handleSizeChange = (val: number) => {
-  pageSize.value = val;
-  getECSList();
+	pageSize.value = val
+	getECSList()
 }
 
 const exportXlsx = () => {
-  elasticComputeResourceList.value.map((item: any) => {
-    let arr = [];
-    arr.push(item.api_request_id, item.instance_id, item.request_time,
-        item.product_type, item.project_name, item.instance_name, item.auto_renew_enabled,
-        item.renewal_status, item.period_init, item.duration, item.region_id,
-        item.ecs_status, item.instance_charge_type, item.internet_charge_type, item.expired_time,
-        item.stopped_mode, item.start_time, item.auto_release_time, item.lock_reason
-    );
-    excelList.push(arr);
-  });
-  let WorkSheet = XLSX.utils.aoa_to_sheet(excelList);
-  let new_workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(new_workbook, WorkSheet, 'ecr');
-  XLSX.writeFile(new_workbook, `ecr_summary.xlsx`);
-};
-
-
-const getDescription = (label: string) => {
-  switch (label) {
-    case "Status":
-      return StatusDescription.value;
-    case "Lock Reason":
-      return LockReasonDescription.value;
-    case "Internet Charge Type":
-      return InternetChargeTypeDescription.value;
-    case "Instance Charge Type":
-      return InstanceChargeTypeDescription.value;
-    case "Stopped Mode":
-      return StoppedModeDescription.value;
-    default:
-      return "-";
-  }
+	elasticComputeResourceList.value.map((item: any) => {
+		let arr = []
+		arr.push(
+			item.api_request_id,
+			item.instance_id,
+			item.request_time,
+			item.product_type,
+			item.project_name,
+			item.instance_name,
+			item.auto_renew_enabled,
+			item.renewal_status,
+			item.period_init,
+			item.duration,
+			item.region_id,
+			item.ecs_status,
+			item.instance_charge_type,
+			item.internet_charge_type,
+			item.expired_time,
+			item.stopped_mode,
+			item.start_time,
+			item.auto_release_time,
+			item.lock_reason,
+			item.cpu_ram,
+			item.osname,
+			item.instance_type,
+			item.zone_id,
+		)
+		excelList.push(arr)
+	})
+	let WorkSheet = XLSX.utils.aoa_to_sheet(excelList)
+	let new_workbook = XLSX.utils.book_new()
+	XLSX.utils.book_append_sheet(new_workbook, WorkSheet, 'ecs')
+	XLSX.writeFile(new_workbook, `ecs_summary.xlsx`)
 }
 
+const getDescription = (label: string) => {
+	switch (label) {
+		case 'Status':
+			return StatusDescription.value
+		case 'Lock Reason':
+			return LockReasonDescription.value
+		case 'Internet Charge Type':
+			return InternetChargeTypeDescription.value
+		case 'Instance Charge Type':
+			return InstanceChargeTypeDescription.value
+		case 'Stopped Mode':
+			return StoppedModeDescription.value
+		default:
+			return '-'
+	}
+}
 </script>
 
 <style>
 .handle-box {
-  margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .handle-select {
-  width: 150px;
+	width: 150px;
 }
 
 .handle-input {
-  width: 300px;
+	width: 300px;
 }
 
-
 .mr10 {
-  margin-right: 10px;
+	margin-right: 10px;
 }
 
 .product_container {
-  padding: 30px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+	padding: 30px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
 }
 
 .el-scrollbar__bar.is-horizontal {
-  height: 15px !important;
+	height: 15px !important;
 }
 
 .el-table .warning-row {
-  --el-table-tr-bg-color: var(--el-color-warning-light-9);
+	--el-table-tr-bg-color: var(--el-color-warning-light-9);
 }
 
 .el-table .success-row {
-  --el-table-tr-bg-color: var(--el-color-success-light-9);
+	--el-table-tr-bg-color: var(--el-color-success-light-9);
 }
 
 .el-popper.is-customized {
-  /* Set padding to ensure the height is 32px */
-  padding: 6px 12px;
-  background: linear-gradient(90deg, rgb(255, 255, 255), rgb(255, 255, 255));
+	/* Set padding to ensure the height is 32px */
+	padding: 6px 12px;
+	background: linear-gradient(90deg, rgb(255, 255, 255), rgb(255, 255, 255));
 }
 
 .el-popper.is-customized .el-popper__arrow::before {
-  background: linear-gradient(45deg, #b2e68d, #bce689);
-  right: 0;
+	background: linear-gradient(45deg, #b2e68d, #bce689);
+	right: 0;
 }
 </style>
