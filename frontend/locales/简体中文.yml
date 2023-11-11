@@ -83,6 +83,10 @@ stopped_mode: 实例停机后是否继续收费
 start_time: 实例最近一次的启动时间
 auto_release_time: 按量付费实例的自动释放时间
 lock_reason: 资源被锁定的原因
+osname: 操作系统类型
+zone_id: 可用区
+cpu_ram: 配置
+ecs_instance_type: 实例类型
 
 # WAF
 waf_status: 是否过期
@@ -130,7 +134,7 @@ ipv6_address_type: 应用型负载均衡IPv6的网络地址类型
 
 # EIP
 allocation_id: 实例ID
-instance_type: 绑定的实例类型
+eip_instance_type: 绑定的实例类型
 business_status: 业务状态
 reservation_bandwidth: 续费带宽
 ip_address: IP地址

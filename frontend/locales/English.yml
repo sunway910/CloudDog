@@ -84,6 +84,10 @@ expired_time: Expired Time
 stopped_mode: Stopped Mode
 start_time: Start Time
 lock_reason: Lock Reason
+osname: OS
+zone_id: Zone ID
+cpu_ram: Configuration
+ecs_instance_type: Instance Type
 
 # WAF
 waf_status: Status
@@ -132,7 +136,7 @@ ipv6_address_type: Ipv6AddressType
 
 # EIP
 allocation_id: AllocationId
-instance_type: InstanceType
+eip_instance_type: InstanceType
 business_status: BusinessStatus
 reservation_bandwidth: ReservationBandwidth
 ip_address: IpAddress

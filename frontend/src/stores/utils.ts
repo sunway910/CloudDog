@@ -54,6 +54,10 @@ export const ecs_i18n = {
     stopped_mode: "stopped_mode",
     start_time: "start_time",
     lock_reason: "lock_reason",
+    instance_type: "ecs_instance_type", // ecs.c5.xlarge
+    osname: "osname", // centos
+    zone_id: "zone_id", // cn-hongkong-b
+    cpu_ram: "cpu_ram", // 4C8G
 }
 export const waf_i18n = {
     waf_status: "waf_status",
@@ -105,7 +109,7 @@ export const lb_i18n = {
 }
 export const eip_i18n = {
     allocation_id: "allocation_id",
-    instance_type: "instance_type",
+    instance_type: "eip_instance_type",
     business_status: "business_status",
     reservation_bandwidth: "reservation_bandwidth",
     bandwidth: "bandwidth",
