@@ -6,6 +6,9 @@ A Finops tool base on Vue3, Django4 and Postgres
 
 [Demo](https://www.runsunway.com/login)
 
+Account: sunway
+Password: 123456
+
 **Dependency**
 
 - Python 3.11

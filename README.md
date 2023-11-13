@@ -6,6 +6,9 @@
 
 [测试地址](https://www.runsunway.com/login)
 
+Account: sunway
+Password: 123456
+
 **Dependency**
 
 - Python 3.11
