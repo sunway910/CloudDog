@@ -12,10 +12,10 @@ echo "Starting $NAME as `whoami`"
 cd $DJANGODIR
 
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
-python python manage.py migrate && \
+python manage.py migrate && \
 python manage.py makemigrations && \
-python manage.py makemigrations alibabacloud_product project message \
-  python manage.py migrate
+python manage.py makemigrations alibabacloud_product project message && \
+python manage.py migrate
 
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
