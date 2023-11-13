@@ -4,7 +4,7 @@
 
 A Finops tool base on Vue3, Django4 and Postgres
 
-[Demo](https://www.runsunway.com)
+[Demo](https://www.runsunway.com/login)
 
 **Dependency**
 

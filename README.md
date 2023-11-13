@@ -4,7 +4,7 @@
 
 基于 Vue3 + Django4 + Postgres 的Finops工具
 
-[测试地址](https://www.runsunway.com)
+[测试地址](https://www.runsunway.com/login)
 
 **Dependency**
 
