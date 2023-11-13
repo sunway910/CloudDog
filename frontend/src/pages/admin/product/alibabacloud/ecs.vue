@@ -32,7 +32,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" :label=t(base_i18n.project_name) show-overflow-tooltip width="100px">
+          <el-table-column align="center" :label=t(base_i18n.project_name) show-overflow-tooltip width="150px">
             <template #default="scope">
               <div style="font-weight: bold">
                 {{ scope.row.project_name }}

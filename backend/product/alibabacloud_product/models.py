@@ -108,7 +108,7 @@ class AlibabacloudEcsApiResponse(ProductBaseModel):
     auto_release_time = models.CharField(default='', max_length=50, verbose_name='AutoReleaseTime', db_comment='按量付费实例的自动释放时间')
     lock_reason = models.CharField(default='', max_length=30, verbose_name='LockReason', db_comment='实例的锁定原因', choices=LockReason)
     cpu_ram = models.CharField(default='4C8G', verbose_name='CpuRam', db_comment='服务器配置')
-    osname = models.CharField(default='', verbose_name='OSName', db_comment='操作系统名称')
+    osname = models.CharField(default='CentOS7', verbose_name='OSName', db_comment='操作系统名称')
     instance_type = models.CharField(default='ecs.g5.large', verbose_name='InstanceType', db_comment='实例规格')
     zone_id = models.CharField(default='cn-hongkong-b', verbose_name='ZoneId', db_comment='实例所属可用区')
 
